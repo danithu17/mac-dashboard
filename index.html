@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PulseHabit Pro — Multi-User macOS Edition</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"SF Pro Text"', 'Inter', 'sans-serif'],
+            mono: ['"SF Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    :root {
+      --glass-bg: rgba(255, 255, 255, 0.72);
+      --glass-border: rgba(0, 0, 0, 0.08);
+      --card-bg: rgba(255, 255, 255, 0.58);
+    }
+
+    html.dark {
+      --glass-bg: rgba(22, 22, 28, 0.72);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --card-bg: rgba(32, 32, 40, 0.55);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
+      overflow-x: hidden;
+      transition: background 0.5s ease;
+    }
+
+    .wp-sequoia {
+      background:
+        radial-gradient(circle at 18% 20%, rgba(255, 115, 75, 0.45) 0%, transparent 45%),
+        radial-gradient(circle at 82% 25%, rgba(56, 189, 248, 0.42) 0%, transparent 50%),
+        radial-gradient(circle at 50% 80%, rgba(99, 102, 241, 0.48) 0%, transparent 55%),
+        linear-gradient(135deg, #0b0f19 0%, #131b2e 50%, #1a162b 100%);
+    }
+
+    .wp-sonoma {
+      background:
+        radial-gradient(circle at 15% 75%, rgba(16, 185, 129, 0.42) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.38) 0%, transparent 45%),
+        radial-gradient(circle at 55% 50%, rgba(14, 165, 233, 0.40) 0%, transparent 55%),
+        linear-gradient(135deg, #091921 0%, #0f292f 50%, #181c2b 100%);
+    }
+
+    .wp-midnight {
+      background:
+        radial-gradient(circle at 30% 20%, rgba(139, 92, 246, 0.28) 0%, transparent 50%),
+        radial-gradient(circle at 75% 80%, rgba(37, 99, 235, 0.28) 0%, transparent 50%),
+        linear-gradient(160deg, #050508 0%, #0d0e15 60%, #08090f 100%);
+    }
+
+    .mac-window {
+      background: var(--glass-bg);
+      backdrop-filter: blur(40px) saturate(190%);
+      -webkit-backdrop-filter: blur(40px) saturate(190%);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.6), 0 0 0 0.5px rgba(255, 255, 255, 0.1) inset;
+    }
+
+    .mac-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(24px) saturate(160%);
+      -webkit-backdrop-filter: blur(24px) saturate(160%);
+      border: 1px solid var(--glass-border);
+    }
+
+    .ring-circle {
+      transition: stroke-dashoffset 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+    }
+
+    .check-cell {
+      transition: all 0.16s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .check-cell:active {
+      transform: scale(0.86);
+    }
+  </style>
+</head>
+<body class="wp-sequoia min-h-screen text-slate-900 dark:text-slate-100 flex flex-col justify-between p-2 sm:p-4 md:p-6">
+
+  <!-- =========================================================
+       MACOS LOCK SCREEN / MULTI-USER AUTHENTICATION OVERLAY
+       ========================================================= -->
+  <div id="lockScreen" class="fixed inset-0 z-50 flex flex-col items-center justify-between p-6 bg-black/40 backdrop-blur-2xl text-white transition-opacity duration-300">
+    <!-- Lock Screen Top Clock -->
+    <div class="text-center mt-8">
+      <div id="lockDate" class="text-sm font-medium tracking-wide text-white/80 uppercase"></div>
+      <div id="lockTime" class="text-6xl sm:text-7xl font-bold tracking-tight mt-1 font-sans"></div>
+    </div>
+
+    <!-- Center User Switcher / Login / Register Box -->
+    <div class="w-full max-w-sm bg-black/40 border border-white/15 backdrop-blur-2xl rounded-3xl p-6 shadow-2xl">
+      
+      <!-- Existing User Selector View -->
+      <div id="loginView" class="space-y-5">
+        <div class="text-center">
+          <h2 class="text-base font-semibold">Select Workspace Profile</h2>
+          <p class="text-xs text-white/60 mt-0.5">Each profile maintains isolated personal habit data</p>
+        </div>
+
+        <!-- Saved User Profiles List -->
+        <div id="userProfilesList" class="flex justify-center gap-4 flex-wrap py-2"></div>
+
+        <!-- Active Selected User Login Form -->
+        <form id="unlockForm" onsubmit="handleUnlock(event)" class="space-y-3 hidden">
+          <div class="text-center">
+            <div id="selectedUserAvatar" class="w-16 h-16 rounded-full mx-auto flex items-center justify-center text-2xl bg-white/10 border border-white/20 shadow-inner"></div>
+            <div id="selectedUserName" class="text-sm font-semibold mt-2"></div>
+            <div id="selectedUserRole" class="text-[11px] text-white/60"></div>
+          </div>
+
+          <div>
+            <input
+              id="unlockPinInput"
+              type="password"
+              required
+              placeholder="Enter Password or PIN"
+              class="w-full bg-white/10 border border-white/20 rounded-xl px-3.5 py-2 text-center text-sm text-white placeholder-white/50 focus:outline-none focus:border-blue-400"
+            />
+            <p id="loginErrorMsg" class="text-[11px] text-rose-400 text-center mt-1 hidden">Incorrect PIN / Password</p>
+          </div>
+
+          <div class="flex gap-2">
+            <button type="button" onclick="showAllUsersInLock()" class="flex-1 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-medium transition">
+              Switch User
+            </button>
+            <button type="submit" class="flex-1 py-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-xs font-semibold transition">
+              Unlock →
+            </button>
+          </div>
+        </form>
+
+        <div class="pt-2 border-t border-white/10 text-center">
+          <button onclick="toggleRegisterView(true)" class="text-xs text-blue-400 hover:text-blue-300 font-medium">
+            + Create New Personal Profile
+          </button>
+        </div>
+      </div>
+
+      <!-- Create New User Profile View -->
+      <form id="registerView" onsubmit="handleCreateUser(event)" class="space-y-3.5 hidden">
+        <div class="flex items-center justify-between">
+          <h2 class="text-sm font-semibold">Create Personal Account</h2>
+          <button type="button" onclick="toggleRegisterView(false)" class="text-xs text-white/60 hover:text-white">Cancel</button>
+        </div>
+
+        <div>
+          <label class="block text-[11px] text-white/70 mb-1">Display Name</label>
+          <input
+            id="regName"
+            type="text"
+            required
+            placeholder="e.g., Danithu"
+            class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-xs text-white placeholder-white/40 focus:outline-none focus:border-blue-400"
+          />
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-[11px] text-white/70 mb-1">Avatar</label>
+            <select id="regAvatar" class="w-full bg-white/10 border border-white/20 rounded-xl px-2.5 py-2 text-xs text-white focus:outline-none">
+              <option value="👨‍💻" class="text-black">👨‍💻 Developer</option>
+              <option value="🚀" class="text-black">🚀 Founder</option>
+              <option value="⚡" class="text-black">⚡ Creator</option>
+              <option value="🎯" class="text-black">🎯 Strategist</option>
+              <option value="🧠" class="text-black">🧠 Scholar</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] text-white/70 mb-1">Role / Tag</label>
+            <input
+              id="regRole"
+              type="text"
+              placeholder="e.g., Software Dev"
+              class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-xs text-white placeholder-white/40 focus:outline-none focus:border-blue-400"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] text-white/70 mb-1">Password / PIN (Local Protection)</label>
+          <input
+            id="regPin"
+            type="password"
+            required
+            placeholder="Create password or 4-digit PIN"
+            class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-xs text-white placeholder-white/40 focus:outline-none focus:border-blue-400"
+          />
+        </div>
+
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-xs font-semibold shadow-lg transition">
+          Create & Sign In
+        </button>
+      </form>
+
+    </div>
+
+    <!-- Bottom Lock Screen Bar -->
+    <div class="text-xs text-white/50 flex items-center gap-4 mb-2">
+      <span>🔒 Local Isolated Storage per User</span>
+      <span>•</span>
+      <span>Android Sync Ready (`YYYY-MM-DD`)</span>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MACOS TOP MENU BAR
+       ========================================================= -->
+  <header class="fixed top-0 left-0 right-0 h-7 px-4 flex items-center justify-between text-xs font-medium bg-black/35 backdrop-blur-xl text-white/90 z-40 border-b border-white/10">
+    <div class="flex items-center gap-4">
+      <span class="font-bold text-sm"></span>
+      <span class="font-semibold">PulseHabit Pro</span>
+      <button onclick="openHabitModal()" class="hover:text-white text-white/75 transition">New Habit</button>
+      <button onclick="openDataControlModal()" class="hover:text-white text-white/75 transition">Data & Account Controls</button>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <!-- Active User Pill -->
+      <button onclick="openDataControlModal()" class="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 px-2.5 py-0.5 rounded-full text-[11px] transition">
+        <span id="topUserAvatar">👤</span>
+        <span id="topUserName" class="font-semibold">Not Signed In</span>
+      </button>
+
+      <button onclick="lockSession()" class="bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 px-2 py-0.5 rounded text-[11px] transition" title="Lock Session / Switch User">
+        🔒 Lock
+      </button>
+
+      <span id="macClock" class="font-mono text-[11px] hidden sm:inline"></span>
+    </div>
+  </header>
+
+  <!-- =========================================================
+       MAIN MACOS WORKSPACE WINDOW
+       ========================================================= -->
+  <main id="appWindow" class="mac-window w-full max-w-7xl mx-auto mt-7 rounded-2xl overflow-hidden flex flex-col transition-all duration-300">
+    
+    <!-- Window Title Bar -->
+    <div class="h-12 px-4 flex flex-wrap items-center justify-between gap-2 border-b border-black/5 dark:border-white/10 bg-white/30 dark:bg-black/20">
+      <div class="flex items-center gap-2">
+        <button onclick="lockSession()" title="Lock Screen" class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] hover:opacity-80"></button>
+        <button onclick="windowAction('min')" class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] hover:opacity-80"></button>
+        <button onclick="windowAction('max')" class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] hover:opacity-80"></button>
+        <span id="workspaceHeaderTitle" class="ml-3 text-xs font-semibold tracking-tight opacity-80 hidden md:inline">Workspace</span>
+      </div>
+
+      <!-- Real Date Week Navigator -->
+      <div class="flex items-center gap-1.5 bg-black/10 dark:bg-white/10 p-1 rounded-xl text-xs">
+        <button onclick="shiftWeek(-1)" class="px-2 py-0.5 rounded-lg hover:bg-white/10 transition">‹ Prev</button>
+        <button onclick="resetToCurrentWeek()" id="weekRangeLabel" class="px-2.5 py-0.5 font-mono text-[11px] font-semibold">This Week</button>
+        <button onclick="shiftWeek(1)" class="px-2 py-0.5 rounded-lg hover:bg-white/10 transition">Next ›</button>
+      </div>
+
+      <!-- Right Controls -->
+      <div class="flex items-center gap-2">
+        <div class="hidden sm:flex bg-black/10 dark:bg-white/10 p-0.5 rounded-lg text-[11px] font-medium">
+          <button onclick="setWallpaper('sequoia')" id="wp-sequoia" class="px-2 py-1 rounded-md bg-white/20 text-white transition">Sequoia</button>
+          <button onclick="setWallpaper('sonoma')" id="wp-sonoma" class="px-2 py-1 rounded-md opacity-70 transition">Sonoma</button>
+          <button onclick="setWallpaper('midnight')" id="wp-midnight" class="px-2 py-1 rounded-md opacity-70 transition">Midnight</button>
+        </div>
+
+        <button onclick="toggleTheme()" class="p-1.5 rounded-lg bg-black/10 dark:bg-white/10 hover:bg-white/20 text-xs">
+          <span id="themeIcon">🌙</span>
+        </button>
+
+        <button onclick="openDataControlModal()" class="bg-black/10 dark:bg-white/10 hover:bg-white/20 text-xs font-medium px-2.5 py-1.5 rounded-lg transition">
+          ⚙️ Data Controls
+        </button>
+
+        <button onclick="openHabitModal()" class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg shadow-sm transition">
+          + New Habit
+        </button>
+      </div>
+    </div>
+
+    <!-- Dashboard Body -->
+    <div class="p-4 sm:p-6 space-y-6">
+
+      <!-- TOP ROW: Activity Rings + Weekly Streak Chart -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        
+        <!-- Apple Fitness Rings -->
+        <div class="mac-card rounded-2xl p-5 lg:col-span-5 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h2 class="text-sm font-semibold tracking-tight">Personal Activity Rings</h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Selected week progress</p>
+            </div>
+            <span id="streakBadge" class="text-xs font-mono px-2.5 py-1 rounded-full bg-orange-500/15 text-orange-400 border border-orange-500/20">
+              🔥 0 Active Days
+            </span>
+          </div>
+
+          <div class="flex items-center gap-6 my-auto py-2">
+            <div class="relative w-36 h-36 flex-shrink-0 flex items-center justify-center">
+              <svg class="w-full h-full" viewBox="0 0 140 140">
+                <circle cx="70" cy="70" r="56" stroke="rgba(250, 17, 79, 0.16)" stroke-width="11" fill="none" />
+                <circle cx="70" cy="70" r="42" stroke="rgba(164, 255, 0, 0.16)" stroke-width="11" fill="none" />
+                <circle cx="70" cy="70" r="28" stroke="rgba(0, 245, 234, 0.16)" stroke-width="11" fill="none" />
+
+                <circle id="ringOverall" class="ring-circle" cx="70" cy="70" r="56" stroke="#fa114f" stroke-width="11" stroke-linecap="round" fill="none" stroke-dasharray="351.86" stroke-dashoffset="351.86" />
+                <circle id="ringCraft" class="ring-circle" cx="70" cy="70" r="42" stroke="#a4ff00" stroke-width="11" stroke-linecap="round" fill="none" stroke-dasharray="263.89" stroke-dashoffset="263.89" />
+                <circle id="ringVitality" class="ring-circle" cx="70" cy="70" r="28" stroke="#00f5ea" stroke-width="11" stroke-linecap="round" fill="none" stroke-dasharray="175.93" stroke-dashoffset="175.93" />
+              </svg>
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <span id="ringCenterPct" class="text-lg font-bold font-mono">0%</span>
+              </div>
+            </div>
+
+            <div class="space-y-3 flex-1">
+              <div>
+                <div class="flex justify-between text-xs font-medium">
+                  <span class="text-[#fa114f]">● Overall Goal</span>
+                  <span id="labelOverall" class="font-mono">0% (0/0)</span>
+                </div>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400">All weekly habit check-ins</p>
+              </div>
+              <div>
+                <div class="flex justify-between text-xs font-medium">
+                  <span class="text-[#a4ff00]">● Craft & Intellect</span>
+                  <span id="labelCraft" class="font-mono">0%</span>
+                </div>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400">Coding & Reading</p>
+              </div>
+              <div>
+                <div class="flex justify-between text-xs font-medium">
+                  <span class="text-[#00f5ea]">● Vitality & Mind</span>
+                  <span id="labelVitality" class="font-mono">0%</span>
+                </div>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400">Fitness, Mindfulness & Hydration</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Weekly Streak Chart -->
+        <div class="mac-card rounded-2xl p-5 lg:col-span-7 flex flex-col justify-between">
+          <div class="flex items-center justify-between gap-2 mb-3">
+            <div>
+              <h2 class="text-sm font-semibold tracking-tight">Weekly Streak Chart</h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Real calendar date completion (`YYYY-MM-DD`)</p>
+            </div>
+            <div class="flex bg-black/10 dark:bg-white/10 p-0.5 rounded-lg text-xs">
+              <button onclick="setChartMode('spline')" id="btnSpline" class="px-2.5 py-1 rounded-md bg-blue-500 text-white font-medium transition">Spline</button>
+              <button onclick="setChartMode('bar')" id="btnBar" class="px-2.5 py-1 rounded-md opacity-70 transition">Columns</button>
+            </div>
+          </div>
+
+          <div id="chartContainer" class="relative h-44 w-full pt-2"></div>
+        </div>
+
+      </div>
+
+      <!-- MIDDLE ROW: 7-Day Real Date Habit Matrix -->
+      <div class="mac-card rounded-2xl p-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <div class="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
+            <button onclick="setFilter('All')" data-cat="All" class="cat-btn px-3 py-1 rounded-lg text-xs font-medium bg-blue-500 text-white transition">All</button>
+            <button onclick="setFilter('Coding')" data-cat="Coding" class="cat-btn px-3 py-1 rounded-lg text-xs font-medium bg-black/5 dark:bg-white/5 hover:bg-white/10 transition">Coding</button>
+            <button onclick="setFilter('Reading')" data-cat="Reading" class="cat-btn px-3 py-1 rounded-lg text-xs font-medium bg-black/5 dark:bg-white/5 hover:bg-white/10 transition">Reading</button>
+            <button onclick="setFilter('Fitness')" data-cat="Fitness" class="cat-btn px-3 py-1 rounded-lg text-xs font-medium bg-black/5 dark:bg-white/5 hover:bg-white/10 transition">Fitness</button>
+            <button onclick="setFilter('Mindfulness')" data-cat="Mindfulness" class="cat-btn px-3 py-1 rounded-lg text-xs font-medium bg-black/5 dark:bg-white/5 hover:bg-white/10 transition">Mindfulness</button>
+            <button onclick="setFilter('Hydration')" data-cat="Hydration" class="cat-btn px-3 py-1 rounded-lg text-xs font-medium bg-black/5 dark:bg-white/5 hover:bg-white/10 transition">Hydration</button>
+          </div>
+
+          <input
+            id="searchInput"
+            oninput="renderAll()"
+            type="text"
+            placeholder="Search personal habits..."
+            class="bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-blue-500 w-full sm:w-52"
+          />
+        </div>
+
+        <div id="habitMatrixContainer" class="overflow-x-auto"></div>
+      </div>
+
+      <!-- BOTTOM ROW: Focus Timer + 35-Day Real Calendar Heatmap + Personal Log -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        
+        <!-- Pomodoro Focus Timer -->
+        <div class="mac-card rounded-2xl p-5 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <h3 class="text-sm font-semibold">Focus Timer</h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Personal session tracker</p>
+            </div>
+            <select id="timerHabitSelect" class="bg-black/10 dark:bg-white/10 border border-white/10 rounded-lg px-2 py-1 text-xs focus:outline-none max-w-[135px] truncate">
+              <option value="">General Focus</option>
+            </select>
+          </div>
+
+          <div class="my-3 text-center">
+            <div id="timerDisplay" class="text-4xl font-mono font-bold tracking-tight">25:00</div>
+            <div class="flex justify-center gap-2 mt-2 text-[11px]">
+              <button onclick="setTimerPreset(25)" class="px-2 py-0.5 rounded bg-black/10 dark:bg-white/10">25m</button>
+              <button onclick="setTimerPreset(50)" class="px-2 py-0.5 rounded bg-black/10 dark:bg-white/10">50m</button>
+              <button onclick="setTimerPreset(5)" class="px-2 py-0.5 rounded bg-black/10 dark:bg-white/10">5m</button>
+            </div>
+          </div>
+
+          <div class="flex gap-2">
+            <button onclick="toggleTimer()" id="timerStartBtn" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold py-2 rounded-xl transition">Start</button>
+            <button onclick="setTimerPreset(25)" class="px-3 py-2 rounded-xl bg-black/10 dark:bg-white/10 text-xs font-medium">Reset</button>
+          </div>
+        </div>
+
+        <!-- 35-Day Real Calendar Consistency Heatmap -->
+        <div class="mac-card rounded-2xl p-5 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <h3 class="text-sm font-semibold">Last 35 Days Consistency</h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Real historical check-ins</p>
+            </div>
+            <span id="heatmapActiveDays" class="text-xs font-mono text-emerald-400">0 active days</span>
+          </div>
+
+          <div id="heatmapGrid" class="grid grid-cols-7 gap-1.5 my-auto py-2"></div>
+
+          <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1">
+            <span>0%</span>
+            <div class="flex items-center gap-1">
+              <span class="w-3 h-3 rounded-sm bg-black/10 dark:bg-white/5"></span>
+              <span class="w-3 h-3 rounded-sm bg-emerald-500/30"></span>
+              <span class="w-3 h-3 rounded-sm bg-emerald-500/60"></span>
+              <span class="w-3 h-3 rounded-sm bg-emerald-400"></span>
+            </div>
+            <span>100%</span>
+          </div>
+        </div>
+
+        <!-- Personal Daily Note & Mood -->
+        <div class="mac-card rounded-2xl p-5 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <h3 class="text-sm font-semibold">Today's Personal Log</h3>
+              <p id="todayDateLabel" class="text-[11px] font-mono text-slate-400"></p>
+            </div>
+            <span id="saveIndicator" class="text-[11px] text-emerald-400 font-mono">Saved</span>
+          </div>
+
+          <div class="flex items-center justify-between gap-1 my-1.5 bg-black/5 dark:bg-white/5 p-1 rounded-xl">
+            <button onclick="selectMood('⚡')" data-mood="⚡" class="mood-btn flex-1 py-1 rounded-lg text-sm">⚡</button>
+            <button onclick="selectMood('🔥')" data-mood="🔥" class="mood-btn flex-1 py-1 rounded-lg text-sm">🔥</button>
+            <button onclick="selectMood('😌')" data-mood="😌" class="mood-btn flex-1 rounded-lg py-1 text-sm">😌</button>
+            <button onclick="selectMood('😐')" data-mood="😐" class="mood-btn flex-1 py-1 rounded-lg text-sm">😐</button>
+            <button onclick="selectMood('🔋')" data-mood="🔋" class="mood-btn flex-1 py-1 rounded-lg text-sm">🔋</button>
+          </div>
+
+          <textarea
+            id="reflectionInput"
+            oninput="saveReflection()"
+            rows="3"
+            placeholder="Log personal notes for today..."
+            class="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl p-2.5 text-xs focus:outline-none focus:border-blue-500 resize-none"
+          ></textarea>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- =========================================================
+       MODAL 1: ADD / EDIT HABIT
+       ========================================================= -->
+  <div id="habitModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="mac-window w-full max-w-md rounded-2xl p-6 border border-white/15">
+      <div class="flex items-center justify-between mb-4">
+        <h3 id="habitModalTitle" class="text-base font-semibold">New Personal Habit</h3>
+        <button onclick="closeHabitModal()" class="text-slate-400 hover:text-white text-sm">✕</button>
+      </div>
+
+      <form id="habitForm" onsubmit="saveHabit(event)" class="space-y-4">
+        <input type="hidden" id="habitIdInput" />
+
+        <div>
+          <label class="block text-xs font-medium mb-1 opacity-80">Habit Title</label>
+          <input id="habitNameInput" type="text" required placeholder="e.g., Spring Boot API Development" class="w-full bg-black/10 dark:bg-white/10 border border-white/15 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-500" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium mb-1 opacity-80">Category</label>
+            <select id="habitCategoryInput" class="w-full bg-black/10 dark:bg-white/10 border border-white/15 rounded-xl px-3 py-2 text-sm focus:outline-none">
+              <option value="Coding">Coding</option>
+              <option value="Reading">Reading</option>
+              <option value="Fitness">Fitness</option>
+              <option value="Mindfulness">Mindfulness</option>
+              <option value="Hydration">Hydration</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium mb-1 opacity-80">Weekly Target (Days)</label>
+            <input id="habitTargetInput" type="number" min="1" max="7" value="7" required class="w-full bg-black/10 dark:bg-white/10 border border-white/15 rounded-xl px-3 py-2 text-sm focus:outline-none" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium mb-1 opacity-80">Icon</label>
+            <select id="habitIconInput" class="w-full bg-black/10 dark:bg-white/10 border border-white/15 rounded-xl px-3 py-2 text-sm focus:outline-none">
+              <option value="💻">💻 Code</option>
+              <option value="📚">📚 Read</option>
+              <option value="🏋️">🏋️ Workout</option>
+              <option value="🧘">🧘 Focus</option>
+              <option value="💧">💧 Hydrate</option>
+              <option value="⚡">⚡ Deep Work</option>
+              <option value="🎯">🎯 Goal</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium mb-1 opacity-80">Accent Color</label>
+            <select id="habitColorInput" class="w-full bg-black/10 dark:bg-white/10 border border-white/15 rounded-xl px-3 py-2 text-sm focus:outline-none">
+              <option value="#3b82f6">Blue</option>
+              <option value="#10b981">Emerald</option>
+              <option value="#f43f5e">Rose</option>
+              <option value="#a855f7">Purple</option>
+              <option value="#f59e0b">Amber</option>
+              <option value="#06b6d4">Cyan</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3 border-t border-white/10">
+          <button type="button" onclick="closeHabitModal()" class="px-4 py-2 rounded-xl bg-black/10 dark:bg-white/10 text-xs font-medium">Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold">Save Habit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MODAL 2: PERSONAL DATA CONTROLS & ANDROID SYNC SCHEMA
+       ========================================================= -->
+  <div id="dataControlModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="mac-window w-full max-w-2xl rounded-2xl p-6 border border-white/15 max-h-[90vh] overflow-y-auto space-y-5">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <div>
+          <h3 class="text-base font-semibold">Personal Account & Data Controls</h3>
+          <p class="text-xs text-slate-400">Isolated per-user storage & Android JSON Sync payload</p>
+        </div>
+        <button onclick="closeDataControlModal()" class="text-slate-400 hover:text-white text-sm">✕</button>
+      </div>
+
+      <!-- Active Profile Card -->
+      <div class="p-4 rounded-xl bg-black/10 dark:bg-white/5 border border-white/10 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div id="ctrlUserAvatar" class="w-12 h-12 rounded-full bg-blue-500/20 border border-blue-400/30 flex items-center justify-center text-2xl"></div>
+          <div>
+            <div id="ctrlUserName" class="text-sm font-bold"></div>
+            <div id="ctrlUserUid" class="text-[11px] font-mono text-slate-400"></div>
+            <div id="ctrlStorageKey" class="text-[11px] font-mono text-emerald-400"></div>
+          </div>
+        </div>
+
+        <div class="flex gap-2">
+          <button onclick="lockSession()" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-medium">
+            Switch User
+          </button>
+          <button onclick="exportPersonalJson()" class="px-3 py-1.5 rounded-lg bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold">
+            Export JSON
+          </button>
+          <label class="px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-xs font-semibold cursor-pointer">
+            Import JSON
+            <input type="file" accept=".json" onchange="importPersonalJson(event)" class="hidden" />
+          </label>
+        </div>
+      </div>
+
+      <!-- Live JSON Payload Preview (For Android / Firebase / REST Sync) -->
+      <div>
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-xs font-semibold">Live User JSON Payload (Android Companion Compatible)</span>
+          <button onclick="copyJsonPayload()" id="copyJsonBtn" class="text-[11px] text-blue-400 hover:underline">Copy JSON</button>
+        </div>
+        <pre id="jsonPayloadPreview" class="bg-black/40 text-emerald-300 font-mono text-[11px] p-3.5 rounded-xl overflow-x-auto max-h-48 border border-white/10"></pre>
+      </div>
+
+      <!-- Danger Zone: Per-User Controls -->
+      <div class="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h4 class="text-xs font-semibold text-rose-300">Danger Zone (Current Profile Only)</h4>
+          <p class="text-[11px] text-slate-400">Wipe only this user's habits/logs, or permanently delete this account.</p>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="clearCurrentUserData()" class="px-3 py-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/40 text-rose-200 text-xs font-medium">
+            Clear My Data
+          </button>
+          <button onclick="deleteCurrentUserAccount()" class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold">
+            Delete Account
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================
+    // MULTI-USER REGISTRY & ISOLATED STORAGE ARCHITECTURE
+    // =========================================================
+    const USERS_REGISTRY_KEY = 'pulsehabit_users_registry_v2';
+    const ACTIVE_SESSION_KEY = 'pulsehabit_active_uid_v2';
+    const USER_DATA_PREFIX   = 'pulsehabit_userdata_';
+
+    const DAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+    let usersRegistry = [];
+    let currentUser = null;
+    let selectedLockUid = null;
+    let weekOffset = 0; // 0 = current week, -1 = previous week, etc.
+
+    // Isolated personal state for the logged-in user (Zero dummy data)
+    let userData = createEmptyUserData();
+
+    function createEmptyUserData() {
+      return {
+        habits: [],       // [{ id, name, category, target, icon, color, createdAt }]
+        logs: {},         // { "YYYY-MM-DD": { habitId: true } }
+        dailyNotes: {},   // { "YYYY-MM-DD": { mood: "⚡", text: "..." } }
+        preferences: {
+          wallpaper: 'sequoia',
+          chartMode: 'spline'
+        }
+      };
+    }
+
+    // --- DATE HELPERS (YYYY-MM-DD) ---
+    function toDateKey(dateObj) {
+      const y = dateObj.getFullYear();
+      const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const d = String(dateObj.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function getWeekDates(offset = 0) {
+      const now = new Date();
+      const dayOfWeek = now.getDay(); // 0 (Sun) to 6 (Sat)
+      const diffToMonday = (dayOfWeek === 0 ? -6 : 1) - dayOfWeek;
+      const monday = new Date(now);
+      monday.setDate(now.getDate() + diffToMonday + (offset * 7));
+
+      const days = [];
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        days.push({
+          dateObj: d,
+          key: toDateKey(d),
+          label: DAY_LABELS[i],
+          dayNum: d.getDate(),
+          isToday: toDateKey(d) === toDateKey(new Date())
+        });
+      }
+      return days;
+    }
+
+    // --- USER REGISTRY & AUTHENTICATION ---
+    function loadUsersRegistry() {
+      try {
+        const raw = localStorage.getItem(USERS_REGISTRY_KEY);
+        usersRegistry = raw ? JSON.parse(raw) : [];
+      } catch (e) {
+        usersRegistry = [];
+      }
+    }
+
+    function saveUsersRegistry() {
+      localStorage.setItem(USERS_REGISTRY_KEY, JSON.stringify(usersRegistry));
+    }
+
+    function loadPersonalData(uid) {
+      try {
+        const raw = localStorage.getItem(USER_DATA_PREFIX + uid);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          userData = {
+            ...createEmptyUserData(),
+            ...parsed,
+            preferences: { ...createEmptyUserData().preferences, ...(parsed.preferences || {}) }
+          };
+        } else {
+          userData = createEmptyUserData();
+        }
+      } catch (e) {
+        userData = createEmptyUserData();
+      }
+    }
+
+    function savePersonalData() {
+      if (!currentUser) return;
+      localStorage.setItem(USER_DATA_PREFIX + currentUser.uid, JSON.stringify(userData));
+    }
+
+    // Render Lock Screen Profiles
+    function renderLockScreen() {
+      loadUsersRegistry();
+      const listEl = document.getElementById('userProfilesList');
+      const unlockForm = document.getElementById('unlockForm');
+
+      if (usersRegistry.length === 0) {
+        listEl.innerHTML = `
+          <div class="text-xs text-white/60 text-center py-3">
+            No local accounts found. Create your personal profile below.
+          </div>
+        `;
+        unlockForm.classList.add('hidden');
+        toggleRegisterView(true);
+        return;
+      }
+
+      toggleRegisterView(false);
+
+      if (selectedLockUid) {
+        const u = usersRegistry.find(x => x.uid === selectedLockUid);
+        if (u) {
+          listEl.classList.add('hidden');
+          unlockForm.classList.remove('hidden');
+          document.getElementById('selectedUserAvatar').textContent = u.avatar;
+          document.getElementById('selectedUserName').textContent = u.name;
+          document.getElementById('selectedUserRole').textContent = u.role || 'Personal Workspace';
+          document.getElementById('unlockPinInput').value = '';
+          document.getElementById('loginErrorMsg').classList.add('hidden');
+          setTimeout(() => document.getElementById('unlockPinInput').focus(), 50);
+          return;
+        }
+      }
+
+      listEl.classList.remove('hidden');
+      unlockForm.classList.add('hidden');
+
+      listEl.innerHTML = usersRegistry.map(u => `
+        <button
+          onclick="selectUserForUnlock('${u.uid}')"
+          class="flex flex-col items-center p-3 rounded-2xl bg-white/5 hover:bg-white/15 border border-white/10 transition w-24"
+        >
+          <span class="w-12 h-12 rounded-full flex items-center justify-center text-2xl bg-white/10 mb-1.5">${u.avatar}</span>
+          <span class="text-xs font-semibold truncate w-full text-center">${escapeHtml(u.name)}</span>
+          <span class="text-[10px] text-white/50 truncate w-full text-center">${escapeHtml(u.role || 'User')}</span>
+        </button>
+      `).join('');
+    }
+
+    function selectUserForUnlock(uid) {
+      selectedLockUid = uid;
+      renderLockScreen();
+    }
+
+    function showAllUsersInLock() {
+      selectedLockUid = null;
+      renderLockScreen();
+    }
+
+    function toggleRegisterView(showReg) {
+      document.getElementById('loginView').classList.toggle('hidden', showReg);
+      document.getElementById('registerView').classList.toggle('hidden', !showReg);
+    }
+
+    function handleCreateUser(e) {
+      e.preventDefault();
+      const name = document.getElementById('regName').value.trim();
+      const avatar = document.getElementById('regAvatar').value;
+      const role = document.getElementById('regRole').value.trim() || 'Personal';
+      const pin = document.getElementById('regPin').value;
+
+      if (!name || !pin) return;
+
+      const newUser = {
+        uid: 'usr_' + Date.now().toString(36),
+        name,
+        avatar,
+        role,
+        pinHash: btoa(unescape(encodeURIComponent(pin))),
+        createdAt: new Date().toISOString()
+      };
+
+      usersRegistry.push(newUser);
+      saveUsersRegistry();
+
+      document.getElementById('registerView').reset();
+      signInUser(newUser);
+    }
+
+    function handleUnlock(e) {
+      e.preventDefault();
+      const pin = document.getElementById('unlockPinInput').value;
+      const user = usersRegistry.find(u => u.uid === selectedLockUid);
+      if (!user) return;
+
+      const enteredHash = btoa(unescape(encodeURIComponent(pin)));
+      if (enteredHash !== user.pinHash) {
+        document.getElementById('loginErrorMsg').classList.remove('hidden');
+        return;
+      }
+
+      signInUser(user);
+    }
+
+    function signInUser(user) {
+      currentUser = user;
+      sessionStorage.setItem(ACTIVE_SESSION_KEY, user.uid);
+      loadPersonalData(user.uid);
+
+      // Hide Lock Screen
+      document.getElementById('lockScreen').classList.add('hidden');
+
+      // Update Menu & Header UI
+      document.getElementById('topUserAvatar').textContent = user.avatar;
+      document.getElementById('topUserName').textContent = user.name;
+      document.getElementById('workspaceHeaderTitle').textContent = `${user.name}'s Personal Workspace`;
+
+      // Apply user's personal preferences
+      setWallpaper(userData.preferences.wallpaper || 'sequoia');
+      setChartMode(userData.preferences.chartMode || 'spline');
+
+      // Load today's personal reflection
+      const todayKey = toDateKey(new Date());
+      document.getElementById('todayDateLabel').textContent = todayKey;
+      const noteObj = userData.dailyNotes[todayKey] || { mood: '', text: '' };
+      document.getElementById('reflectionInput').value = noteObj.text || '';
+
+      renderAll();
+    }
+
+    function lockSession() {
+      currentUser = null;
+      sessionStorage.removeItem(ACTIVE_SESSION_KEY);
+      selectedLockUid = null;
+      closeDataControlModal();
+      document.getElementById('lockScreen').classList.remove('hidden');
+      renderLockScreen();
+    }
+
+    // =========================================================
+    // HABIT CRUD & REAL CALENDAR CHECK-INS
+    // =========================================================
+    function toggleDayCheck(habitId, dateKey) {
+      if (!currentUser) return;
+      if (!userData.logs[dateKey]) {
+        userData.logs[dateKey] = {};
+      }
+      userData.logs[dateKey][habitId] = !userData.logs[dateKey][habitId];
+      if (!userData.logs[dateKey][habitId]) {
+        delete userData.logs[dateKey][habitId];
+      }
+      savePersonalData();
+      renderAll();
+    }
+
+    function openHabitModal(editId = null) {
+      if (!currentUser) return;
+      const modal = document.getElementById('habitModal');
+      const form = document.getElementById('habitForm');
+      form.reset();
+
+      if (editId) {
+        const h = userData.habits.find(x => x.id === editId);
+        if (!h) return;
+        document.getElementById('habitModalTitle').textContent = 'Edit Personal Habit';
+        document.getElementById('habitIdInput').value = h.id;
+        document.getElementById('habitNameInput').value = h.name;
+        document.getElementById('habitCategoryInput').value = h.category;
+        document.getElementById('habitTargetInput').value = h.target;
+        document.getElementById('habitIconInput').value = h.icon;
+        document.getElementById('habitColorInput').value = h.color;
+      } else {
+        document.getElementById('habitModalTitle').textContent = 'New Personal Habit';
+        document.getElementById('habitIdInput').value = '';
+      }
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.getElementById('habitNameInput').focus();
+    }
+
+    function closeHabitModal() {
+      const modal = document.getElementById('habitModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function saveHabit(e) {
+      e.preventDefault();
+      if (!currentUser) return;
+
+      const id = document.getElementById('habitIdInput').value;
+      const name = document.getElementById('habitNameInput').value.trim();
+      const category = document.getElementById('habitCategoryInput').value;
+      const target = Math.min(7, Math.max(1, parseInt(document.getElementById('habitTargetInput').value, 10) || 7));
+      const icon = document.getElementById('habitIconInput').value;
+      const color = document.getElementById('habitColorInput').value;
+
+      if (!name) return;
+
+      if (id) {
+        const existing = userData.habits.find(h => h.id === id);
+        if (existing) {
+          existing.name = name;
+          existing.category = category;
+          existing.target = target;
+          existing.icon = icon;
+          existing.color = color;
+        }
+      } else {
+        userData.habits.push({
+          id: 'hab_' + Date.now().toString(36),
+          name,
+          category,
+          target,
+          icon,
+          color,
+          createdAt: new Date().toISOString()
+        });
+      }
+
+      savePersonalData();
+      closeHabitModal();
+      renderAll();
+    }
+
+    function deleteHabit(habitId) {
+      if (!currentUser) return;
+      userData.habits = userData.habits.filter(h => h.id !== habitId);
+      savePersonalData();
+      renderAll();
+    }
+
+    // =========================================================
+    // PERSONAL DATA CONTROLS & ANDROID SYNC MODAL
+    // =========================================================
+    function openDataControlModal() {
+      if (!currentUser) return;
+      document.getElementById('ctrlUserAvatar').textContent = currentUser.avatar;
+      document.getElementById('ctrlUserName').textContent = `${currentUser.name} (${currentUser.role})`;
+      document.getElementById('ctrlUserUid').textContent = `UID: ${currentUser.uid}`;
+      document.getElementById('ctrlStorageKey').textContent = `Storage Key: ${USER_DATA_PREFIX}${currentUser.uid}`;
+
+      const syncPayload = {
+        uid: currentUser.uid,
+        profile: { name: currentUser.name, role: currentUser.role, avatar: currentUser.avatar },
+        syncedAt: new Date().toISOString(),
+        data: userData
+      };
+      document.getElementById('jsonPayloadPreview').textContent = JSON.stringify(syncPayload, null, 2);
+
+      const modal = document.getElementById('dataControlModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeDataControlModal() {
+      const modal = document.getElementById('dataControlModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function copyJsonPayload() {
+      const text = document.getElementById('jsonPayloadPreview').textContent;
+      navigator.clipboard.writeText(text);
+      const btn = document.getElementById('copyJsonBtn');
+      btn.textContent = 'Copied!';
+      setTimeout(() => { btn.textContent = 'Copy JSON'; }, 1500);
+    }
+
+    function exportPersonalJson() {
+      if (!currentUser) return;
+      const payload = {
+        uid: currentUser.uid,
+        profile: { name: currentUser.name, role: currentUser.role, avatar: currentUser.avatar },
+        exportedAt: new Date().toISOString(),
+        data: userData
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `pulsehabit_${currentUser.name.toLowerCase()}_backup.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importPersonalJson(event) {
+      const file = event.target.files[0];
+      if (!file || !currentUser) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          const incomingData = parsed.data ? parsed.data : parsed;
+          if (Array.isArray(incomingData.habits)) {
+            userData = {
+              ...createEmptyUserData(),
+              ...incomingData
+            };
+            savePersonalData();
+            renderAll();
+            openDataControlModal();
+          }
+        } catch (err) {
+          alert('Invalid JSON backup file.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function clearCurrentUserData() {
+      if (!currentUser) return;
+      if (!confirm(`Reset all habits and logs for ${currentUser.name}? Other user accounts will not be affected.`)) return;
+      userData = createEmptyUserData();
+      savePersonalData();
+      document.getElementById('reflectionInput').value = '';
+      closeDataControlModal();
+      renderAll();
+    }
+
+    function deleteCurrentUserAccount() {
+      if (!currentUser) return;
+      if (!confirm(`Permanently delete ${currentUser.name}'s account and all isolated personal data?`)) return;
+      localStorage.removeItem(USER_DATA_PREFIX + currentUser.uid);
+      usersRegistry = usersRegistry.filter(u => u.uid !== currentUser.uid);
+      saveUsersRegistry();
+      lockSession();
+    }
+
+    // =========================================================
+    // RENDERING ENGINE (RINGS, CHART, MATRIX, HEATMAP)
+    // =========================================================
+    let currentFilter = 'All';
+
+    function shiftWeek(delta) {
+      weekOffset += delta;
+      renderAll();
+    }
+
+    function resetToCurrentWeek() {
+      weekOffset = 0;
+      renderAll();
+    }
+
+    function renderMatrix() {
+      const container = document.getElementById('habitMatrixContainer');
+      const weekDays = getWeekDates(weekOffset);
+      const firstDay = weekDays[0].key.slice(5);
+      const lastDay = weekDays[6].key.slice(5);
+      document.getElementById('weekRangeLabel').textContent = weekOffset === 0 ? `This Week (${firstDay} – ${lastDay})` : `${firstDay} to ${lastDay}`;
+
+      const query = document.getElementById('searchInput').value.trim().toLowerCase();
+      const filtered = userData.habits.filter(h => {
+        const matchCat = currentFilter === 'All' || h.category === currentFilter;
+        const matchQ = h.name.toLowerCase().includes(query) || h.category.toLowerCase().includes(query);
+        return matchCat && matchQ;
+      });
+
+      if (userData.habits.length === 0) {
+        container.innerHTML = `
+          <div class="py-12 px-4 text-center border border-dashed border-black/10 dark:border-white/10 rounded-xl">
+            <div class="text-2xl mb-2">👤</div>
+            <h3 class="text-sm font-semibold">${currentUser ? escapeHtml(currentUser.name) + "'s" : 'Your'} Personal Habit Matrix is Empty</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto mt-1 mb-4">
+              Zero dummy data loaded. Add your first personal habit to track real calendar streaks.
+            </p>
+            <button onclick="openHabitModal()" class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold px-4 py-2 rounded-xl shadow transition">
+              + Add First Personal Habit
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      const rowsHtml = filtered.map(h => {
+        let doneCount = 0;
+        const cells = weekDays.map(d => {
+          const checked = !!(userData.logs[d.key] && userData.logs[d.key][h.id]);
+          if (checked) doneCount++;
+          return `
+            <td class="py-2.5 px-1.5 text-center">
+              <button
+                onclick="toggleDayCheck('${h.id}', '${d.key}')"
+                class="check-cell w-8 h-8 rounded-xl inline-flex items-center justify-center text-xs font-bold border transition"
+                style="${checked
+                  ? `background:${h.color}; border-color:${h.color}; color:#fff; box-shadow:0 4px 12px ${h.color}55;`
+                  : 'background:rgba(150,150,160,0.08); border-color:rgba(150,150,160,0.18);'}"
+                title="${d.key}"
+              >
+                ${checked ? '✓' : ''}
+              </button>
+            </td>
+          `;
+        }).join('');
+
+        const pct = Math.min(100, Math.round((doneCount / h.target) * 100));
+
+        return `
+          <tr class="border-b border-black/5 dark:border-white/5 hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition">
+            <td class="py-3 pr-4">
+              <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-xl flex items-center justify-center text-sm" style="background:${h.color}22; border:1px solid ${h.color}44;">
+                  ${h.icon}
+                </span>
+                <div>
+                  <div class="text-xs font-semibold">${escapeHtml(h.name)}</div>
+                  <div class="text-[10px] text-slate-400">${h.category} • Target ${h.target}d/wk</div>
+                </div>
+              </div>
+            </td>
+            ${cells}
+            <td class="py-3 pl-3 text-right font-mono text-xs">
+              <span class="px-2 py-0.5 rounded-md bg-black/5 dark:bg-white/10">${doneCount}/${h.target} (${pct}%)</span>
+            </td>
+            <td class="py-3 pl-2 text-right">
+              <button onclick="openHabitModal('${h.id}')" class="p-1 text-xs opacity-60 hover:opacity-100">✎</button>
+              <button onclick="deleteHabit('${h.id}')" class="p-1 text-xs text-rose-400 opacity-60 hover:opacity-100">🗑</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      container.innerHTML = `
+        <table class="w-full text-left border-collapse min-w-[620px]">
+          <thead>
+            <tr class="border-b border-black/10 dark:border-white/10 text-[11px] text-slate-400">
+              <th class="pb-2 font-medium uppercase">Habit</th>
+              ${weekDays.map(d => `
+                <th class="pb-2 text-center font-medium ${d.isToday ? 'text-blue-400 font-bold' : ''}">
+                  <div>${d.label}</div>
+                  <div class="text-[10px] font-mono opacity-75">${d.dayNum}</div>
+                </th>
+              `).join('')}
+              <th class="pb-2 text-right font-medium uppercase">Progress</th>
+              <th class="pb-2 text-right font-medium uppercase w-14">Edit</th>
+            </tr>
+          </thead>
+          <tbody>${rowsHtml}</tbody>
+        </table>
+      `;
+    }
+
+    function renderRingsAndChart() {
+      const weekDays = getWeekDates(weekOffset);
+      const totalHabits = userData.habits.length;
+
+      const countChecksForHabits = (habitSubset) => {
+        let count = 0;
+        weekDays.forEach(d => {
+          const dayLog = userData.logs[d.key] || {};
+          habitSubset.forEach(h => {
+            if (dayLog[h.id]) count++;
+          });
+        });
+        return count;
+      };
+
+      const totalChecks = countChecksForHabits(userData.habits);
+      const totalTarget = userData.habits.reduce((s, h) => s + h.target, 0);
+      const overallPct = totalTarget > 0 ? Math.min(100, Math.round((totalChecks / totalTarget) * 100)) : 0;
+
+      const craftHabits = userData.habits.filter(h => h.category === 'Coding' || h.category === 'Reading');
+      const craftTarget = craftHabits.reduce((s, h) => s + h.target, 0);
+      const craftPct = craftTarget > 0 ? Math.min(100, Math.round((countChecksForHabits(craftHabits) / craftTarget) * 100)) : 0;
+
+      const vitHabits = userData.habits.filter(h => ['Fitness', 'Mindfulness', 'Hydration'].includes(h.category));
+      const vitTarget = vitHabits.reduce((s, h) => s + h.target, 0);
+      const vitPct = vitTarget > 0 ? Math.min(100, Math.round((countChecksForHabits(vitHabits) / vitTarget) * 100)) : 0;
+
+      setRingOffset('ringOverall', 56, overallPct);
+      setRingOffset('ringCraft', 42, craftPct);
+      setRingOffset('ringVitality', 28, vitPct);
+
+      document.getElementById('ringCenterPct').textContent = `${overallPct}%`;
+      document.getElementById('labelOverall').textContent = `${overallPct}% (${totalChecks}/${totalTarget})`;
+      document.getElementById('labelCraft').textContent = `${craftPct}%`;
+      document.getElementById('labelVitality').textContent = `${vitPct}%`;
+
+      let activeWeekDays = 0;
+      const dailyPcts = weekDays.map(d => {
+        if (totalHabits === 0) return 0;
+        const dayLog = userData.logs[d.key] || {};
+        const done = userData.habits.filter(h => dayLog[h.id]).length;
+        if (done > 0) activeWeekDays++;
+        return Math.round((done / totalHabits) * 100);
+      });
+
+      document.getElementById('streakBadge').textContent = `🔥 ${activeWeekDays} Active Day${activeWeekDays === 1 ? '' : 's'}`;
+
+      // Render Chart
+      const chartContainer = document.getElementById('chartContainer');
+      const mode = userData.preferences.chartMode || 'spline';
+
+      if (mode === 'bar') {
+        chartContainer.innerHTML = `
+          <div class="flex items-end justify-between gap-2 h-full px-2">
+            ${weekDays.map((d, idx) => {
+              const pct = dailyPcts[idx];
+              return `
+                <div class="flex-1 flex flex-col items-center justify-end h-full">
+                  <div class="text-[10px] font-mono mb-1 opacity-75">${pct}%</div>
+                  <div class="w-full max-w-[32px] h-28 bg-black/10 dark:bg-white/5 rounded-xl overflow-hidden flex items-end p-0.5">
+                    <div class="w-full rounded-lg bg-gradient-to-t from-blue-600 to-cyan-400 transition-all duration-500" style="height:${Math.max(4, pct)}\%; opacity:${pct === 0 ? 0.2 : 1};"></div>
+                  </div>
+                  <span class="text-[11px] ${d.isToday ? 'text-blue-400 font-bold' : 'text-slate-400'} mt-1.5">${d.label}</span>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+        return;
+      }
+
+      const width = 560, height = 130, padX = 28, padY = 18;
+      const usableW = width - padX * 2, usableH = height - padY * 2;
+      const pts = dailyPcts.map((pct, i) => ({
+        x: padX + i * (usableW / 6),
+        y: padY + usableH - (pct / 100) * usableH,
+        pct,
+        label: weekDays[i].label
+      }));
+
+      let pathD = `M ${pts[0].x} ${pts[0].y}`;
+      for (let i = 0; i < pts.length - 1; i++) {
+        const p0 = pts[i], p1 = pts[i + 1];
+        const midX = p0.x + (p1.x - p0.x) / 2;
+        pathD += ` C ${midX} ${p0.y}, ${midX} ${p1.y}, ${p1.x} ${p1.y}`;
+      }
+      const areaD = `${pathD} L ${pts[6].x} ${height - padY} L ${pts[0].x} ${height - padY} Z`;
+
+      chartContainer.innerHTML = `
+        <svg viewBox="0 0 ${width} ${height + 22}" class="w-full h-full overflow-visible">
+          <defs>
+            <linearGradient id="splineGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.45"/>
+              <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.0"/>
+            </linearGradient>
+          </defs>
+          <path d="${areaD}" fill="url(#splineGrad)" />
+          <path d="${pathD}" fill="none" stroke="#3b82f6" stroke-width="2.8" stroke-linecap="round" />
+          ${pts.map(p => `
+            <g>
+              <circle cx="${p.x}" cy="${p.y}" r="4.5" fill="#3b82f6" stroke="#fff" stroke-width="1.5" />
+              <text x="${p.x}" y="${p.y - 9}" text-anchor="middle" class="text-[10px] fill-current opacity-75 font-mono">${p.pct}%</text>
+              <text x="${p.x}" y="${height + 12}" text-anchor="middle" class="text-[11px] fill-slate-400 font-medium">${p.label}</text>
+            </g>
+          `).join('')}
+        </svg>
+      `;
+    }
+
+    function setRingOffset(id, radius, pct) {
+      const circle = document.getElementById(id);
+      const c = 2 * Math.PI * radius;
+      circle.style.strokeDasharray = c.toFixed(2);
+      circle.style.strokeDashoffset = (c - (pct / 100) * c).toFixed(2);
+    }
+
+    // Real 35-Day Historical Heatmap
+    function renderHeatmap() {
+      const grid = document.getElementById('heatmapGrid');
+      const totalHabits = userData.habits.length;
+      let activeDays = 0;
+      let html = '';
+
+      const today = new Date();
+      for (let i = 34; i >= 0; i--) {
+        const d = new Date(today);
+        d.setDate(today.getDate() - i);
+        const key = toDateKey(d);
+        const dayLog = userData.logs[key] || {};
+        const doneCount = totalHabits > 0 ? userData.habits.filter(h => dayLog[h.id]).length : 0;
+        const ratio = totalHabits > 0 ? doneCount / totalHabits : 0;
+
+        if (doneCount > 0) activeDays++;
+
+        let bg = 'bg-black/10 dark:bg-white/5';
+        if (ratio > 0 && ratio < 0.4) bg = 'bg-emerald-500/30';
+        else if (ratio >= 0.4 && ratio < 0.8) bg = 'bg-emerald-500/60';
+        else if (ratio >= 0.8) bg = 'bg-emerald-400 shadow-sm shadow-emerald-500/50';
+
+        html += `<div class="h-5 rounded-md ${bg}" title="${key}: ${Math.round(ratio * 100)}%"></div>`;
+      }
+
+      grid.innerHTML = html;
+      document.getElementById('heatmapActiveDays').textContent = `${activeDays} active day${activeDays === 1 ? '' : 's'}`;
+    }
+
+    // --- MOOD & DAILY REFLECTION (PER USER, PER DATE) ---
+    function selectMood(mood) {
+      if (!currentUser) return;
+      const todayKey = toDateKey(new Date());
+      if (!userData.dailyNotes[todayKey]) userData.dailyNotes[todayKey] = { mood: '', text: '' };
+      userData.dailyNotes[todayKey].mood = userData.dailyNotes[todayKey].mood === mood ? '' : mood;
+      savePersonalData();
+      renderMood();
+    }
+
+    function renderMood() {
+      const todayKey = toDateKey(new Date());
+      const activeMood = (userData.dailyNotes[todayKey] && userData.dailyNotes[todayKey].mood) || '';
+      document.querySelectorAll('.mood-btn').forEach(btn => {
+        if (btn.dataset.mood === activeMood) {
+          btn.classList.add('bg-blue-500/30', 'ring-1', 'ring-blue-400');
+        } else {
+          btn.classList.remove('bg-blue-500/30', 'ring-1', 'ring-blue-400');
+        }
+      });
+    }
+
+    function saveReflection() {
+      if (!currentUser) return;
+      const todayKey = toDateKey(new Date());
+      if (!userData.dailyNotes[todayKey]) userData.dailyNotes[todayKey] = { mood: '', text: '' };
+      userData.dailyNotes[todayKey].text = document.getElementById('reflectionInput').value;
+      savePersonalData();
+      const ind = document.getElementById('saveIndicator');
+      ind.textContent = 'Saving...';
+      setTimeout(() => { ind.textContent = 'Saved'; }, 800);
+    }
+
+    // --- POMODORO TIMER ---
+    let timerSeconds = 25 * 60;
+    let timerInterval = null;
+
+    function updateTimerSelect() {
+      const select = document.getElementById('timerHabitSelect');
+      select.innerHTML = `<option value="">General Focus</option>` +
+        userData.habits.map(h => `<option value="${h.id}">${escapeHtml(h.icon + ' ' + h.name)}</option>`).join('');
+    }
+
+    function setTimerPreset(mins) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      timerSeconds = mins * 60;
+      const m = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
+      const s = String(timerSeconds % 60).padStart(2, '0');
+      document.getElementById('timerDisplay').textContent = `${m}:${s}`;
+      document.getElementById('timerStartBtn').textContent = 'Start';
+    }
+
+    function toggleTimer() {
+      const btn = document.getElementById('timerStartBtn');
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        btn.textContent = 'Resume';
+      } else {
+        btn.textContent = 'Pause';
+        timerInterval = setInterval(() => {
+          if (timerSeconds > 0) {
+            timerSeconds--;
+            const m = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
+            const s = String(timerSeconds % 60).padStart(2, '0');
+            document.getElementById('timerDisplay').textContent = `${m}:${s}`;
+          } else {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            btn.textContent = 'Start';
+          }
+        }, 1000);
+      }
+    }
+
+    // --- UI CONTROLS ---
+    function setFilter(cat) {
+      currentFilter = cat;
+      document.querySelectorAll('.cat-btn').forEach(btn => {
+        btn.className = btn.dataset.cat === cat
+          ? 'cat-btn px-3 py-1 rounded-lg text-xs font-medium bg-blue-500 text-white transition'
+          : 'cat-btn px-3 py-1 rounded-lg text-xs font-medium bg-black/5 dark:bg-white/5 hover:bg-white/10 transition';
+      });
+      renderMatrix();
+    }
+
+    function setChartMode(mode) {
+      userData.preferences.chartMode = mode;
+      document.getElementById('btnSpline').className = mode === 'spline'
+        ? 'px-2.5 py-1 rounded-md bg-blue-500 text-white font-medium transition'
+        : 'px-2.5 py-1 rounded-md opacity-70 transition';
+      document.getElementById('btnBar').className = mode === 'bar'
+        ? 'px-2.5 py-1 rounded-md bg-blue-500 text-white font-medium transition'
+        : 'px-2.5 py-1 rounded-md opacity-70 transition';
+      savePersonalData();
+      renderRingsAndChart();
+    }
+
+    function setWallpaper(wp) {
+      userData.preferences.wallpaper = wp;
+      document.body.classList.remove('wp-sequoia', 'wp-sonoma', 'wp-midnight');
+      document.body.classList.add(`wp-${wp}`);
+      ['sequoia', 'sonoma', 'midnight'].forEach(name => {
+        const el = document.getElementById(`wp-${name}`);
+        if (el) {
+          el.className = name === wp
+            ? 'px-2 py-1 rounded-md bg-white/20 text-white transition'
+            : 'px-2 py-1 rounded-md opacity-70 transition';
+        }
+      });
+      savePersonalData();
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      document.getElementById('themeIcon').textContent = isDark ? '🌙' : '☀️';
+    }
+
+    function windowAction(action) {
+      const win = document.getElementById('appWindow');
+      if (action === 'max') {
+        win.classList.toggle('max-w-7xl');
+        win.classList.toggle('max-w-full');
+      } else if (action === 'min') {
+        win.classList.toggle('scale-95');
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[m]));
+    }
+
+    function updateClocks() {
+      const now = new Date();
+      document.getElementById('macClock').textContent = now.toLocaleString('en-US', {
+        weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+      });
+      document.getElementById('lockDate').textContent = now.toLocaleDateString('en-US', {
+        weekday: 'long', month: 'long', day: 'numeric'
+      });
+      document.getElementById('lockTime').textContent = now.toLocaleTimeString('en-US', {
+        hour: '2-digit', minute: '2-digit', hour12: false
+      });
+    }
+
+    function renderAll() {
+      if (!currentUser) return;
+      renderMatrix();
+      renderRingsAndChart();
+      renderHeatmap();
+      updateTimerSelect();
+      renderMood();
+    }
+
+    // --- INITIALIZATION ---
+    updateClocks();
+    setInterval(updateClocks, 10000);
+    loadUsersRegistry();
+
+    const activeUid = sessionStorage.getItem(ACTIVE_SESSION_KEY);
+    const existingSessionUser = usersRegistry.find(u => u.uid === activeUid);
+    if (existingSessionUser) {
+      signInUser(existingSessionUser);
+    } else {
+      renderLockScreen();
+    }
+  </script>
+</body>
+</html>
