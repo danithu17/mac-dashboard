@@ -47,6 +47,29 @@
       box-sizing: border-box;
     }
 
+    html {
+      color-scheme: dark;
+    }
+
+    /* macOS Sleek Floating Scrollbar */
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.22);
+      border-radius: 9999px;
+      border: 1px solid transparent;
+      background-clip: padding-box;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.4);
+      background-clip: padding-box;
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Inter, system-ui, sans-serif;
       -webkit-font-smoothing: antialiased;
@@ -119,71 +142,21 @@
       transform: scale(0.88);
     }
 
-    /* Hide scrollbars for clean Apple look */
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
+    /* macOS Window Dragging */
+    .mac-titlebar {
+      -webkit-app-region: drag;
     }
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
+    .mac-no-drag, button, input, select, textarea, a {
+      -webkit-app-region: no-drag;
+    }
+
+    /* Traffic light symbol styling */
+    .traffic-btn:hover span {
+      opacity: 1 !important;
     }
   </style>
 </head>
-<body class="wp-sequoia text-slate-900 dark:text-slate-100 flex flex-col justify-between pt-12 md:pt-10 pb-6 px-2 sm:px-4 md:px-6">
-
-  <!-- =========================================================
-       1. GLOBAL APPLE TOP MENU BAR (RESPONSIVE)
-       ========================================================= -->
-  <header class="fixed top-0 left-0 right-0 h-10 md:h-7 px-3 md:px-4 flex items-center justify-between text-xs font-medium bg-black/60 md:bg-black/40 backdrop-blur-2xl text-white/90 z-40 border-b border-white/10 shadow-sm">
-    
-    <!-- Left: Apple SVG Logo + Title -->
-    <div class="flex items-center gap-2 md:gap-3">
-      <!-- Universal SVG Apple Logo (renders crisp on Android, Windows, Mac, Linux) -->
-      <button onclick="openSettingsModal('appearance')" class="flex items-center gap-1.5 hover:text-white transition group" title="PulseHabit System">
-        <svg class="w-4 h-4 fill-current text-white/95 group-hover:text-blue-400 transition" viewBox="0 0 170 170">
-          <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.69-3.04-7.67-7.81-11.96-14.34-5.7-8.66-10.15-18.79-13.32-30.4-3.18-11.61-4.77-22.75-4.77-33.43 0-14.15 3.42-26.04 10.27-35.66 6.84-9.63 15.66-14.51 26.46-14.65 4.9 0 10.42 1.34 16.58 4.02 6.16 2.68 10.16 4.08 12.01 4.2 1.85.12 6.08-1.42 12.69-4.63 6.6-3.21 12.18-4.63 16.73-4.26 12.44.75 22.45 5.48 30.04 14.18-10.84 6.53-16.14 15.54-15.9 27.03.24 10.14 4.14 18.66 11.69 25.57 7.55 6.91 16.53 10.81 26.94 11.69-2.22 6.75-4.73 13.59-7.53 20.52zM119.22 31.86c0-7.39 2.66-14.42 7.97-21.1 5.31-6.68 11.96-10.76 19.96-12.24.4 1.36.6 2.7.6 4.02 0 7.39-2.73 14.43-8.19 21.1-5.46 6.67-12.23 10.74-20.34 12.22z"/>
-        </svg>
-        <span class="font-bold tracking-tight text-[13px] md:text-xs">PulseHabit</span>
-      </button>
-
-      <!-- Desktop-only navigation links -->
-      <div class="hidden md:flex items-center gap-3 text-white/70 ml-2">
-        <button onclick="openHabitModal()" class="hover:text-white transition">New Habit</button>
-        <button onclick="openSettingsModal('general')" class="hover:text-white transition">System Settings...</button>
-        <button onclick="openSettingsModal('sync')" class="hover:text-white transition">Live Sync</button>
-      </div>
-    </div>
-
-    <!-- Right: User Avatar + Quick Actions + Clock + Lock -->
-    <div class="flex items-center gap-2">
-      <!-- Sync Status Indicator -->
-      <span id="syncIndicator" class="flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/20" title="Connected to Sync Server">
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span class="hidden xs:inline">Synced</span>
-      </span>
-
-      <!-- Active User Profile Button -->
-      <button onclick="openSettingsModal('profile')" class="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 px-2 py-1 md:py-0.5 rounded-full text-[11px] transition">
-        <span id="topUserAvatar" class="text-sm">👨‍💻</span>
-        <span id="topUserName" class="font-semibold max-w-[80px] truncate">User</span>
-        <span id="topUserLevel" class="text-[10px] font-mono text-amber-300 bg-amber-500/20 px-1.5 rounded-full">Lv.1</span>
-      </button>
-
-      <!-- Settings Icon (Mobile Quick Access) -->
-      <button onclick="openSettingsModal('general')" class="md:hidden p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white/90 transition" title="Settings">
-        <svg class="w-3.5 h-3.5 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-      </button>
-
-      <!-- Lock Screen Button -->
-      <button onclick="lockSession()" class="flex items-center gap-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 px-2 py-1 md:py-0.5 rounded-lg text-[11px] font-semibold transition" title="Lock Workspace">
-        <svg class="w-3 h-3 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-        <span class="hidden xs:inline">Lock</span>
-      </button>
-
-      <!-- Clock (Desktop) -->
-      <span id="macClock" class="font-mono text-[11px] hidden lg:inline ml-1 text-white/80"></span>
-    </div>
-  </header>
+<body class="wp-sequoia text-slate-900 dark:text-slate-100 min-h-screen m-0 p-0 overflow-x-hidden flex flex-col">
 
   <!-- =========================================================
        2. FIRST-TIME BOOT WIZARD (WHEN ZERO ACCOUNTS EXIST)
@@ -338,40 +311,81 @@
   <!-- =========================================================
        4. MAIN WORKSPACE CONTAINER
        ========================================================= -->
-  <main id="appWindow" class="mac-window w-full max-w-7xl mx-auto rounded-2xl md:rounded-3xl overflow-hidden flex flex-col transition-all duration-300">
+  <main id="appWindow" class="w-full min-h-screen flex flex-col transition-all duration-300">
     
-    <!-- Window Title Bar (Responsive) -->
-    <div class="h-14 md:h-12 px-3 md:px-4 flex items-center justify-between gap-2 border-b border-black/5 dark:border-white/10 bg-white/40 dark:bg-black/25">
+    <!-- Unified macOS Sequoia Title Bar (Single Native Window Header) -->
+    <header class="mac-titlebar sticky top-0 z-40 h-[52px] px-3 sm:px-4 flex items-center justify-between border-b border-white/10 bg-[#0c1017]/90 dark:bg-[#0c1017]/90 backdrop-blur-2xl shadow-sm select-none">
       
-      <!-- Traffic Light Buttons (Desktop) or Title (Mobile) -->
-      <div class="flex items-center gap-2">
-        <div class="hidden sm:flex items-center gap-2">
-          <button onclick="lockSession()" class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] hover:opacity-80" title="Lock"></button>
-          <button onclick="windowAction('min')" class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] hover:opacity-80" title="Compact"></button>
-          <button onclick="windowAction('max')" class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] hover:opacity-80" title="Expand"></button>
+      <!-- Left: Apple Traffic Lights + Brand & Workspace Title -->
+      <div class="flex items-center gap-3">
+        <!-- Authentic macOS Traffic Lights -->
+        <div class="flex items-center gap-2 group/lights mac-no-drag">
+          <button onclick="windowAction('close')" class="traffic-btn w-3.5 h-3.5 rounded-full bg-[#ff5f56] border border-[#e0443e] flex items-center justify-center text-[8px] text-[#4c0002] font-bold shadow-sm hover:opacity-100 transition" title="Close">
+            <span class="opacity-0 transition-opacity">✕</span>
+          </button>
+          <button onclick="windowAction('min')" class="traffic-btn w-3.5 h-3.5 rounded-full bg-[#ffbd2e] border border-[#dea123] flex items-center justify-center text-[8px] text-[#5c3c00] font-bold shadow-sm hover:opacity-100 transition" title="Minimize">
+            <span class="opacity-0 transition-opacity">−</span>
+          </button>
+          <button onclick="windowAction('max')" class="traffic-btn w-3.5 h-3.5 rounded-full bg-[#27c93f] border border-[#1aab29] flex items-center justify-center text-[8px] text-[#003d07] font-bold shadow-sm hover:opacity-100 transition" title="Zoom / Maximize">
+            <span class="opacity-0 transition-opacity">+</span>
+          </button>
         </div>
-        <span id="workspaceHeaderTitle" class="text-xs font-bold tracking-tight opacity-90 truncate max-w-[130px] sm:max-w-none">Workspace</span>
+
+        <!-- Brand & Workspace Title -->
+        <div class="flex items-center gap-2 pl-1 mac-no-drag">
+          <svg class="w-4 h-4 fill-current text-white/95" viewBox="0 0 170 170">
+            <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.69-3.04-7.67-7.81-11.96-14.34-5.7-8.66-10.15-18.79-13.32-30.4-3.18-11.61-4.77-22.75-4.77-33.43 0-14.15 3.42-26.04 10.27-35.66 6.84-9.63 15.66-14.51 26.46-14.65 4.9 0 10.42 1.34 16.58 4.02 6.16 2.68 10.16 4.08 12.01 4.2 1.85.12 6.08-1.42 12.69-4.63 6.6-3.21 12.18-4.63 16.73-4.26 12.44.75 22.45 5.48 30.04 14.18-10.84 6.53-16.14 15.54-15.9 27.03.24 10.14 4.14 18.66 11.69 25.57 7.55 6.91 16.53 10.81 26.94 11.69-2.22 6.75-4.73 13.59-7.53 20.52zM119.22 31.86c0-7.39 2.66-14.42 7.97-21.1 5.31-6.68 11.96-10.76 19.96-12.24.4 1.36.6 2.7.6 4.02 0 7.39-2.73 14.43-8.19 21.1-5.46 6.67-12.23 10.74-20.34 12.22z"/>
+          </svg>
+          <span class="font-bold text-xs tracking-tight">PulseHabit</span>
+          <span class="text-white/30 text-xs font-mono hidden sm:inline">/</span>
+          <span id="workspaceHeaderTitle" class="text-xs font-semibold text-white/80 truncate max-w-[130px] sm:max-w-none hidden sm:inline">Workspace</span>
+        </div>
       </div>
 
-      <!-- Week Navigator (Centered & Touch-Friendly) -->
-      <div class="flex items-center gap-1 bg-black/10 dark:bg-white/10 p-1 rounded-xl text-xs">
-        <button onclick="shiftWeek(-1)" class="px-2 py-1 rounded-lg hover:bg-white/15 active:scale-95 transition" title="Previous Week">‹</button>
-        <button onclick="resetToCurrentWeek()" id="weekRangeLabel" class="px-2 sm:px-2.5 py-1 font-mono text-[11px] font-semibold text-center truncate max-w-[150px]">This Week</button>
-        <button onclick="shiftWeek(1)" class="px-2 py-1 rounded-lg hover:bg-white/15 active:scale-95 transition" title="Next Week">›</button>
+      <!-- Center: Week Navigator -->
+      <div class="flex items-center gap-1 bg-black/20 dark:bg-white/10 p-1 rounded-xl text-xs mac-no-drag border border-white/10 shadow-inner">
+        <button onclick="shiftWeek(-1)" class="px-2 py-0.5 rounded-lg hover:bg-white/15 active:scale-95 transition" title="Previous Week">‹</button>
+        <button onclick="resetToCurrentWeek()" id="weekRangeLabel" class="px-2.5 py-0.5 font-mono text-[11px] font-semibold text-center truncate">This Week</button>
+        <button onclick="shiftWeek(1)" class="px-2 py-0.5 rounded-lg hover:bg-white/15 active:scale-95 transition" title="Next Week">›</button>
       </div>
 
-      <!-- Action Buttons -->
-      <div class="flex items-center gap-1.5 sm:gap-2">
-        <button onclick="openSettingsModal('general')" class="hidden md:flex items-center gap-1 bg-black/10 dark:bg-white/10 hover:bg-white/20 text-xs font-medium px-3 py-1.5 rounded-lg transition">
-          <svg class="w-3.5 h-3.5 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-          <span>Settings</span>
-        </button>
+      <!-- Right: Action Buttons, Settings, Sync, User Profile, Lock, Clock -->
+      <div class="flex items-center gap-1.5 sm:gap-2 mac-no-drag">
+        <!-- New Habit Button -->
         <button onclick="openHabitModal()" class="flex items-center gap-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold px-2.5 sm:px-3 py-1.5 rounded-xl shadow-md active:scale-95 transition">
           <span class="text-sm leading-none">+</span>
           <span class="hidden xs:inline">New Habit</span>
         </button>
+
+        <!-- Settings Button -->
+        <button onclick="openSettingsModal('general')" class="flex items-center gap-1 bg-black/20 dark:bg-white/10 hover:bg-white/20 text-xs font-medium p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl border border-white/10 transition" title="Settings">
+          <svg class="w-3.5 h-3.5 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <span class="hidden md:inline">Settings</span>
+        </button>
+
+        <!-- Sync Pill -->
+        <span id="syncIndicator" class="flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/20" title="Sync Status">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="hidden lg:inline">Synced</span>
+        </span>
+
+        <!-- User Profile Pill -->
+        <button onclick="openSettingsModal('profile')" class="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 px-2 sm:px-2.5 py-1 rounded-full text-[11px] transition">
+          <span id="topUserAvatar" class="text-sm">👨‍💻</span>
+          <span id="topUserName" class="font-semibold max-w-[80px] truncate">User</span>
+          <span id="topUserLevel" class="text-[10px] font-mono text-amber-300 bg-amber-500/20 px-1.5 rounded-full">Lv.1</span>
+        </button>
+
+        <!-- Lock Button -->
+        <button onclick="lockSession()" class="flex items-center gap-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 p-1.5 sm:px-2.5 sm:py-1 rounded-xl text-[11px] font-semibold transition" title="Lock Workspace">
+          <svg class="w-3 h-3 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          <span class="hidden sm:inline">Lock</span>
+        </button>
+
+        <!-- Real-time Clock -->
+        <span id="macClock" class="font-mono text-[11px] hidden xl:inline ml-1 text-white/80"></span>
       </div>
-    </div>
+    </header>
 
     <!-- Main Workspace Content -->
     <div class="p-3 sm:p-5 md:p-6 space-y-4 sm:space-y-5">
@@ -410,10 +424,10 @@
       </div>
 
       <!-- TOP ROW: Activity Rings + Weekly Streak Chart -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5">
+      <div class="grid grid-cols-1 xl:grid-cols-12 gap-4 sm:gap-5">
         
         <!-- Activity Rings Card -->
-        <div class="mac-card rounded-2xl p-4 sm:p-5 lg:col-span-5 flex flex-col justify-between">
+        <div class="mac-card rounded-2xl p-4 sm:p-5 xl:col-span-5 flex flex-col justify-between">
           <div class="flex items-center justify-between mb-3">
             <div>
               <h2 class="text-sm font-semibold">Activity Rings</h2>
@@ -477,7 +491,7 @@
         </div>
 
         <!-- Weekly Streak Chart Card -->
-        <div class="mac-card rounded-2xl p-4 sm:p-5 lg:col-span-7 flex flex-col justify-between">
+        <div class="mac-card rounded-2xl p-4 sm:p-5 xl:col-span-7 flex flex-col justify-between">
           <div class="flex items-center justify-between gap-2 mb-3">
             <div>
               <h2 class="text-sm font-semibold">Weekly Streak Chart</h2>
@@ -1998,12 +2012,20 @@
     }
 
     function windowAction(action) {
+      if (window.electronAPI && window.electronAPI.isElectron) {
+        if (action === 'close') window.electronAPI.close();
+        else if (action === 'min') window.electronAPI.minimize();
+        else if (action === 'max') window.electronAPI.maximize();
+        return;
+      }
       const win = document.getElementById('appWindow');
       if (action === 'max') {
         win.classList.toggle('max-w-7xl');
         win.classList.toggle('max-w-full');
       } else if (action === 'min') {
         win.classList.toggle('p-2');
+      } else if (action === 'close') {
+        lockSession();
       }
     }
 
