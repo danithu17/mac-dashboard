@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Vercel
+.vercel
+
+# Environment & Local data
+.env
+.env.local
+data/
+server/data/
+
+# OS Files
+.DS_Store
+Thumbs.db
