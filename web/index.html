@@ -397,11 +397,14 @@
             👨‍💻
           </div>
           <div class="flex-1 truncate">
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
               <h2 id="boostName" class="text-sm font-bold truncate">User</h2>
               <span id="boostRankBadge" class="text-[10px] font-mono font-semibold uppercase px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30 flex-shrink-0">
                 Initiate
               </span>
+              <button onclick="openAwardsModal()" class="flex items-center gap-1 text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-400/30 flex-shrink-0 transition" title="View Apple Watch Awards">
+                <span>🏅</span><span id="boostAwardsBadge">Awards 0/8</span>
+              </button>
             </div>
             <p id="boostTrack" class="text-xs text-slate-500 dark:text-slate-400 truncate">Software Engineering</p>
           </div>
@@ -566,47 +569,74 @@
           </div>
         </div>
 
-        <!-- 35-Day Consistency Heatmap -->
+        <!-- Consistency Heatmap & Calendar (35D / Month / 365D) -->
         <div class="mac-card rounded-2xl p-4 sm:p-5 flex flex-col justify-between">
           <div class="flex items-center justify-between mb-2">
             <div>
-              <h3 class="text-sm font-semibold">35-Day Consistency</h3>
-              <p class="text-xs text-slate-500 dark:text-slate-400">Activity heatmap</p>
+              <h3 class="text-sm font-semibold">Consistency Matrix</h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Activity heatmap & calendar</p>
             </div>
-            <span id="heatmapActiveDays" class="text-xs font-mono text-emerald-400">0 active days</span>
+            <!-- Matrix Mode Selector -->
+            <div class="flex bg-black/10 dark:bg-white/10 p-0.5 rounded-lg text-[10px]">
+              <button onclick="setConsistencyMode('35d')" id="btnCons35d" class="px-2 py-0.5 rounded-md bg-blue-500 text-white font-medium">35D</button>
+              <button onclick="setConsistencyMode('month')" id="btnConsMonth" class="px-2 py-0.5 rounded-md opacity-70">Month</button>
+              <button onclick="setConsistencyMode('year')" id="btnConsYear" class="px-2 py-0.5 rounded-md opacity-70">365D</button>
+            </div>
           </div>
-          <div id="heatmapGrid" class="grid grid-cols-7 gap-1.5 my-auto py-2"></div>
-          <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1">
-            <span>0%</span>
+
+          <div id="heatmapContentArea" class="my-auto py-1 min-h-[120px] flex items-center justify-center">
+            <div id="heatmapGrid" class="grid grid-cols-7 gap-1.5 w-full"></div>
+          </div>
+
+          <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-white/5">
+            <span id="heatmapActiveDays" class="font-mono text-emerald-400">0 active days</span>
             <div class="flex items-center gap-1">
-              <span class="w-3 h-3 rounded-sm bg-black/10 dark:bg-white/5"></span>
-              <span class="w-3 h-3 rounded-sm bg-emerald-500/30"></span>
-              <span class="w-3 h-3 rounded-sm bg-emerald-500/60"></span>
-              <span class="w-3 h-3 rounded-sm bg-emerald-400"></span>
+              <span class="w-2.5 h-2.5 rounded-sm bg-black/10 dark:bg-white/5" title="0%"></span>
+              <span class="w-2.5 h-2.5 rounded-sm bg-emerald-500/30" title="1-33%"></span>
+              <span class="w-2.5 h-2.5 rounded-sm bg-emerald-500/60" title="34-75%"></span>
+              <span class="w-2.5 h-2.5 rounded-sm bg-emerald-400" title="76-100%"></span>
             </div>
-            <span>100%</span>
           </div>
         </div>
 
-        <!-- Daily Reflection & Mood -->
+        <!-- Daily Reflection & Quick Notes (Apple Notes style) -->
         <div class="mac-card rounded-2xl p-4 sm:p-5 flex flex-col justify-between">
           <div class="flex items-center justify-between mb-2">
             <div>
-              <h3 class="text-sm font-semibold">Daily Log & Mood</h3>
-              <p id="todayDateLabel" class="text-[11px] font-mono text-slate-400"></p>
+              <div class="flex items-center gap-1.5">
+                <h3 class="text-sm font-semibold">Quick Notes & Mood</h3>
+                <button onclick="openNotesArchiveModal()" class="text-[10px] text-blue-400 hover:text-blue-300 hover:underline">Archive</button>
+              </div>
+              <div class="flex items-center gap-1 text-[11px] font-mono text-slate-400 mt-0.5">
+                <button onclick="shiftNotesDate(-1)" class="hover:text-white px-1 rounded hover:bg-white/10" title="Previous Day">‹</button>
+                <span id="journalDateLabel">Today</span>
+                <button onclick="shiftNotesDate(1)" class="hover:text-white px-1 rounded hover:bg-white/10" title="Next Day">›</button>
+              </div>
             </div>
-            <span id="saveIndicator" class="text-[11px] text-emerald-400 font-mono">Saved</span>
+            <span id="saveIndicator" class="text-[10px] text-emerald-400 font-mono">Saved</span>
           </div>
 
-          <div class="flex items-center justify-between gap-1 my-2 bg-black/5 dark:bg-white/5 p-1 rounded-xl">
-            <button onclick="selectMood('⚡')" data-mood="⚡" class="mood-btn flex-1 py-1.5 rounded-lg text-sm hover:bg-white/10 transition">⚡</button>
-            <button onclick="selectMood('🔥')" data-mood="🔥" class="mood-btn flex-1 py-1.5 rounded-lg text-sm hover:bg-white/10 transition">🔥</button>
-            <button onclick="selectMood('😌')" data-mood="😌" class="mood-btn flex-1 py-1.5 rounded-lg text-sm hover:bg-white/10 transition">😌</button>
-            <button onclick="selectMood('😐')" data-mood="😐" class="mood-btn flex-1 py-1.5 rounded-lg text-sm hover:bg-white/10 transition">😐</button>
-            <button onclick="selectMood('🔋')" data-mood="🔋" class="mood-btn flex-1 py-1.5 rounded-lg text-sm hover:bg-white/10 transition">🔋</button>
+          <div class="flex items-center justify-between gap-1 my-1.5 bg-black/5 dark:bg-white/5 p-1 rounded-xl">
+            <button onclick="selectMood('⚡')" data-mood="⚡" class="mood-btn flex-1 py-1 rounded-lg text-sm hover:bg-white/10 transition" title="Energized">⚡</button>
+            <button onclick="selectMood('🔥')" data-mood="🔥" class="mood-btn flex-1 py-1 rounded-lg text-sm hover:bg-white/10 transition" title="Productive">🔥</button>
+            <button onclick="selectMood('😌')" data-mood="😌" class="mood-btn flex-1 py-1 rounded-lg text-sm hover:bg-white/10 transition" title="Calm">😌</button>
+            <button onclick="selectMood('😐')" data-mood="😐" class="mood-btn flex-1 py-1 rounded-lg text-sm hover:bg-white/10 transition" title="Neutral">😐</button>
+            <button onclick="selectMood('🔋')" data-mood="🔋" class="mood-btn flex-1 py-1 rounded-lg text-sm hover:bg-white/10 transition" title="Drained">🔋</button>
           </div>
 
-          <textarea id="reflectionInput" oninput="saveReflection()" rows="3" placeholder="Log objective notes for today..." class="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl p-2.5 text-xs focus:outline-none resize-none"></textarea>
+          <!-- Quick Tags -->
+          <div class="flex items-center gap-1 mb-1.5 text-[10px] overflow-x-auto no-scrollbar">
+            <button onclick="insertNoteTag('💡 Idea: ')" class="px-2 py-0.5 rounded-md bg-white/5 hover:bg-white/10 text-amber-300 border border-white/5 flex-shrink-0">💡 Idea</button>
+            <button onclick="insertNoteTag('🎯 Win: ')" class="px-2 py-0.5 rounded-md bg-white/5 hover:bg-white/10 text-emerald-300 border border-white/5 flex-shrink-0">🎯 Win</button>
+            <button onclick="insertNoteTag('⚠️ Blocker: ')" class="px-2 py-0.5 rounded-md bg-white/5 hover:bg-white/10 text-rose-300 border border-white/5 flex-shrink-0">⚠️ Blocker</button>
+          </div>
+
+          <textarea id="reflectionInput" oninput="saveReflection()" rows="3" placeholder="Log thoughts, ideas or reflections..." class="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl p-2.5 text-xs focus:outline-none resize-none"></textarea>
+
+          <div class="flex items-center justify-between text-[10px] text-slate-400 mt-1 pt-1 border-t border-white/5">
+            <span id="noteWordCount">0 words</span>
+            <span class="text-emerald-400/80 flex items-center gap-1">🔒 Vault Secured</span>
+          </div>
         </div>
 
       </div>
@@ -644,6 +674,9 @@
         </button>
         <button onclick="switchSettingsTab('sync')" id="tabBtn-sync" class="settings-tab-btn text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-2 hover:bg-white/10 flex-shrink-0">
           <span>📱</span><span>Live Sync</span>
+        </button>
+        <button onclick="switchSettingsTab('backup')" id="tabBtn-backup" class="settings-tab-btn text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-2 hover:bg-white/10 flex-shrink-0">
+          <span>💾</span><span>Data & Backup</span>
         </button>
       </div>
 
@@ -796,6 +829,49 @@
           </div>
         </div>
 
+        <!-- TAB 6: DATA BACKUP & CSV EXPORT -->
+        <div id="settingsTab-backup" class="settings-pane space-y-3 hidden">
+          <div class="p-4 rounded-xl bg-black/10 dark:bg-white/5 border border-white/10 space-y-4">
+            <div>
+              <h4 class="text-xs font-bold text-blue-400">Export & Backup Vault</h4>
+              <p class="text-[11px] text-slate-400">Download your personal data for safe keeping or spreadsheet analysis.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+              <button onclick="exportPersonalJson()" class="p-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex flex-col items-start gap-1 text-left transition active:scale-95">
+                <div class="flex items-center gap-2 text-xs font-bold text-white">
+                  <span>📥</span><span>JSON Vault Backup</span>
+                </div>
+                <span class="text-[10px] text-slate-400">Complete raw backup including habits, history, reflections & XP</span>
+              </button>
+
+              <button onclick="exportCsvReport()" class="p-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex flex-col items-start gap-1 text-left transition active:scale-95">
+                <div class="flex items-center gap-2 text-xs font-bold text-emerald-400">
+                  <span>📊</span><span>CSV Habit Report</span>
+                </div>
+                <span class="text-[10px] text-slate-400">Excel / Numbers spreadsheet formatted with completion rates & streaks</span>
+              </button>
+            </div>
+
+            <div class="border-t border-white/10 pt-3 space-y-2">
+              <h4 class="text-xs font-bold text-amber-400">Restore Vault from Backup</h4>
+              <p class="text-[11px] text-slate-400">Restore your habits and check-in timeline from a previously exported JSON backup file.</p>
+              <label class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-semibold cursor-pointer border border-amber-500/30 transition">
+                <span>📂 Select JSON File to Restore</span>
+                <input type="file" accept=".json" onchange="importPersonalJson(event)" class="hidden" />
+              </label>
+            </div>
+
+            <div class="border-t border-white/10 pt-3">
+              <h4 class="text-xs font-bold text-rose-400">Danger Zone</h4>
+              <p class="text-[11px] text-slate-400 mb-2">Reset current profile vault to empty initial state.</p>
+              <button onclick="clearCurrentUserData()" class="px-3.5 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 text-xs font-semibold border border-rose-500/30 transition">
+                Wipe Profile Vault Data
+              </button>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -870,7 +946,60 @@
   </div>
 
   <!-- =========================================================
-       7. SECURE ARCHITECTURE & CORE JAVASCRIPT ENGINE
+       7. APPLE WATCH ACTIVITY AWARDS MODAL
+       ========================================================= -->
+  <div id="awardsModal" class="fixed inset-0 bg-black/75 backdrop-blur-md z-50 hidden items-center justify-center p-3 sm:p-4">
+    <div class="mac-window w-full max-w-2xl rounded-2xl md:rounded-3xl p-5 sm:p-6 border border-white/15 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl">🏅</span>
+          <div>
+            <h3 class="text-base font-bold tracking-tight">Activity Awards Gallery</h3>
+            <p class="text-xs text-slate-400">Apple Watch & Fitness Milestone Medals</p>
+          </div>
+        </div>
+        <button onclick="closeAwardsModal()" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-slate-300 hover:text-white text-xs">✕</button>
+      </div>
+
+      <div id="awardsGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 py-2">
+        <!-- Rendered dynamically by evaluateAwards() -->
+      </div>
+
+      <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs text-slate-400">
+        <span id="awardsUnlockedSummary">0 of 8 Medals Unlocked</span>
+        <span class="text-[11px] text-amber-400 font-mono">Keep pushing your streak! 🔥</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       8. APPLE QUICK NOTES ARCHIVE MODAL
+       ========================================================= -->
+  <div id="notesArchiveModal" class="fixed inset-0 bg-black/75 backdrop-blur-md z-50 hidden items-center justify-center p-3 sm:p-4">
+    <div class="mac-window w-full max-w-2xl rounded-2xl md:rounded-3xl p-5 sm:p-6 border border-white/15 max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3 mb-3">
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl">📝</span>
+          <div>
+            <h3 class="text-base font-bold tracking-tight">Quick Notes Archive</h3>
+            <p class="text-xs text-slate-400">Chronological reflection history & mood logs</p>
+          </div>
+        </div>
+        <button onclick="closeNotesArchiveModal()" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-slate-300 hover:text-white text-xs">✕</button>
+      </div>
+
+      <div class="mb-3">
+        <input id="notesSearchInput" oninput="renderNotesArchive()" type="text" placeholder="Search past thoughts and tags (e.g. 'Idea', 'Win')..." class="w-full bg-black/10 dark:bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs focus:outline-none" />
+      </div>
+
+      <div id="notesArchiveList" class="flex-1 overflow-y-auto space-y-2.5 pr-1 min-h-[220px]">
+        <!-- Rendered dynamically by renderNotesArchive() -->
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       9. SECURE ARCHITECTURE & CORE JAVASCRIPT ENGINE
        ========================================================= -->
   <script>
     const USERS_REGISTRY_KEY = 'pulsehabit_users_v4';
@@ -1229,9 +1358,11 @@
       setChartMode(userData.preferences.chartMode || 'spline');
       resetTimerToDefault();
 
-      const todayKey = toDateKey(new Date());
-      document.getElementById('todayDateLabel').textContent = todayKey;
-      document.getElementById('reflectionInput').value = (userData.dailyNotes[todayKey] && userData.dailyNotes[todayKey].text) || '';
+      currentNotesDate = toDateKey(new Date());
+      const journalEl = document.getElementById('journalDateLabel');
+      if (journalEl) journalEl.textContent = 'Today';
+      const refInput = document.getElementById('reflectionInput');
+      if (refInput) refInput.value = (userData.dailyNotes[currentNotesDate] && userData.dailyNotes[currentNotesDate].text) || '';
 
       renderAll();
     }
@@ -1306,7 +1437,8 @@
         appearance: 'Appearance & Themes',
         profile: 'Profile Boost Configuration',
         accounts: 'Users & Accounts (Add / Switch)',
-        sync: 'Live Sync & Data Management'
+        sync: 'Live Sync & Data Management',
+        backup: 'Data Backup & CSV Export'
       };
       document.getElementById('settingsTabTitle').textContent = titles[tabName] || 'Settings';
 
@@ -1843,32 +1975,118 @@
       `;
     }
 
-    // --- 35-DAY CONSISTENCY HEATMAP ---
+    // --- CONSISTENCY MATRIX (35D / MONTH CALENDAR / 365D GITHUB MATRIX) ---
+    let consistencyMode = '35d';
+
+    function setConsistencyMode(mode) {
+      consistencyMode = mode;
+      document.getElementById('btnCons35d').className = mode === '35d' ? 'px-2 py-0.5 rounded-md bg-blue-500 text-white font-medium' : 'px-2 py-0.5 rounded-md opacity-70';
+      document.getElementById('btnConsMonth').className = mode === 'month' ? 'px-2 py-0.5 rounded-md bg-blue-500 text-white font-medium' : 'px-2 py-0.5 rounded-md opacity-70';
+      document.getElementById('btnConsYear').className = mode === 'year' ? 'px-2 py-0.5 rounded-md bg-blue-500 text-white font-medium' : 'px-2 py-0.5 rounded-md opacity-70';
+      renderHeatmap();
+    }
+
     function renderHeatmap() {
-      const grid = document.getElementById('heatmapGrid');
-      let html = '';
-      let active = 0;
+      const container = document.getElementById('heatmapContentArea');
+      if (!container) return;
+
       const today = new Date();
+      let totalActive = 0;
 
-      for (let i = 34; i >= 0; i--) {
-        const d = new Date(today);
-        d.setDate(today.getDate() - i);
-        const key = toDateKey(d);
-        const log = userData.logs[key] || {};
-        const count = Object.values(log).filter(Boolean).length;
-        const total = userData.habits.length || 1;
-        const ratio = count / total;
+      if (consistencyMode === '35d') {
+        let html = '<div class="grid grid-cols-7 gap-1.5 w-full">';
+        for (let i = 34; i >= 0; i--) {
+          const d = new Date(today);
+          d.setDate(today.getDate() - i);
+          const key = toDateKey(d);
+          const log = userData.logs[key] || {};
+          const count = Object.values(log).filter(Boolean).length;
+          const total = userData.habits.length || 1;
+          const ratio = count / total;
 
-        let bg = 'bg-black/10 dark:bg-white/5';
-        if (ratio > 0) active++;
-        if (ratio > 0 && ratio <= 0.33) bg = 'bg-emerald-500/30';
-        else if (ratio > 0.33 && ratio <= 0.75) bg = 'bg-emerald-500/60';
-        else if (ratio > 0.75) bg = 'bg-emerald-400';
+          let bg = 'bg-black/10 dark:bg-white/5';
+          if (ratio > 0) totalActive++;
+          if (ratio > 0 && ratio <= 0.33) bg = 'bg-emerald-500/30';
+          else if (ratio > 0.33 && ratio <= 0.75) bg = 'bg-emerald-500/60';
+          else if (ratio > 0.75) bg = 'bg-emerald-400';
 
-        html += `<div class="h-4.5 rounded-md ${bg}" title="${key}: ${Math.round(ratio * 100)}%"></div>`;
+          html += `<div class="h-4.5 rounded-md ${bg} transition hover:scale-110 cursor-pointer" title="${key}: ${count}/${total} (${Math.round(ratio * 100)}%)"></div>`;
+        }
+        html += '</div>';
+        container.innerHTML = html;
+        document.getElementById('heatmapActiveDays').textContent = `${totalActive} active / 35 days`;
+      } else if (consistencyMode === 'month') {
+        // Month Calendar View with Apple styling
+        const year = today.getFullYear();
+        const month = today.getMonth();
+        const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        const firstDay = new Date(year, month, 1).getDay();
+        const startPad = (firstDay === 0 ? 6 : firstDay - 1);
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        let html = `<div class="w-full space-y-1">
+          <div class="flex justify-between text-[11px] font-semibold text-slate-400 px-1">
+            <span>${monthNames[month]} ${year}</span>
+            <span class="text-emerald-400 font-mono">Monthly View</span>
+          </div>
+          <div class="grid grid-cols-7 gap-1 text-[9px] text-center font-mono text-slate-500">
+            <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
+          </div>
+          <div class="grid grid-cols-7 gap-1">`;
+
+        for (let p = 0; p < startPad; p++) {
+          html += `<div class="h-5 rounded-md opacity-5"></div>`;
+        }
+
+        for (let d = 1; d <= daysInMonth; d++) {
+          const dateObj = new Date(year, month, d);
+          const key = toDateKey(dateObj);
+          const isToday = key === toDateKey(today);
+          const log = userData.logs[key] || {};
+          const count = Object.values(log).filter(Boolean).length;
+          const total = userData.habits.length || 1;
+          const ratio = count / total;
+
+          let bg = 'bg-black/10 dark:bg-white/5';
+          if (ratio > 0) totalActive++;
+          if (ratio > 0 && ratio <= 0.33) bg = 'bg-emerald-500/30';
+          else if (ratio > 0.33 && ratio <= 0.75) bg = 'bg-emerald-500/60';
+          else if (ratio > 0.75) bg = 'bg-emerald-400';
+
+          const ringStyle = isToday ? 'ring-1 ring-blue-400' : '';
+          html += `<div class="h-5 rounded-md ${bg} ${ringStyle} flex items-center justify-center text-[9px] font-mono cursor-pointer hover:scale-105 transition" title="${key}: ${count}/${total} check-ins">
+            <span class="${ratio > 0.5 ? 'text-black font-bold' : 'text-slate-300'}">${d}</span>
+          </div>`;
+        }
+        html += `</div></div>`;
+        container.innerHTML = html;
+        document.getElementById('heatmapActiveDays').textContent = `${totalActive} active this month`;
+      } else if (consistencyMode === 'year') {
+        // Full Year (365 Days) GitHub-style Matrix
+        let html = `<div class="w-full overflow-x-auto no-scrollbar py-1">
+          <div class="grid grid-flow-col grid-rows-7 gap-1 min-w-[500px]">`;
+
+        for (let i = 364; i >= 0; i--) {
+          const d = new Date(today);
+          d.setDate(today.getDate() - i);
+          const key = toDateKey(d);
+          const log = userData.logs[key] || {};
+          const count = Object.values(log).filter(Boolean).length;
+          const total = userData.habits.length || 1;
+          const ratio = count / total;
+
+          let bg = 'bg-black/10 dark:bg-white/5';
+          if (ratio > 0) totalActive++;
+          if (ratio > 0 && ratio <= 0.33) bg = 'bg-emerald-500/30';
+          else if (ratio > 0.33 && ratio <= 0.75) bg = 'bg-emerald-500/60';
+          else if (ratio > 0.75) bg = 'bg-emerald-400';
+
+          html += `<div class="w-2.5 h-2.5 rounded-[2px] ${bg} hover:scale-125 transition cursor-pointer" title="${key}: ${count}/${total} (${Math.round(ratio * 100)}%)"></div>`;
+        }
+        html += `</div></div>`;
+        container.innerHTML = html;
+        document.getElementById('heatmapActiveDays').textContent = `${totalActive} active / 365 days`;
       }
-      grid.innerHTML = html;
-      document.getElementById('heatmapActiveDays').textContent = `${active} active day${active === 1 ? '' : 's'}`;
     }
 
     // --- FOCUS TIMER (+25 XP BOOST) ---
@@ -1911,6 +2129,7 @@
             savePersonalData();
             playHaptic();
             calculateProfileBoost();
+            evaluateAwards();
             btn.textContent = 'Start';
             alert('🎉 Focus Session Completed! +25 Profile Boost XP Earned!');
           }
@@ -1920,22 +2139,214 @@
 
     function updateTimerSelect() {
       const select = document.getElementById('timerHabitSelect');
+      if (!select) return;
       select.innerHTML = `<option value="">General Focus</option>` +
         userData.habits.map(h => `<option value="${h.id}">${escapeHtml(h.icon + ' ' + h.name)}</option>`).join('');
     }
 
-    // --- MOOD & NOTES ---
+    // --- APPLE WATCH ACTIVITY AWARDS ENGINE ---
+    const AWARDS_DEFINITIONS = [
+      {
+        id: 'first_step',
+        title: 'First Step',
+        desc: 'Completed your very first habit check-in.',
+        icon: '🥇',
+        color: 'from-amber-400 to-amber-600',
+        check: () => {
+          let total = 0;
+          Object.values(userData.logs).forEach(m => total += Object.values(m).filter(Boolean).length);
+          return total >= 1;
+        }
+      },
+      {
+        id: 'streak_7',
+        title: '7-Day Streak',
+        desc: 'Maintained 7 consecutive active check-in days.',
+        icon: '🔥',
+        color: 'from-orange-500 to-red-600',
+        check: () => {
+          let streak = 0;
+          const today = new Date();
+          for (let i = 0; i < 30; i++) {
+            const d = new Date(today);
+            d.setDate(today.getDate() - i);
+            const log = userData.logs[toDateKey(d)] || {};
+            if (Object.values(log).some(Boolean)) streak++;
+            else break;
+          }
+          return streak >= 7;
+        }
+      },
+      {
+        id: 'deep_work',
+        title: 'Deep Work Master',
+        desc: 'Earned 50+ Focus XP from Pomodoro sessions.',
+        icon: '⚡',
+        color: 'from-blue-500 to-indigo-600',
+        check: () => (userData.boost && (userData.boost.bonusXp || 0) >= 50)
+      },
+      {
+        id: 'perfect_day',
+        title: 'Perfect Day',
+        desc: 'Achieved 100% check-ins on all active habits in a single day.',
+        icon: '🎯',
+        color: 'from-rose-500 to-pink-600',
+        check: () => {
+          if (!userData.habits.length) return false;
+          return Object.values(userData.logs).some(log => {
+            const completed = Object.values(log).filter(Boolean).length;
+            return completed >= userData.habits.length;
+          });
+        }
+      },
+      {
+        id: 'century_club',
+        title: 'Century Club',
+        desc: 'Logged 100 lifetime habit check-ins.',
+        icon: '💎',
+        color: 'from-cyan-400 to-blue-600',
+        check: () => {
+          let total = 0;
+          Object.values(userData.logs).forEach(m => total += Object.values(m).filter(Boolean).length);
+          return total >= 100;
+        }
+      },
+      {
+        id: 'vitality_guru',
+        title: 'Zen & Vitality',
+        desc: 'Logged 10+ Mindfulness, Fitness, or Hydration habits.',
+        icon: '🧘',
+        color: 'from-emerald-400 to-teal-600',
+        check: () => {
+          let count = 0;
+          const vitalityIds = new Set(userData.habits.filter(h => ['Fitness', 'Mindfulness', 'Hydration'].includes(h.category)).map(h => h.id));
+          Object.values(userData.logs).forEach(m => {
+            Object.keys(m).forEach(id => {
+              if (vitalityIds.has(id) && m[id]) count++;
+            });
+          });
+          return count >= 10;
+        }
+      },
+      {
+        id: 'level_5',
+        title: 'Apex Vanguard',
+        desc: 'Reached Profile Boost Level 5.',
+        icon: '🚀',
+        color: 'from-purple-500 to-violet-700',
+        check: () => {
+          let totalCheckIns = 0;
+          Object.values(userData.logs).forEach(m => totalCheckIns += Object.values(m).filter(Boolean).length);
+          const totalXp = (totalCheckIns * 15) + (userData.boost.bonusXp || 0);
+          return Math.floor(totalXp / 100) + 1 >= 5;
+        }
+      },
+      {
+        id: 'monthly_legend',
+        title: 'Monthly Legend',
+        desc: 'Logged 20+ active days in consistency history.',
+        icon: '🌟',
+        color: 'from-yellow-400 to-amber-500',
+        check: () => {
+          let active = 0;
+          Object.values(userData.logs).forEach(m => {
+            if (Object.values(m).some(Boolean)) active++;
+          });
+          return active >= 20;
+        }
+      }
+    ];
+
+    function evaluateAwards() {
+      let unlockedCount = 0;
+      const grid = document.getElementById('awardsGrid');
+      let html = '';
+
+      AWARDS_DEFINITIONS.forEach(a => {
+        const isUnlocked = a.check();
+        if (isUnlocked) unlockedCount++;
+
+        html += `
+          <div class="relative group p-3 rounded-2xl border ${isUnlocked ? 'bg-white/5 border-white/15' : 'bg-black/20 border-white/5 opacity-40'} flex flex-col items-center text-center transition hover:scale-105">
+            <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shadow-lg mb-2 ${isUnlocked ? `bg-gradient-to-br ${a.color} shadow-amber-500/10` : 'bg-white/5 grayscale'}">
+              ${a.icon}
+            </div>
+            <div class="text-xs font-bold truncate max-w-full ${isUnlocked ? 'text-white' : 'text-slate-400'}">${a.title}</div>
+            <div class="text-[10px] text-slate-400 mt-1 line-clamp-2 leading-tight">${a.desc}</div>
+            <div class="mt-2 text-[9px] font-mono px-2 py-0.5 rounded-full ${isUnlocked ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-white/5 text-slate-500'}">
+              ${isUnlocked ? '✓ Unlocked' : 'Locked'}
+            </div>
+          </div>
+        `;
+      });
+
+      if (grid) grid.innerHTML = html;
+      const summaryEl = document.getElementById('awardsUnlockedSummary');
+      if (summaryEl) summaryEl.textContent = `${unlockedCount} of ${AWARDS_DEFINITIONS.length} Medals Unlocked`;
+      const badgeEl = document.getElementById('boostAwardsBadge');
+      if (badgeEl) badgeEl.textContent = `Awards ${unlockedCount}/${AWARDS_DEFINITIONS.length}`;
+    }
+
+    function openAwardsModal() {
+      evaluateAwards();
+      const modal = document.getElementById('awardsModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeAwardsModal() {
+      const modal = document.getElementById('awardsModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    // --- APPLE QUICK NOTES & REFLECTIONS ENGINE ---
+    let currentNotesDate = toDateKey(new Date());
+
+    function shiftNotesDate(dir) {
+      const parts = currentNotesDate.split('-').map(Number);
+      const d = new Date(parts[0], parts[1] - 1, parts[2]);
+      d.setDate(d.getDate() + dir);
+      currentNotesDate = toDateKey(d);
+
+      const isToday = currentNotesDate === toDateKey(new Date());
+      document.getElementById('journalDateLabel').textContent = isToday ? 'Today' : currentNotesDate;
+
+      const note = userData.dailyNotes[currentNotesDate] || { mood: '', text: '' };
+      document.getElementById('reflectionInput').value = note.text || '';
+      renderMood();
+      updateNoteWordCount();
+    }
+
+    function insertNoteTag(tag) {
+      const textarea = document.getElementById('reflectionInput');
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const val = textarea.value;
+      textarea.value = val.substring(0, start) + tag + val.substring(end);
+      textarea.focus();
+      textarea.selectionStart = textarea.selectionEnd = start + tag.length;
+      saveReflection();
+    }
+
+    function updateNoteWordCount() {
+      const el = document.getElementById('reflectionInput');
+      if (!el) return;
+      const val = (el.value || '').trim();
+      const count = val ? val.split(/\s+/).length : 0;
+      const countEl = document.getElementById('noteWordCount');
+      if (countEl) countEl.textContent = `${count} word${count === 1 ? '' : 's'}`;
+    }
+
     function selectMood(mood) {
-      const key = toDateKey(new Date());
-      if (!userData.dailyNotes[key]) userData.dailyNotes[key] = { mood: '', text: '' };
-      userData.dailyNotes[key].mood = userData.dailyNotes[key].mood === mood ? '' : mood;
+      if (!userData.dailyNotes[currentNotesDate]) userData.dailyNotes[currentNotesDate] = { mood: '', text: '' };
+      userData.dailyNotes[currentNotesDate].mood = userData.dailyNotes[currentNotesDate].mood === mood ? '' : mood;
       savePersonalData();
       renderMood();
     }
 
     function renderMood() {
-      const key = toDateKey(new Date());
-      const m = (userData.dailyNotes[key] && userData.dailyNotes[key].mood) || '';
+      const m = (userData.dailyNotes[currentNotesDate] && userData.dailyNotes[currentNotesDate].mood) || '';
       document.querySelectorAll('.mood-btn').forEach(btn => {
         btn.classList.toggle('bg-blue-500/30', btn.dataset.mood === m);
         btn.classList.toggle('ring-1', btn.dataset.mood === m);
@@ -1943,17 +2354,123 @@
     }
 
     function saveReflection() {
-      const key = toDateKey(new Date());
-      if (!userData.dailyNotes[key]) userData.dailyNotes[key] = { mood: '', text: '' };
-      userData.dailyNotes[key].text = document.getElementById('reflectionInput').value;
+      if (!userData.dailyNotes[currentNotesDate]) userData.dailyNotes[currentNotesDate] = { mood: '', text: '' };
+      userData.dailyNotes[currentNotesDate].text = document.getElementById('reflectionInput').value;
       savePersonalData();
+      updateNoteWordCount();
+      const ind = document.getElementById('saveIndicator');
+      if (ind) {
+        ind.textContent = 'Saved';
+        ind.className = 'text-[10px] text-emerald-400 font-mono';
+      }
+    }
+
+    function openNotesArchiveModal() {
+      renderNotesArchive();
+      const modal = document.getElementById('notesArchiveModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeNotesArchiveModal() {
+      const modal = document.getElementById('notesArchiveModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function renderNotesArchive() {
+      const list = document.getElementById('notesArchiveList');
+      if (!list) return;
+      const search = (document.getElementById('notesSearchInput').value || '').toLowerCase();
+      const entries = Object.keys(userData.dailyNotes || {})
+        .filter(k => {
+          const entry = userData.dailyNotes[k];
+          return (entry.text && entry.text.trim()) || entry.mood;
+        })
+        .sort()
+        .reverse();
+
+      if (entries.length === 0) {
+        list.innerHTML = `<div class="text-center py-8 text-xs text-slate-400">No notes written yet. Start typing your thoughts on the dashboard!</div>`;
+        return;
+      }
+
+      let html = '';
+      entries.forEach(k => {
+        const item = userData.dailyNotes[k];
+        const text = item.text || '';
+        const mood = item.mood || '📝';
+        if (search && !text.toLowerCase().includes(search) && !k.includes(search)) return;
+
+        html += `
+          <div onclick="jumpToNoteDate('${k}')" class="p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 cursor-pointer transition">
+            <div class="flex items-center justify-between mb-1">
+              <div class="flex items-center gap-1.5 font-mono text-xs font-semibold text-blue-400">
+                <span>${mood}</span><span>${k}</span>
+              </div>
+              <span class="text-[10px] text-slate-400">Click to view</span>
+            </div>
+            <p class="text-xs text-slate-300 line-clamp-2">${escapeHtml(text) || '<em class="text-slate-500">Only mood logged</em>'}</p>
+          </div>
+        `;
+      });
+
+      list.innerHTML = html || `<div class="text-center py-8 text-xs text-slate-400">No matching entries found.</div>`;
+    }
+
+    function jumpToNoteDate(k) {
+      currentNotesDate = k;
+      document.getElementById('journalDateLabel').textContent = k === toDateKey(new Date()) ? 'Today' : k;
+      const note = userData.dailyNotes[k] || { mood: '', text: '' };
+      document.getElementById('reflectionInput').value = note.text || '';
+      renderMood();
+      updateNoteWordCount();
+      closeNotesArchiveModal();
+    }
+
+    // --- DATA BACKUP, CSV REPORT & RESTORE ENGINE ---
+    function exportCsvReport() {
+      if (!currentUser) return;
+      const headers = ['Habit Name', 'Category', 'Weekly Target (Days)', 'Total Check-ins', 'Current Streak (Days)', 'Completion Rate (%)'];
+      const rows = userData.habits.map(h => {
+        let total = 0;
+        let streak = 0;
+        const today = new Date();
+        for (let i = 0; i < 90; i++) {
+          const d = new Date(today);
+          d.setDate(today.getDate() - i);
+          const key = toDateKey(d);
+          if (userData.logs[key] && userData.logs[key][h.id]) {
+            total++;
+            if (i === streak) streak++;
+          }
+        }
+        const rate = Math.round((total / Math.max(1, (h.target * 12))) * 100);
+        return [
+          `"${(h.name || '').replace(/"/g, '""')}"`,
+          `"${h.category || ''}"`,
+          h.target,
+          total,
+          streak,
+          `${Math.min(100, rate)}%`
+        ];
+      });
+
+      const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', `pulsehabit_${currentUser.name.toLowerCase()}_habits_report.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
 
     function exportPersonalJson() {
       const blob = new Blob([JSON.stringify({ profile: currentUser, data: userData }, null, 2)], { type: 'application/json' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = `pulsehabit_${currentUser.name.toLowerCase()}_backup.json`;
+      a.download = `pulsehabit_${currentUser.name.toLowerCase()}_vault_backup.json`;
       a.click();
     }
 
@@ -1975,7 +2492,7 @@
     }
 
     function clearCurrentUserData() {
-      if (!confirm('Reset all habits, logs, and XP for your profile?')) return;
+      if (!confirm('Reset all habits, logs, reflections, and XP for your profile?')) return;
       userData = createEmptyUserData();
       savePersonalData();
       renderAll();
@@ -2064,6 +2581,8 @@
       renderHeatmap();
       updateTimerSelect();
       renderMood();
+      evaluateAwards();
+      updateNoteWordCount();
     }
 
     // Auto-detect mobile screen & re-render responsive chart on resize
