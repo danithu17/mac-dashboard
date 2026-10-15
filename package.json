@@ -1,0 +1,25 @@
+{
+  "name": "pulsehabit-pro-ecosystem",
+  "version": "1.0.0",
+  "description": "PulseHabit Pro — Apple Ecosystem Habit & Focus Dashboard (Web, Desktop Electron, and Android Flutter)",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "node server/server.js",
+    "dev:web": "node server/server.js",
+    "dev:desktop": "electron desktop",
+    "dev:android": "cd android && flutter run"
+  },
+  "keywords": [
+    "macos",
+    "apple-ui",
+    "dashboard",
+    "habit-tracker",
+    "pomodoro",
+    "electron",
+    "flutter",
+    "sync"
+  ],
+  "author": "Danithu",
+  "license": "MIT"
+}

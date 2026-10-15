@@ -1,0 +1,106 @@
+{
+  "users": [
+    {
+      "uid": "usr_mv9fsz3e",
+      "name": "Visualverse",
+      "avatar": "👨‍💻",
+      "track": "Software Engineering",
+      "pinHash": "6a11f4ed17db3df87cbdad3dc0855418401a3646c45cc6ad1c863d9b12d6b05d",
+      "createdAt": "2026-10-15T11:10:04.202Z"
+    },
+    {
+      "uid": "usr_mv9fu033",
+      "name": "dan",
+      "avatar": "🎯",
+      "track": "QA",
+      "pinHash": "6a11f4ed17db3df87cbdad3dc0855418401a3646c45cc6ad1c863d9b12d6b05d",
+      "createdAt": "2026-10-15T11:10:52.143Z"
+    },
+    {
+      "uid": "usr_mv9e6f5p",
+      "name": "Danithu",
+      "avatar": "👨‍💻",
+      "track": "Software Engineering",
+      "pinHash": "MTk3Nw==",
+      "createdAt": "2026-10-15T10:24:32.317Z"
+    }
+  ],
+  "syncData": {
+    "usr_mv9fsz3e": {
+      "habits": [],
+      "logs": {},
+      "dailyNotes": {},
+      "boost": {
+        "bonusXp": 0,
+        "dailyFocusGoal": 90
+      },
+      "preferences": {
+        "wallpaper": "sequoia",
+        "chartMode": "spline",
+        "sound": true,
+        "use24Hour": false,
+        "pomodoroDefault": 25,
+        "defaultHabitTarget": 7,
+        "compactMode": false
+      }
+    },
+    "usr_mv9fu033": {
+      "habits": [
+        {
+          "id": "hab_mv9g2b8u",
+          "name": "g",
+          "category": "Coding",
+          "target": 7,
+          "icon": "💻",
+          "color": "#3b82f6"
+        }
+      ],
+      "logs": {
+        "2026-10-14": {},
+        "2026-10-15": {},
+        "2026-10-16": {},
+        "2026-10-17": {},
+        "2026-10-18": {},
+        "2026-10-13": {},
+        "2026-10-12": {}
+      },
+      "dailyNotes": {
+        "2026-10-15": {
+          "mood": "🔥",
+          "text": ""
+        }
+      },
+      "boost": {
+        "bonusXp": 0,
+        "dailyFocusGoal": 90
+      },
+      "preferences": {
+        "wallpaper": "sequoia",
+        "chartMode": "bar",
+        "sound": true,
+        "use24Hour": false,
+        "pomodoroDefault": 25,
+        "defaultHabitTarget": 7,
+        "compactMode": false
+      }
+    },
+    "usr_mv9e6f5p": {
+      "habits": [],
+      "logs": {},
+      "dailyNotes": {},
+      "boost": {
+        "bonusXp": 0,
+        "dailyFocusGoal": 90
+      },
+      "preferences": {
+        "wallpaper": "sequoia",
+        "chartMode": "spline",
+        "sound": true,
+        "use24Hour": false,
+        "pomodoroDefault": 25,
+        "defaultHabitTarget": 7,
+        "compactMode": false
+      }
+    }
+  }
+}

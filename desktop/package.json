@@ -1,0 +1,16 @@
+{
+  "name": "pulsehabit-desktop",
+  "version": "1.0.0",
+  "description": "PulseHabit Pro — macOS Sequoia Desktop App for Mac & Windows",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "keywords": ["electron", "macos", "dashboard", "habits"],
+  "author": "Danithu",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^30.0.0"
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "users": [
+    {
+      "name": "Danithu",
+      "avatar": "👨‍💻"
+    },
+    {
+      "uid": "usr_mv9d5u1y",
+      "name": "Visualverse",
+      "avatar": "👨‍💻",
+      "track": "Software Engineering",
+      "pinHash": "MTAxOQ==",
+      "createdAt": "2026-10-15T09:56:05.350Z"
+    },
+    {
+      "uid": "usr_mv9e6f5p",
+      "name": "Danithu",
+      "avatar": "👨‍💻",
+      "track": "Software Engineering",
+      "pinHash": "MTk3Nw==",
+      "createdAt": "2026-10-15T10:24:32.317Z"
+    }
+  ],
+  "syncData": {
+    "usr_test": {
+      "habits": [
+        {
+          "id": "1",
+          "name": "Code",
+          "icon": "💻"
+        }
+      ]
+    },
+    "usr_mv9d5u1y": {
+      "habits": [],
+      "logs": {},
+      "dailyNotes": {},
+      "boost": {
+        "bonusXp": 0,
+        "dailyFocusGoal": 90
+      },
+      "preferences": {
+        "wallpaper": "sequoia",
+        "chartMode": "spline",
+        "sound": true,
+        "use24Hour": false,
+        "pomodoroDefault": 25,
+        "defaultHabitTarget": 7,
+        "compactMode": false
+      }
+    },
+    "usr_mv9e6f5p": {
+      "habits": [],
+      "logs": {},
+      "dailyNotes": {},
+      "boost": {
+        "bonusXp": 0,
+        "dailyFocusGoal": 90
+      },
+      "preferences": {
+        "wallpaper": "sequoia",
+        "chartMode": "spline",
+        "sound": true,
+        "use24Hour": false,
+        "pomodoroDefault": 25,
+        "defaultHabitTarget": 7,
+        "compactMode": false
+      }
+    }
+  }
+}

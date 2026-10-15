@@ -2,8 +2,13 @@
 <html lang="en" class="dark">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PulseHabit Pro — macOS Sequoia System Edition</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#0b0f19" />
+  <title>PulseHabit Pro — Apple Ecosystem Edition</title>
+  
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -11,69 +16,94 @@
       theme: {
         extend: {
           fontFamily: {
-            sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"SF Pro Text"', 'Inter', 'sans-serif'],
-            mono: ['"SF Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"SF Pro Text"', 'Inter', 'system-ui', 'sans-serif'],
+            mono: ['"SF Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
+          },
+          screens: {
+            'xs': '420px',
           }
         }
       }
     };
   </script>
+
   <style>
     :root {
-      --glass-bg: rgba(255, 255, 255, 0.75);
-      --glass-border: rgba(0, 0, 0, 0.1);
-      --card-bg: rgba(255, 255, 255, 0.6);
+      --glass-bg: rgba(255, 255, 255, 0.82);
+      --glass-border: rgba(0, 0, 0, 0.08);
+      --card-bg: rgba(255, 255, 255, 0.7);
+      --card-border: rgba(0, 0, 0, 0.06);
     }
 
     html.dark {
-      --glass-bg: rgba(20, 20, 26, 0.75);
+      --glass-bg: rgba(18, 20, 28, 0.82);
       --glass-border: rgba(255, 255, 255, 0.12);
-      --card-bg: rgba(30, 30, 38, 0.55);
+      --card-bg: rgba(28, 30, 42, 0.65);
+      --card-border: rgba(255, 255, 255, 0.08);
+    }
+
+    * {
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Inter, system-ui, sans-serif;
       -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      touch-action: manipulation;
       user-select: none;
+      -webkit-user-select: none;
       overflow-x: hidden;
-      transition: background 0.5s ease;
+      min-height: 100vh;
+      min-height: 100dvh;
+      transition: background 0.4s ease;
     }
 
-    /* Wallpapers */
+    input, textarea, select {
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    /* Apple Wallpapers */
     .wp-sequoia {
       background:
-        radial-gradient(circle at 18% 20%, rgba(255, 115, 75, 0.45) 0%, transparent 45%),
-        radial-gradient(circle at 82% 25%, rgba(56, 189, 248, 0.42) 0%, transparent 50%),
-        radial-gradient(circle at 50% 80%, rgba(99, 102, 241, 0.48) 0%, transparent 55%),
+        radial-gradient(circle at 18% 15%, rgba(255, 115, 75, 0.38) 0%, transparent 45%),
+        radial-gradient(circle at 85% 20%, rgba(56, 189, 248, 0.38) 0%, transparent 50%),
+        radial-gradient(circle at 50% 85%, rgba(99, 102, 241, 0.42) 0%, transparent 55%),
         linear-gradient(135deg, #0b0f19 0%, #131b2e 50%, #1a162b 100%);
+      background-attachment: fixed;
     }
     .wp-sonoma {
       background:
-        radial-gradient(circle at 15% 75%, rgba(16, 185, 129, 0.42) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.38) 0%, transparent 45%),
-        radial-gradient(circle at 55% 50%, rgba(14, 165, 233, 0.40) 0%, transparent 55%),
+        radial-gradient(circle at 15% 75%, rgba(16, 185, 129, 0.36) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.32) 0%, transparent 45%),
+        radial-gradient(circle at 55% 50%, rgba(14, 165, 233, 0.34) 0%, transparent 55%),
         linear-gradient(135deg, #091921 0%, #0f292f 50%, #181c2b 100%);
+      background-attachment: fixed;
     }
     .wp-midnight {
       background:
-        radial-gradient(circle at 30% 20%, rgba(139, 92, 246, 0.28) 0%, transparent 50%),
-        radial-gradient(circle at 75% 80%, rgba(37, 99, 235, 0.28) 0%, transparent 50%),
+        radial-gradient(circle at 30% 20%, rgba(139, 92, 246, 0.24) 0%, transparent 50%),
+        radial-gradient(circle at 75% 80%, rgba(37, 99, 235, 0.24) 0%, transparent 50%),
         linear-gradient(160deg, #050508 0%, #0d0e15 60%, #08090f 100%);
+      background-attachment: fixed;
     }
 
     .mac-window {
       background: var(--glass-bg);
-      backdrop-filter: blur(42px) saturate(190%);
-      -webkit-backdrop-filter: blur(42px) saturate(190%);
+      backdrop-filter: blur(40px) saturate(190%);
+      -webkit-backdrop-filter: blur(40px) saturate(190%);
       border: 1px solid var(--glass-border);
-      box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.65), 0 0 0 0.5px rgba(255, 255, 255, 0.12) inset;
+      box-shadow: 0 24px 60px -15px rgba(0, 0, 0, 0.6), 0 0 0 0.5px rgba(255, 255, 255, 0.12) inset;
     }
 
     .mac-card {
       background: var(--card-bg);
       backdrop-filter: blur(24px) saturate(160%);
       -webkit-backdrop-filter: blur(24px) saturate(160%);
-      border: 1px solid var(--glass-border);
+      border: 1px solid var(--card-border);
+      box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.15);
     }
 
     .ring-circle {
@@ -83,62 +113,122 @@
     }
 
     .check-cell {
-      transition: all 0.16s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     .check-cell:active {
-      transform: scale(0.86);
+      transform: scale(0.88);
     }
 
-    /* Compact Density Override */
-    body.compact-mode .mac-card {
-      padding: 0.85rem !important;
+    /* Hide scrollbars for clean Apple look */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
     }
   </style>
 </head>
-<body class="wp-sequoia min-h-screen text-slate-900 dark:text-slate-100 flex flex-col justify-between p-2 sm:p-4 md:p-6">
+<body class="wp-sequoia text-slate-900 dark:text-slate-100 flex flex-col justify-between pt-12 md:pt-10 pb-6 px-2 sm:px-4 md:px-6">
 
   <!-- =========================================================
-       1. FIRST-TIME BOOT WIZARD (ONLY RUNS WHEN ZERO ACCOUNTS EXIST)
+       1. GLOBAL APPLE TOP MENU BAR (RESPONSIVE)
        ========================================================= -->
-  <div id="firstBootOverlay" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/70 backdrop-blur-3xl text-white">
-    <div class="w-full max-w-lg bg-zinc-900/80 border border-white/15 rounded-3xl p-8 shadow-2xl space-y-6">
+  <header class="fixed top-0 left-0 right-0 h-10 md:h-7 px-3 md:px-4 flex items-center justify-between text-xs font-medium bg-black/60 md:bg-black/40 backdrop-blur-2xl text-white/90 z-40 border-b border-white/10 shadow-sm">
+    
+    <!-- Left: Apple SVG Logo + Title -->
+    <div class="flex items-center gap-2 md:gap-3">
+      <!-- Universal SVG Apple Logo (renders crisp on Android, Windows, Mac, Linux) -->
+      <button onclick="openSettingsModal('appearance')" class="flex items-center gap-1.5 hover:text-white transition group" title="PulseHabit System">
+        <svg class="w-4 h-4 fill-current text-white/95 group-hover:text-blue-400 transition" viewBox="0 0 170 170">
+          <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.69-3.04-7.67-7.81-11.96-14.34-5.7-8.66-10.15-18.79-13.32-30.4-3.18-11.61-4.77-22.75-4.77-33.43 0-14.15 3.42-26.04 10.27-35.66 6.84-9.63 15.66-14.51 26.46-14.65 4.9 0 10.42 1.34 16.58 4.02 6.16 2.68 10.16 4.08 12.01 4.2 1.85.12 6.08-1.42 12.69-4.63 6.6-3.21 12.18-4.63 16.73-4.26 12.44.75 22.45 5.48 30.04 14.18-10.84 6.53-16.14 15.54-15.9 27.03.24 10.14 4.14 18.66 11.69 25.57 7.55 6.91 16.53 10.81 26.94 11.69-2.22 6.75-4.73 13.59-7.53 20.52zM119.22 31.86c0-7.39 2.66-14.42 7.97-21.1 5.31-6.68 11.96-10.76 19.96-12.24.4 1.36.6 2.7.6 4.02 0 7.39-2.73 14.43-8.19 21.1-5.46 6.67-12.23 10.74-20.34 12.22z"/>
+        </svg>
+        <span class="font-bold tracking-tight text-[13px] md:text-xs">PulseHabit</span>
+      </button>
+
+      <!-- Desktop-only navigation links -->
+      <div class="hidden md:flex items-center gap-3 text-white/70 ml-2">
+        <button onclick="openHabitModal()" class="hover:text-white transition">New Habit</button>
+        <button onclick="openSettingsModal('general')" class="hover:text-white transition">System Settings...</button>
+        <button onclick="openSettingsModal('sync')" class="hover:text-white transition">Live Sync</button>
+      </div>
+    </div>
+
+    <!-- Right: User Avatar + Quick Actions + Clock + Lock -->
+    <div class="flex items-center gap-2">
+      <!-- Sync Status Indicator -->
+      <span id="syncIndicator" class="flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/20" title="Connected to Sync Server">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="hidden xs:inline">Synced</span>
+      </span>
+
+      <!-- Active User Profile Button -->
+      <button onclick="openSettingsModal('profile')" class="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 px-2 py-1 md:py-0.5 rounded-full text-[11px] transition">
+        <span id="topUserAvatar" class="text-sm">👨‍💻</span>
+        <span id="topUserName" class="font-semibold max-w-[80px] truncate">User</span>
+        <span id="topUserLevel" class="text-[10px] font-mono text-amber-300 bg-amber-500/20 px-1.5 rounded-full">Lv.1</span>
+      </button>
+
+      <!-- Settings Icon (Mobile Quick Access) -->
+      <button onclick="openSettingsModal('general')" class="md:hidden p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white/90 transition" title="Settings">
+        <svg class="w-3.5 h-3.5 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      </button>
+
+      <!-- Lock Screen Button -->
+      <button onclick="lockSession()" class="flex items-center gap-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 px-2 py-1 md:py-0.5 rounded-lg text-[11px] font-semibold transition" title="Lock Workspace">
+        <svg class="w-3 h-3 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        <span class="hidden xs:inline">Lock</span>
+      </button>
+
+      <!-- Clock (Desktop) -->
+      <span id="macClock" class="font-mono text-[11px] hidden lg:inline ml-1 text-white/80"></span>
+    </div>
+  </header>
+
+  <!-- =========================================================
+       2. FIRST-TIME BOOT WIZARD (WHEN ZERO ACCOUNTS EXIST)
+       ========================================================= -->
+  <div id="firstBootOverlay" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/75 backdrop-blur-3xl text-white">
+    <div class="w-full max-w-lg bg-zinc-900/90 border border-white/15 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
       
       <!-- Step Indicator -->
       <div class="flex items-center justify-between border-b border-white/10 pb-4">
         <div class="flex items-center gap-2.5">
-          <span class="text-2xl"></span>
+          <svg class="w-6 h-6 fill-current text-blue-400" viewBox="0 0 170 170">
+            <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.69-3.04-7.67-7.81-11.96-14.34-5.7-8.66-10.15-18.79-13.32-30.4-3.18-11.61-4.77-22.75-4.77-33.43 0-14.15 3.42-26.04 10.27-35.66 6.84-9.63 15.66-14.51 26.46-14.65 4.9 0 10.42 1.34 16.58 4.02 6.16 2.68 10.16 4.08 12.01 4.2 1.85.12 6.08-1.42 12.69-4.63 6.6-3.21 12.18-4.63 16.73-4.26 12.44.75 22.45 5.48 30.04 14.18-10.84 6.53-16.14 15.54-15.9 27.03.24 10.14 4.14 18.66 11.69 25.57 7.55 6.91 16.53 10.81 26.94 11.69-2.22 6.75-4.73 13.59-7.53 20.52zM119.22 31.86c0-7.39 2.66-14.42 7.97-21.1 5.31-6.68 11.96-10.76 19.96-12.24.4 1.36.6 2.7.6 4.02 0 7.39-2.73 14.43-8.19 21.1-5.46 6.67-12.23 10.74-20.34 12.22z"/>
+          </svg>
           <div>
-            <h1 class="text-base font-bold tracking-tight">macOS Setup Assistant</h1>
-            <p class="text-xs text-white/50">First-Time System Boot & Profile Boost Initialization</p>
+            <h1 class="text-base font-bold tracking-tight">Apple Setup Assistant</h1>
+            <p class="text-xs text-white/50">First-Time Profile & Security Initialization</p>
           </div>
         </div>
         <span id="bootStepBadge" class="text-xs font-mono px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30">Step 1 of 2</span>
       </div>
 
-      <!-- STEP 1: Welcome & System Spec -->
+      <!-- STEP 1: Welcome -->
       <div id="bootStep1" class="space-y-5">
         <div class="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-2">
           <div class="text-sm font-semibold text-blue-400">⚡ Profile Boost Engine Activated</div>
           <p class="text-xs text-white/70 leading-relaxed">
-            Welcome to PulseHabit Pro. Your workspace starts with zero dummy data. Every real habit check-in and Pomodoro focus session boosts your profile XP, Rank, and consistency index.
+            Welcome to PulseHabit Pro. Your workspace starts with zero dummy data. Every real habit check-in and Pomodoro session boosts your profile XP, Rank, and consistency index.
           </p>
         </div>
 
         <div class="grid grid-cols-3 gap-3 text-center">
           <div class="p-3 rounded-xl bg-white/5 border border-white/10">
-            <div class="text-lg">🛡️</div>
-            <div class="text-xs font-semibold mt-1">Isolated Data</div>
-            <div class="text-[10px] text-white/50">Per-user storage</div>
+            <div class="text-xl">🛡️</div>
+            <div class="text-xs font-semibold mt-1">SHA-256</div>
+            <div class="text-[10px] text-white/50">Secured PIN</div>
           </div>
           <div class="p-3 rounded-xl bg-white/5 border border-white/10">
-            <div class="text-lg">🚀</div>
+            <div class="text-xl">🚀</div>
             <div class="text-xs font-semibold mt-1">XP & Ranks</div>
-            <div class="text-[10px] text-white/50">Profile Boost</div>
+            <div class="text-[10px] text-white/50">Level Up</div>
           </div>
           <div class="p-3 rounded-xl bg-white/5 border border-white/10">
-            <div class="text-lg">📱</div>
-            <div class="text-xs font-semibold mt-1">Android Ready</div>
-            <div class="text-[10px] text-white/50">YYYY-MM-DD JSON</div>
+            <div class="text-xl">📱</div>
+            <div class="text-xs font-semibold mt-1">Live Sync</div>
+            <div class="text-[10px] text-white/50">Web & Android</div>
           </div>
         </div>
 
@@ -147,27 +237,28 @@
         </button>
       </div>
 
-      <!-- STEP 2: Create Primary Profile -->
+      <!-- STEP 2: Create Profile -->
       <form id="bootStep2" onsubmit="completeFirstBoot(event)" class="space-y-4 hidden">
         <div>
           <label class="block text-xs text-white/80 mb-1">Your Name / Handle</label>
-          <input id="bootName" type="text" required placeholder="e.g., Danithu" class="w-full bg-white/10 border border-white/20 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-blue-400" />
+          <input id="bootName" type="text" required placeholder="e.g., Danithu" class="w-full bg-white/10 border border-white/20 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-blue-400" />
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-xs text-white/80 mb-1">Avatar</label>
-            <select id="bootAvatar" class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
+            <select id="bootAvatar" class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none">
               <option value="👨‍💻" class="text-black">👨‍💻 Developer</option>
               <option value="🚀" class="text-black">🚀 Founder</option>
               <option value="⚡" class="text-black">⚡ Architect</option>
               <option value="🎯" class="text-black">🎯 Strategist</option>
               <option value="🧠" class="text-black">🧠 Engineer</option>
+              <option value="👑" class="text-black">👑 Leader</option>
             </select>
           </div>
           <div>
-            <label class="block text-xs text-white/80 mb-1">Primary Focus Track</label>
-            <select id="bootTrack" class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
+            <label class="block text-xs text-white/80 mb-1">Primary Track</label>
+            <select id="bootTrack" class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none">
               <option value="Software Engineering" class="text-black">Software Engineering</option>
               <option value="High Performance" class="text-black">High Performance</option>
               <option value="Full-Stack & Fitness" class="text-black">Full-Stack & Fitness</option>
@@ -178,12 +269,13 @@
 
         <div>
           <label class="block text-xs text-white/80 mb-1">Daily Focus Target (Minutes)</label>
-          <input id="bootFocusGoal" type="number" min="15" max="480" value="90" required class="w-full bg-white/10 border border-white/20 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-blue-400" />
+          <input id="bootFocusGoal" type="number" min="15" max="480" value="90" required class="w-full bg-white/10 border border-white/20 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-blue-400" />
         </div>
 
         <div>
-          <label class="block text-xs text-white/80 mb-1">Security PIN / Password</label>
-          <input id="bootPin" type="password" required placeholder="Set login PIN or password" class="w-full bg-white/10 border border-white/20 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-blue-400" />
+          <label class="block text-xs text-white/80 mb-1">Security PIN / Password (SHA-256 Hashed)</label>
+          <input id="bootPin" type="password" required placeholder="Set your login PIN or password" class="w-full bg-white/10 border border-white/20 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-blue-400" />
+          <p class="text-[10px] text-white/40 mt-1">Secured with cryptographic hashing for maximum privacy.</p>
         </div>
 
         <div class="flex gap-2 pt-2">
@@ -200,122 +292,104 @@
   </div>
 
   <!-- =========================================================
-       2. MACOS LOCK SCREEN (ONLYEXISTING USERS LOGIN / SWITCH)
+       3. MACOS LOCK SCREEN (SECURITY & MULTI-USER SWITCHING)
        ========================================================= -->
-  <div id="lockScreen" class="fixed inset-0 z-50 hidden flex-col items-center justify-between p-6 bg-black/50 backdrop-blur-2xl text-white">
-    <div class="text-center mt-8">
-      <div id="lockDate" class="text-sm font-medium tracking-wide text-white/80 uppercase"></div>
-      <div id="lockTime" class="text-6xl sm:text-7xl font-bold tracking-tight mt-1"></div>
+  <div id="lockScreen" class="fixed inset-0 z-50 hidden flex-col items-center justify-between p-6 bg-black/60 backdrop-blur-2xl text-white">
+    <div class="text-center mt-6 sm:mt-10">
+      <div id="lockDate" class="text-xs sm:text-sm font-medium tracking-wide text-white/80 uppercase"></div>
+      <div id="lockTime" class="text-5xl sm:text-7xl font-bold tracking-tight mt-1 font-mono"></div>
     </div>
 
-    <div class="w-full max-w-sm bg-black/45 border border-white/15 backdrop-blur-2xl rounded-3xl p-6 shadow-2xl space-y-5">
+    <div class="w-full max-w-sm bg-black/50 border border-white/15 backdrop-blur-3xl rounded-3xl p-6 shadow-2xl space-y-4">
       <div class="text-center">
-        <h2 class="text-base font-semibold">Select Profile to Unlock</h2>
-        <p class="text-xs text-white/55 mt-0.5">New accounts can be added inside System Settings after login</p>
+        <h2 class="text-sm font-semibold">Select Profile to Unlock</h2>
+        <p class="text-[11px] text-white/50 mt-0.5">Isolated user vaults with zero cross-leakage</p>
       </div>
 
       <!-- User Avatars Grid -->
-      <div id="lockProfilesList" class="flex justify-center gap-3 flex-wrap py-1"></div>
+      <div id="lockProfilesList" class="flex justify-center gap-3 flex-wrap py-1 max-h-48 overflow-y-auto"></div>
 
       <!-- Password / PIN Form -->
       <form id="unlockForm" onsubmit="handleUnlock(event)" class="space-y-3 hidden">
         <div class="text-center">
-          <div id="lockSelectedAvatar" class="w-16 h-16 rounded-full mx-auto flex items-center justify-center text-2xl bg-white/10 border border-white/20"></div>
+          <div id="lockSelectedAvatar" class="w-14 h-14 rounded-full mx-auto flex items-center justify-center text-2xl bg-white/10 border border-white/20 shadow-inner"></div>
           <div id="lockSelectedName" class="text-sm font-semibold mt-2"></div>
           <div id="lockSelectedTrack" class="text-[11px] text-blue-400"></div>
         </div>
 
         <div>
-          <input id="unlockPinInput" type="password" required placeholder="Enter PIN / Password" class="w-full bg-white/10 border border-white/20 rounded-xl px-3.5 py-2 text-center text-sm text-white placeholder-white/50 focus:outline-none focus:border-blue-400" />
+          <input id="unlockPinInput" type="password" required placeholder="Enter PIN / Password" class="w-full bg-white/10 border border-white/20 rounded-xl px-3.5 py-2.5 text-center text-sm text-white placeholder-white/40 focus:outline-none focus:border-blue-400" />
           <p id="loginErrorMsg" class="text-[11px] text-rose-400 text-center mt-1 hidden">Incorrect PIN / Password</p>
+          <p id="lockoutMsg" class="text-[11px] text-amber-400 text-center mt-1 hidden">Too many attempts. Locked for 30s.</p>
         </div>
 
         <div class="flex gap-2">
-          <button type="button" onclick="clearLockSelection()" class="flex-1 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-medium">Switch User</button>
-          <button type="submit" class="flex-1 py-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-xs font-semibold">Unlock →</button>
+          <button type="button" onclick="clearLockSelection()" class="flex-1 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-medium">Switch</button>
+          <button type="submit" id="unlockSubmitBtn" class="flex-1 py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-xs font-semibold">Unlock →</button>
         </div>
       </form>
     </div>
 
-    <div class="text-xs text-white/50 mb-2">
-       PulseHabit Pro • Manage accounts via System Settings after sign-in
+    <div class="text-[11px] text-white/40 text-center">
+      PulseHabit Pro • Multi-Platform Secure Storage
     </div>
   </div>
 
   <!-- =========================================================
-       3. MACOS TOP MENU BAR
+       4. MAIN WORKSPACE CONTAINER
        ========================================================= -->
-  <header class="fixed top-0 left-0 right-0 h-7 px-4 flex items-center justify-between text-xs font-medium bg-black/40 backdrop-blur-xl text-white/90 z-40 border-b border-white/10">
-    <div class="flex items-center gap-4">
-      <span class="font-bold text-sm"></span>
-      <span class="font-semibold">PulseHabit Pro</span>
-      <button onclick="openHabitModal()" class="hover:text-white text-white/75 transition">New Habit</button>
-      <button onclick="openSettingsModal('general')" class="hover:text-white text-white/75 transition">System Settings...</button>
-    </div>
-
-    <div class="flex items-center gap-3">
-      <button onclick="openSettingsModal('profile')" class="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 px-2.5 py-0.5 rounded-full text-[11px] transition">
-        <span id="topUserAvatar">👨‍💻</span>
-        <span id="topUserName" class="font-semibold">User</span>
-        <span id="topUserLevel" class="text-[10px] font-mono text-amber-300 bg-amber-500/20 px-1.5 rounded-full">Lv.1</span>
-      </button>
-
-      <button onclick="lockSession()" class="bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 px-2 py-0.5 rounded text-[11px] transition">
-        🔒 Lock
-      </button>
-      <span id="macClock" class="font-mono text-[11px] hidden sm:inline"></span>
-    </div>
-  </header>
-
-  <!-- =========================================================
-       4. MAIN MACOS WORKSPACE WINDOW
-       ========================================================= -->
-  <main id="appWindow" class="mac-window w-full max-w-7xl mx-auto mt-7 rounded-2xl overflow-hidden flex flex-col transition-all duration-300">
+  <main id="appWindow" class="mac-window w-full max-w-7xl mx-auto rounded-2xl md:rounded-3xl overflow-hidden flex flex-col transition-all duration-300">
     
-    <!-- Window Title Bar -->
-    <div class="h-12 px-4 flex flex-wrap items-center justify-between gap-2 border-b border-black/5 dark:border-white/10 bg-white/30 dark:bg-black/20">
+    <!-- Window Title Bar (Responsive) -->
+    <div class="h-14 md:h-12 px-3 md:px-4 flex items-center justify-between gap-2 border-b border-black/5 dark:border-white/10 bg-white/40 dark:bg-black/25">
+      
+      <!-- Traffic Light Buttons (Desktop) or Title (Mobile) -->
       <div class="flex items-center gap-2">
-        <button onclick="lockSession()" class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e]"></button>
-        <button onclick="windowAction('min')" class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123]"></button>
-        <button onclick="windowAction('max')" class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29]"></button>
-        <span id="workspaceHeaderTitle" class="ml-3 text-xs font-semibold tracking-tight opacity-80 hidden md:inline">Workspace</span>
+        <div class="hidden sm:flex items-center gap-2">
+          <button onclick="lockSession()" class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] hover:opacity-80" title="Lock"></button>
+          <button onclick="windowAction('min')" class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] hover:opacity-80" title="Compact"></button>
+          <button onclick="windowAction('max')" class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] hover:opacity-80" title="Expand"></button>
+        </div>
+        <span id="workspaceHeaderTitle" class="text-xs font-bold tracking-tight opacity-90 truncate max-w-[130px] sm:max-w-none">Workspace</span>
       </div>
 
-      <!-- Week Navigator -->
-      <div class="flex items-center gap-1.5 bg-black/10 dark:bg-white/10 p-1 rounded-xl text-xs">
-        <button onclick="shiftWeek(-1)" class="px-2 py-0.5 rounded-lg hover:bg-white/10">‹ Prev</button>
-        <button onclick="resetToCurrentWeek()" id="weekRangeLabel" class="px-2.5 py-0.5 font-mono text-[11px] font-semibold">This Week</button>
-        <button onclick="shiftWeek(1)" class="px-2 py-0.5 rounded-lg hover:bg-white/10">Next ›</button>
+      <!-- Week Navigator (Centered & Touch-Friendly) -->
+      <div class="flex items-center gap-1 bg-black/10 dark:bg-white/10 p-1 rounded-xl text-xs">
+        <button onclick="shiftWeek(-1)" class="px-2 py-1 rounded-lg hover:bg-white/15 active:scale-95 transition" title="Previous Week">‹</button>
+        <button onclick="resetToCurrentWeek()" id="weekRangeLabel" class="px-2 sm:px-2.5 py-1 font-mono text-[11px] font-semibold text-center truncate max-w-[150px]">This Week</button>
+        <button onclick="shiftWeek(1)" class="px-2 py-1 rounded-lg hover:bg-white/15 active:scale-95 transition" title="Next Week">›</button>
       </div>
 
-      <!-- Actions -->
-      <div class="flex items-center gap-2">
-        <button onclick="openSettingsModal('general')" class="flex items-center gap-1 bg-black/10 dark:bg-white/10 hover:bg-white/20 text-xs font-medium px-3 py-1.5 rounded-lg transition">
-          <span>⚙️</span>
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <button onclick="openSettingsModal('general')" class="hidden md:flex items-center gap-1 bg-black/10 dark:bg-white/10 hover:bg-white/20 text-xs font-medium px-3 py-1.5 rounded-lg transition">
+          <svg class="w-3.5 h-3.5 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
           <span>Settings</span>
         </button>
-        <button onclick="openHabitModal()" class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg shadow-sm transition">
-          + New Habit
+        <button onclick="openHabitModal()" class="flex items-center gap-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold px-2.5 sm:px-3 py-1.5 rounded-xl shadow-md active:scale-95 transition">
+          <span class="text-sm leading-none">+</span>
+          <span class="hidden xs:inline">New Habit</span>
         </button>
       </div>
     </div>
 
-    <div class="p-4 sm:p-6 space-y-5">
+    <!-- Main Workspace Content -->
+    <div class="p-3 sm:p-5 md:p-6 space-y-4 sm:space-y-5">
 
-      <!-- PROFILE BOOST BANNER (XP, LEVEL, RANK, FOCUS GOAL) -->
+      <!-- PROFILE BOOST BANNER -->
       <div class="mac-card rounded-2xl p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border border-blue-500/20">
-        <div class="flex items-center gap-3.5">
-          <div id="boostAvatar" class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500/30 to-purple-500/30 border border-white/15 flex items-center justify-center text-2xl shadow-inner">
+        <div class="flex items-center gap-3 w-full md:w-auto">
+          <div id="boostAvatar" class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500/30 to-purple-500/30 border border-white/15 flex items-center justify-center text-2xl shadow-inner flex-shrink-0">
             👨‍💻
           </div>
-          <div>
+          <div class="flex-1 truncate">
             <div class="flex items-center gap-2">
-              <h2 id="boostName" class="text-sm font-bold">User</h2>
-              <span id="boostRankBadge" class="text-[10px] font-mono font-semibold uppercase px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30">
+              <h2 id="boostName" class="text-sm font-bold truncate">User</h2>
+              <span id="boostRankBadge" class="text-[10px] font-mono font-semibold uppercase px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30 flex-shrink-0">
                 Initiate
               </span>
             </div>
-            <p id="boostTrack" class="text-xs text-slate-500 dark:text-slate-400">Software Engineering</p>
+            <p id="boostTrack" class="text-xs text-slate-500 dark:text-slate-400 truncate">Software Engineering</p>
           </div>
         </div>
 
@@ -329,27 +403,29 @@
             <div id="boostXpBar" class="h-full bg-gradient-to-r from-blue-500 via-indigo-400 to-emerald-400 transition-all duration-500" style="width: 0%"></div>
           </div>
           <div class="text-[10px] text-slate-400 mt-1 flex justify-between">
-            <span>+15 XP per habit check-in</span>
+            <span>+15 XP per check-in</span>
             <span id="boostFocusTargetLabel">Goal: 90m/day</span>
           </div>
         </div>
       </div>
 
       <!-- TOP ROW: Activity Rings + Weekly Streak Chart -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5">
         
-        <div class="mac-card rounded-2xl p-5 lg:col-span-5 flex flex-col justify-between">
+        <!-- Activity Rings Card -->
+        <div class="mac-card rounded-2xl p-4 sm:p-5 lg:col-span-5 flex flex-col justify-between">
           <div class="flex items-center justify-between mb-3">
             <div>
               <h2 class="text-sm font-semibold">Activity Rings</h2>
-              <p class="text-xs text-slate-500 dark:text-slate-400">Weekly goal rings</p>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Weekly completion rings</p>
             </div>
             <span id="streakBadge" class="text-xs font-mono px-2.5 py-1 rounded-full bg-orange-500/15 text-orange-400 border border-orange-500/20">
               🔥 0 Active Days
             </span>
           </div>
 
-          <div class="flex items-center gap-6 my-auto py-2">
+          <div class="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 my-auto py-2">
+            <!-- Rings SVG -->
             <div class="relative w-36 h-36 flex-shrink-0 flex items-center justify-center">
               <svg class="w-full h-full" viewBox="0 0 140 140">
                 <circle cx="70" cy="70" r="56" stroke="rgba(250, 17, 79, 0.16)" stroke-width="11" fill="none" />
@@ -365,100 +441,123 @@
               </div>
             </div>
 
-            <div class="space-y-3 flex-1">
-              <div>
-                <div class="flex justify-between text-xs font-medium">
-                  <span class="text-[#fa114f]">● Overall Goal</span>
+            <!-- Ring Labels -->
+            <div class="space-y-2.5 w-full">
+              <div class="bg-black/5 dark:bg-white/5 p-2 rounded-xl">
+                <div class="flex justify-between text-xs font-semibold">
+                  <span class="text-[#fa114f] flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-[#fa114f]"></span> Overall Goal
+                  </span>
                   <span id="labelOverall" class="font-mono">0% (0/0)</span>
                 </div>
-                <p class="text-[11px] text-slate-500 dark:text-slate-400">All weekly habit check-ins</p>
+                <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">All weekly check-ins</p>
               </div>
-              <div>
-                <div class="flex justify-between text-xs font-medium">
-                  <span class="text-[#a4ff00]">● Craft & Intellect</span>
+
+              <div class="bg-black/5 dark:bg-white/5 p-2 rounded-xl">
+                <div class="flex justify-between text-xs font-semibold">
+                  <span class="text-[#a4ff00] flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-[#a4ff00]"></span> Craft & Intellect
+                  </span>
                   <span id="labelCraft" class="font-mono">0%</span>
                 </div>
-                <p class="text-[11px] text-slate-500 dark:text-slate-400">Coding & Reading</p>
+                <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Coding & Reading</p>
               </div>
-              <div>
-                <div class="flex justify-between text-xs font-medium">
-                  <span class="text-[#00f5ea]">● Vitality & Mind</span>
+
+              <div class="bg-black/5 dark:bg-white/5 p-2 rounded-xl">
+                <div class="flex justify-between text-xs font-semibold">
+                  <span class="text-[#00f5ea] flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-[#00f5ea]"></span> Vitality & Mind
+                  </span>
                   <span id="labelVitality" class="font-mono">0%</span>
                 </div>
-                <p class="text-[11px] text-slate-500 dark:text-slate-400">Fitness, Mindfulness & Hydration</p>
+                <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Fitness, Mindfulness & Hydration</p>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="mac-card rounded-2xl p-5 lg:col-span-7 flex flex-col justify-between">
+        <!-- Weekly Streak Chart Card -->
+        <div class="mac-card rounded-2xl p-4 sm:p-5 lg:col-span-7 flex flex-col justify-between">
           <div class="flex items-center justify-between gap-2 mb-3">
             <div>
               <h2 class="text-sm font-semibold">Weekly Streak Chart</h2>
-              <p class="text-xs text-slate-500 dark:text-slate-400">Real calendar completion (`YYYY-MM-DD`)</p>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Day-by-day consistency</p>
             </div>
             <div class="flex bg-black/10 dark:bg-white/10 p-0.5 rounded-lg text-xs">
               <button onclick="setChartMode('spline')" id="btnSpline" class="px-2.5 py-1 rounded-md bg-blue-500 text-white font-medium">Spline</button>
               <button onclick="setChartMode('bar')" id="btnBar" class="px-2.5 py-1 rounded-md opacity-70">Columns</button>
             </div>
           </div>
-          <div id="chartContainer" class="relative h-44 w-full pt-2"></div>
+          <div id="chartContainer" class="relative h-44 w-full pt-1"></div>
         </div>
 
       </div>
 
-      <!-- MIDDLE ROW: 7-Day Habit Matrix -->
-      <div class="mac-card rounded-2xl p-5">
+      <!-- MIDDLE ROW: Habits Matrix & Filter -->
+      <div class="mac-card rounded-2xl p-4 sm:p-5">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-          <div class="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
-            <button onclick="setFilter('All')" data-cat="All" class="cat-btn px-3 py-1 rounded-lg text-xs font-medium bg-blue-500 text-white">All</button>
-            <button onclick="setFilter('Coding')" data-cat="Coding" class="cat-btn px-3 py-1 rounded-lg text-xs font-medium bg-black/5 dark:bg-white/5">Coding</button>
-            <button onclick="setFilter('Reading')" data-cat="Reading" class="cat-btn px-3 py-1 rounded-lg text-xs font-medium bg-black/5 dark:bg-white/5">Reading</button>
-            <button onclick="setFilter('Fitness')" data-cat="Fitness" class="cat-btn px-3 py-1 rounded-lg text-xs font-medium bg-black/5 dark:bg-white/5">Fitness</button>
-            <button onclick="setFilter('Mindfulness')" data-cat="Mindfulness" class="cat-btn px-3 py-1 rounded-lg text-xs font-medium bg-black/5 dark:bg-white/5">Mindfulness</button>
-            <button onclick="setFilter('Hydration')" data-cat="Hydration" class="cat-btn px-3 py-1 rounded-lg text-xs font-medium bg-black/5 dark:bg-white/5">Hydration</button>
+          <!-- Category Filter Pills (Mobile Scrollable) -->
+          <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
+            <button onclick="setFilter('All')" data-cat="All" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-blue-500 text-white flex-shrink-0">All</button>
+            <button onclick="setFilter('Coding')" data-cat="Coding" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-black/5 dark:bg-white/5 flex-shrink-0">💻 Coding</button>
+            <button onclick="setFilter('Reading')" data-cat="Reading" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-black/5 dark:bg-white/5 flex-shrink-0">📚 Reading</button>
+            <button onclick="setFilter('Fitness')" data-cat="Fitness" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-black/5 dark:bg-white/5 flex-shrink-0">🏋️ Fitness</button>
+            <button onclick="setFilter('Mindfulness')" data-cat="Mindfulness" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-black/5 dark:bg-white/5 flex-shrink-0">🧘 Mindfulness</button>
+            <button onclick="setFilter('Hydration')" data-cat="Hydration" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-black/5 dark:bg-white/5 flex-shrink-0">💧 Hydration</button>
           </div>
 
-          <input id="searchInput" oninput="renderAll()" type="text" placeholder="Search habits..." class="bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-lg px-3 py-1.5 text-xs focus:outline-none w-full sm:w-52" />
+          <!-- Search & Mobile View Toggle -->
+          <div class="flex items-center gap-2">
+            <input id="searchInput" oninput="renderAll()" type="text" placeholder="Search habits..." class="bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl px-3 py-1.5 text-xs focus:outline-none w-full sm:w-48" />
+            
+            <!-- View Mode Switcher -->
+            <div class="flex bg-black/10 dark:bg-white/10 p-0.5 rounded-xl text-xs flex-shrink-0">
+              <button onclick="setMatrixView('cards')" id="btnViewCards" class="px-2 py-1 rounded-lg bg-blue-500 text-white font-medium" title="Cards View">Cards</button>
+              <button onclick="setMatrixView('table')" id="btnViewTable" class="px-2 py-1 rounded-lg opacity-70" title="Table View">Table</button>
+            </div>
+          </div>
         </div>
 
-        <div id="habitMatrixContainer" class="overflow-x-auto"></div>
+        <!-- Matrix / Cards Output Container -->
+        <div id="habitMatrixContainer" class="overflow-x-auto no-scrollbar"></div>
       </div>
 
       <!-- BOTTOM ROW: Focus Timer + 35-Day Heatmap + Daily Reflection -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
         
-        <div class="mac-card rounded-2xl p-5 flex flex-col justify-between">
+        <!-- Focus Timer -->
+        <div class="mac-card rounded-2xl p-4 sm:p-5 flex flex-col justify-between">
           <div class="flex items-center justify-between mb-2">
             <div>
               <h3 class="text-sm font-semibold">Focus Timer (+25 XP)</h3>
               <p class="text-xs text-slate-500 dark:text-slate-400">Boosts profile XP on completion</p>
             </div>
-            <select id="timerHabitSelect" class="bg-black/10 dark:bg-white/10 border border-white/10 rounded-lg px-2 py-1 text-xs max-w-[130px] truncate">
+            <select id="timerHabitSelect" class="bg-black/10 dark:bg-white/10 border border-white/10 rounded-lg px-2 py-1 text-xs max-w-[120px] truncate">
               <option value="">General Focus</option>
             </select>
           </div>
 
-          <div class="my-3 text-center">
-            <div id="timerDisplay" class="text-4xl font-mono font-bold">25:00</div>
-            <div class="flex justify-center gap-2 mt-2 text-[11px]">
-              <button onclick="setTimerPreset(25)" class="px-2 py-0.5 rounded bg-black/10 dark:bg-white/10">25m</button>
-              <button onclick="setTimerPreset(50)" class="px-2 py-0.5 rounded bg-black/10 dark:bg-white/10">50m</button>
-              <button onclick="setTimerPreset(5)" class="px-2 py-0.5 rounded bg-black/10 dark:bg-white/10">5m</button>
+          <div class="my-4 text-center">
+            <div id="timerDisplay" class="text-5xl font-mono font-bold tracking-tight">25:00</div>
+            <div class="flex justify-center gap-2 mt-3 text-xs">
+              <button onclick="setTimerPreset(25)" class="px-3 py-1 rounded-lg bg-black/10 dark:bg-white/10 hover:bg-white/20">25m</button>
+              <button onclick="setTimerPreset(50)" class="px-3 py-1 rounded-lg bg-black/10 dark:bg-white/10 hover:bg-white/20">50m</button>
+              <button onclick="setTimerPreset(5)" class="px-3 py-1 rounded-lg bg-black/10 dark:bg-white/10 hover:bg-white/20">5m</button>
             </div>
           </div>
 
           <div class="flex gap-2">
-            <button onclick="toggleTimer()" id="timerStartBtn" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold py-2 rounded-xl">Start</button>
-            <button onclick="resetTimerToDefault()" class="px-3 py-2 rounded-xl bg-black/10 dark:bg-white/10 text-xs font-medium">Reset</button>
+            <button onclick="toggleTimer()" id="timerStartBtn" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold py-2.5 rounded-xl shadow-md active:scale-95 transition">Start</button>
+            <button onclick="resetTimerToDefault()" class="px-4 py-2.5 rounded-xl bg-black/10 dark:bg-white/10 hover:bg-white/15 text-xs font-medium">Reset</button>
           </div>
         </div>
 
-        <div class="mac-card rounded-2xl p-5 flex flex-col justify-between">
+        <!-- 35-Day Consistency Heatmap -->
+        <div class="mac-card rounded-2xl p-4 sm:p-5 flex flex-col justify-between">
           <div class="flex items-center justify-between mb-2">
             <div>
               <h3 class="text-sm font-semibold">35-Day Consistency</h3>
-              <p class="text-xs text-slate-500 dark:text-slate-400">Real calendar logs</p>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Activity heatmap</p>
             </div>
             <span id="heatmapActiveDays" class="text-xs font-mono text-emerald-400">0 active days</span>
           </div>
@@ -475,7 +574,8 @@
           </div>
         </div>
 
-        <div class="mac-card rounded-2xl p-5 flex flex-col justify-between">
+        <!-- Daily Reflection & Mood -->
+        <div class="mac-card rounded-2xl p-4 sm:p-5 flex flex-col justify-between">
           <div class="flex items-center justify-between mb-2">
             <div>
               <h3 class="text-sm font-semibold">Daily Log & Mood</h3>
@@ -484,12 +584,12 @@
             <span id="saveIndicator" class="text-[11px] text-emerald-400 font-mono">Saved</span>
           </div>
 
-          <div class="flex items-center justify-between gap-1 my-1.5 bg-black/5 dark:bg-white/5 p-1 rounded-xl">
-            <button onclick="selectMood('⚡')" data-mood="⚡" class="mood-btn flex-1 py-1 rounded-lg text-sm">⚡</button>
-            <button onclick="selectMood('🔥')" data-mood="🔥" class="mood-btn flex-1 py-1 rounded-lg text-sm">🔥</button>
-            <button onclick="selectMood('😌')" data-mood="😌" class="mood-btn flex-1 py-1 rounded-lg text-sm">😌</button>
-            <button onclick="selectMood('😐')" data-mood="😐" class="mood-btn flex-1 py-1 rounded-lg text-sm">😐</button>
-            <button onclick="selectMood('🔋')" data-mood="🔋" class="mood-btn flex-1 py-1 rounded-lg text-sm">🔋</button>
+          <div class="flex items-center justify-between gap-1 my-2 bg-black/5 dark:bg-white/5 p-1 rounded-xl">
+            <button onclick="selectMood('⚡')" data-mood="⚡" class="mood-btn flex-1 py-1.5 rounded-lg text-sm hover:bg-white/10 transition">⚡</button>
+            <button onclick="selectMood('🔥')" data-mood="🔥" class="mood-btn flex-1 py-1.5 rounded-lg text-sm hover:bg-white/10 transition">🔥</button>
+            <button onclick="selectMood('😌')" data-mood="😌" class="mood-btn flex-1 py-1.5 rounded-lg text-sm hover:bg-white/10 transition">😌</button>
+            <button onclick="selectMood('😐')" data-mood="😐" class="mood-btn flex-1 py-1.5 rounded-lg text-sm hover:bg-white/10 transition">😐</button>
+            <button onclick="selectMood('🔋')" data-mood="🔋" class="mood-btn flex-1 py-1.5 rounded-lg text-sm hover:bg-white/10 transition">🔋</button>
           </div>
 
           <textarea id="reflectionInput" oninput="saveReflection()" rows="3" placeholder="Log objective notes for today..." class="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl p-2.5 text-xs focus:outline-none resize-none"></textarea>
@@ -501,14 +601,14 @@
   </main>
 
   <!-- =========================================================
-       5. MACOS SYSTEM SETTINGS MODAL (BASIC SETTINGS + ACCOUNTS)
+       5. SYSTEM SETTINGS MODAL (FULL DIALOG)
        ========================================================= -->
-  <div id="settingsModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-    <div class="mac-window w-full max-w-3xl rounded-2xl border border-white/15 overflow-hidden flex flex-col md:flex-row h-[540px]">
+  <div id="settingsModal" class="fixed inset-0 bg-black/65 backdrop-blur-md z-50 hidden items-center justify-center p-3 sm:p-4">
+    <div class="mac-window w-full max-w-3xl rounded-2xl md:rounded-3xl border border-white/15 overflow-hidden flex flex-col md:flex-row h-[580px] max-h-[92vh]">
       
-      <!-- Left Sidebar Navigation (macOS System Settings Style) -->
-      <div class="w-full md:w-56 bg-black/20 border-b md:border-b-0 md:border-r border-white/10 p-3 flex flex-row md:flex-col gap-1 overflow-x-auto">
-        <div class="hidden md:flex items-center gap-2 px-2 py-2 mb-2 border-b border-white/10">
+      <!-- Left Sidebar Navigation -->
+      <div class="w-full md:w-56 bg-black/30 border-b md:border-b-0 md:border-r border-white/10 p-3 flex flex-row md:flex-col gap-1 overflow-x-auto no-scrollbar flex-shrink-0">
+        <div class="hidden md:flex items-center gap-2.5 px-2 py-2 mb-2 border-b border-white/10">
           <span id="settingsSidebarAvatar" class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-base">👨‍💻</span>
           <div class="truncate">
             <div id="settingsSidebarName" class="text-xs font-bold truncate">User</div>
@@ -516,44 +616,44 @@
           </div>
         </div>
 
-        <button onclick="switchSettingsTab('general')" id="tabBtn-general" class="settings-tab-btn text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-2 bg-blue-500 text-white">
-          <span>⚙️</span><span>General & Basic</span>
+        <button onclick="switchSettingsTab('general')" id="tabBtn-general" class="settings-tab-btn text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-2 bg-blue-500 text-white flex-shrink-0">
+          <span>⚙️</span><span>General</span>
         </button>
-        <button onclick="switchSettingsTab('appearance')" id="tabBtn-appearance" class="settings-tab-btn text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-2 hover:bg-white/10">
+        <button onclick="switchSettingsTab('appearance')" id="tabBtn-appearance" class="settings-tab-btn text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-2 hover:bg-white/10 flex-shrink-0">
           <span>🎨</span><span>Appearance</span>
         </button>
-        <button onclick="switchSettingsTab('profile')" id="tabBtn-profile" class="settings-tab-btn text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-2 hover:bg-white/10">
+        <button onclick="switchSettingsTab('profile')" id="tabBtn-profile" class="settings-tab-btn text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-2 hover:bg-white/10 flex-shrink-0">
           <span>🚀</span><span>Profile Boost</span>
         </button>
-        <button onclick="switchSettingsTab('accounts')" id="tabBtn-accounts" class="settings-tab-btn text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-2 hover:bg-white/10">
-          <span>👥</span><span>Users & Accounts</span>
+        <button onclick="switchSettingsTab('accounts')" id="tabBtn-accounts" class="settings-tab-btn text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-2 hover:bg-white/10 flex-shrink-0">
+          <span>👥</span><span>Accounts</span>
         </button>
-        <button onclick="switchSettingsTab('sync')" id="tabBtn-sync" class="settings-tab-btn text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-2 hover:bg-white/10">
-          <span>📱</span><span>Data & Android Sync</span>
+        <button onclick="switchSettingsTab('sync')" id="tabBtn-sync" class="settings-tab-btn text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-2 hover:bg-white/10 flex-shrink-0">
+          <span>📱</span><span>Live Sync</span>
         </button>
       </div>
 
       <!-- Right Content Area -->
-      <div class="flex-1 p-6 overflow-y-auto space-y-5">
+      <div class="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4">
         <div class="flex items-center justify-between border-b border-white/10 pb-3">
-          <h3 id="settingsTabTitle" class="text-base font-bold">General & Basic Settings</h3>
-          <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-white text-sm">✕</button>
+          <h3 id="settingsTabTitle" class="text-sm sm:text-base font-bold">General Settings</h3>
+          <button onclick="closeSettingsModal()" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-slate-300 hover:text-white text-xs">✕</button>
         </div>
 
-        <!-- TAB 1: GENERAL & BASIC SETTINGS -->
-        <div id="settingsTab-general" class="settings-pane space-y-4">
-          <div class="p-4 rounded-xl bg-black/10 dark:bg-white/5 border border-white/10 space-y-4">
+        <!-- TAB 1: GENERAL -->
+        <div id="settingsTab-general" class="settings-pane space-y-3">
+          <div class="p-4 rounded-xl bg-black/10 dark:bg-white/5 border border-white/10 space-y-4 text-xs">
             <div class="flex items-center justify-between">
               <div>
-                <div class="text-xs font-semibold">Haptic Audio Effects</div>
-                <div class="text-[11px] text-slate-400">Play subtle macOS sound when checking habits</div>
+                <div class="font-semibold">Haptic Audio Effects</div>
+                <div class="text-[11px] text-slate-400">Play Apple tactile click sound on habit check</div>
               </div>
               <input type="checkbox" id="prefSoundToggle" onchange="saveBasicSettings()" class="w-4 h-4 accent-blue-500" />
             </div>
 
             <div class="flex items-center justify-between border-t border-white/10 pt-3">
               <div>
-                <div class="text-xs font-semibold">24-Hour Menu Bar Clock</div>
+                <div class="font-semibold">24-Hour Menu Bar Clock</div>
                 <div class="text-[11px] text-slate-400">Use 24-hour military time format</div>
               </div>
               <input type="checkbox" id="pref24HourToggle" onchange="saveBasicSettings()" class="w-4 h-4 accent-blue-500" />
@@ -561,8 +661,8 @@
 
             <div class="flex items-center justify-between border-t border-white/10 pt-3">
               <div>
-                <div class="text-xs font-semibold">Default Pomodoro Duration (Minutes)</div>
-                <div class="text-[11px] text-slate-400">Default timer length on workspace load</div>
+                <div class="font-semibold">Default Pomodoro Duration</div>
+                <div class="text-[11px] text-slate-400">Minutes for fresh focus timers</div>
               </div>
               <select id="prefPomodoroDefault" onchange="saveBasicSettings()" class="bg-black/20 border border-white/15 rounded-lg px-2.5 py-1 text-xs">
                 <option value="25">25 Minutes</option>
@@ -573,8 +673,8 @@
 
             <div class="flex items-center justify-between border-t border-white/10 pt-3">
               <div>
-                <div class="text-xs font-semibold">Default New Habit Target</div>
-                <div class="text-[11px] text-slate-400">Pre-filled weekly target days when creating a habit</div>
+                <div class="font-semibold">Default Habit Weekly Target</div>
+                <div class="text-[11px] text-slate-400">Pre-filled target days for new habits</div>
               </div>
               <select id="prefDefaultTarget" onchange="saveBasicSettings()" class="bg-black/20 border border-white/15 rounded-lg px-2.5 py-1 text-xs">
                 <option value="7">7 Days / Week</option>
@@ -586,12 +686,12 @@
         </div>
 
         <!-- TAB 2: APPEARANCE -->
-        <div id="settingsTab-appearance" class="settings-pane space-y-4 hidden">
+        <div id="settingsTab-appearance" class="settings-pane space-y-3 hidden">
           <div class="p-4 rounded-xl bg-black/10 dark:bg-white/5 border border-white/10 space-y-4">
             <div class="flex items-center justify-between">
               <div>
-                <div class="text-xs font-semibold">Dark Mode Appearance</div>
-                <div class="text-[11px] text-slate-400">Toggle macOS Dark / Light glass theme</div>
+                <div class="text-xs font-semibold">Dark Mode Glass Theme</div>
+                <div class="text-[11px] text-slate-400">Toggle macOS Dark / Light glassmorphism</div>
               </div>
               <button onclick="toggleTheme()" class="px-3 py-1.5 rounded-lg bg-blue-500 text-white text-xs font-medium">Toggle Theme</button>
             </div>
@@ -599,37 +699,29 @@
             <div class="border-t border-white/10 pt-3">
               <div class="text-xs font-semibold mb-2">macOS Dynamic Wallpaper</div>
               <div class="grid grid-cols-3 gap-2">
-                <button onclick="setWallpaper('sequoia')" class="p-2.5 rounded-xl border border-white/15 text-xs font-medium bg-gradient-to-r from-orange-500/30 to-indigo-500/30">Sequoia</button>
-                <button onclick="setWallpaper('sonoma')" class="p-2.5 rounded-xl border border-white/15 text-xs font-medium bg-gradient-to-r from-emerald-500/30 to-sky-500/30">Sonoma</button>
-                <button onclick="setWallpaper('midnight')" class="p-2.5 rounded-xl border border-white/15 text-xs font-medium bg-zinc-900">Midnight</button>
+                <button onclick="setWallpaper('sequoia')" class="p-3 rounded-xl border border-white/15 text-xs font-medium bg-gradient-to-r from-orange-500/30 to-indigo-500/30">Sequoia</button>
+                <button onclick="setWallpaper('sonoma')" class="p-3 rounded-xl border border-white/15 text-xs font-medium bg-gradient-to-r from-emerald-500/30 to-sky-500/30">Sonoma</button>
+                <button onclick="setWallpaper('midnight')" class="p-3 rounded-xl border border-white/15 text-xs font-medium bg-zinc-900">Midnight</button>
               </div>
-            </div>
-
-            <div class="flex items-center justify-between border-t border-white/10 pt-3">
-              <div>
-                <div class="text-xs font-semibold">Compact Dashboard Density</div>
-                <div class="text-[11px] text-slate-400">Reduce card padding for smaller screens</div>
-              </div>
-              <input type="checkbox" id="prefCompactToggle" onchange="saveBasicSettings()" class="w-4 h-4 accent-blue-500" />
             </div>
           </div>
         </div>
 
         <!-- TAB 3: PROFILE BOOST -->
-        <div id="settingsTab-profile" class="settings-pane space-y-4 hidden">
+        <div id="settingsTab-profile" class="settings-pane space-y-3 hidden">
           <div class="p-4 rounded-xl bg-black/10 dark:bg-white/5 border border-white/10 space-y-3">
             <div>
               <label class="block text-xs font-medium mb-1">Display Name</label>
-              <input id="editProfileName" type="text" class="w-full bg-black/20 border border-white/15 rounded-xl px-3 py-1.5 text-xs" />
+              <input id="editProfileName" type="text" class="w-full bg-black/20 border border-white/15 rounded-xl px-3 py-2 text-xs" />
             </div>
             <div class="grid grid-cols-2 gap-3">
               <div>
                 <label class="block text-xs font-medium mb-1">Primary Focus Track</label>
-                <input id="editProfileTrack" type="text" class="w-full bg-black/20 border border-white/15 rounded-xl px-3 py-1.5 text-xs" />
+                <input id="editProfileTrack" type="text" class="w-full bg-black/20 border border-white/15 rounded-xl px-3 py-2 text-xs" />
               </div>
               <div>
                 <label class="block text-xs font-medium mb-1">Daily Focus Goal (Mins)</label>
-                <input id="editProfileGoal" type="number" min="15" max="480" class="w-full bg-black/20 border border-white/15 rounded-xl px-3 py-1.5 text-xs" />
+                <input id="editProfileGoal" type="number" min="15" max="480" class="w-full bg-black/20 border border-white/15 rounded-xl px-3 py-2 text-xs" />
               </div>
             </div>
             <button onclick="saveProfileEdits()" class="px-4 py-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold">
@@ -638,46 +730,56 @@
           </div>
         </div>
 
-        <!-- TAB 4: USERS & ACCOUNTS (ADD NEW ACCOUNT FROM INSIDE SETTINGS) -->
-        <div id="settingsTab-accounts" class="settings-pane space-y-5 hidden">
+        <!-- TAB 4: USERS & ACCOUNTS -->
+        <div id="settingsTab-accounts" class="settings-pane space-y-4 hidden">
           <div>
-            <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Registered Local Accounts</h4>
+            <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Registered Accounts</h4>
             <div id="settingsAccountsList" class="space-y-2"></div>
           </div>
 
-          <!-- Add New Account Form Inside Settings -->
+          <!-- Add Account Form -->
           <form onsubmit="addAccountFromSettings(event)" class="p-4 rounded-xl bg-black/15 dark:bg-white/5 border border-white/10 space-y-3">
-            <h4 class="text-xs font-bold text-blue-400">+ Add Another Personal Account</h4>
+            <h4 class="text-xs font-bold text-blue-400">+ Add Isolated Personal Account</h4>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              <input id="newAccName" type="text" required placeholder="User Name" class="bg-black/20 border border-white/15 rounded-xl px-3 py-1.5 text-xs" />
-              <input id="newAccTrack" type="text" placeholder="Track (e.g., Software Dev)" class="bg-black/20 border border-white/15 rounded-xl px-3 py-1.5 text-xs" />
+              <input id="newAccName" type="text" required placeholder="User Name" class="bg-black/20 border border-white/15 rounded-xl px-3 py-2 text-xs" />
+              <input id="newAccTrack" type="text" placeholder="Track (e.g., Software Dev)" class="bg-black/20 border border-white/15 rounded-xl px-3 py-2 text-xs" />
             </div>
             <div class="grid grid-cols-2 gap-2.5">
-              <select id="newAccAvatar" class="bg-black/20 border border-white/15 rounded-xl px-2.5 py-1.5 text-xs">
+              <select id="newAccAvatar" class="bg-black/20 border border-white/15 rounded-xl px-2.5 py-2 text-xs">
                 <option value="👨‍💻">👨‍💻 Developer</option>
                 <option value="🚀">🚀 Founder</option>
                 <option value="⚡">⚡ Creator</option>
                 <option value="🎯">🎯 Strategist</option>
+                <option value="👑">👑 Leader</option>
               </select>
-              <input id="newAccPin" type="password" required placeholder="Password / PIN" class="bg-black/20 border border-white/15 rounded-xl px-3 py-1.5 text-xs" />
+              <input id="newAccPin" type="password" required placeholder="PIN / Password" class="bg-black/20 border border-white/15 rounded-xl px-3 py-2 text-xs" />
             </div>
             <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold">
-              Create Isolated Account
+              Create Isolated Vault
             </button>
           </form>
         </div>
 
-        <!-- TAB 5: DATA & ANDROID SYNC -->
-        <div id="settingsTab-sync" class="settings-pane space-y-4 hidden">
-          <div class="flex flex-wrap gap-2">
-            <button onclick="exportPersonalJson()" class="px-3 py-1.5 rounded-lg bg-blue-500 text-white text-xs font-semibold">Export JSON Backup</button>
-            <label class="px-3 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-300 text-xs font-semibold cursor-pointer">
-              Import JSON
-              <input type="file" accept=".json" onchange="importPersonalJson(event)" class="hidden" />
-            </label>
-            <button onclick="clearCurrentUserData()" class="px-3 py-1.5 rounded-lg bg-rose-500/20 text-rose-300 text-xs font-semibold">Reset My Data</button>
+        <!-- TAB 5: DATA & SYNC -->
+        <div id="settingsTab-sync" class="settings-pane space-y-3 hidden">
+          <div class="p-4 rounded-xl bg-black/10 dark:bg-white/5 border border-white/10 space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-xs font-semibold">Cost-Free Live Sync API</div>
+                <div class="text-[11px] text-slate-400">Syncs instantly with Web, Desktop, & Android</div>
+              </div>
+              <button onclick="forceSyncNow()" class="px-3 py-1.5 rounded-lg bg-blue-500 text-white text-xs font-medium">Sync Now</button>
+            </div>
+            <div class="flex flex-wrap gap-2 pt-2">
+              <button onclick="exportPersonalJson()" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-semibold">Export JSON Backup</button>
+              <label class="px-3 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-300 text-xs font-semibold cursor-pointer">
+                Import JSON
+                <input type="file" accept=".json" onchange="importPersonalJson(event)" class="hidden" />
+              </label>
+              <button onclick="clearCurrentUserData()" class="px-3 py-1.5 rounded-lg bg-rose-500/20 text-rose-300 text-xs font-semibold">Reset My Data</button>
+            </div>
+            <pre id="jsonPayloadPreview" class="bg-black/40 text-emerald-300 font-mono text-[10px] p-3 rounded-xl overflow-x-auto max-h-48 border border-white/10"></pre>
           </div>
-          <pre id="jsonPayloadPreview" class="bg-black/40 text-emerald-300 font-mono text-[11px] p-3 rounded-xl overflow-x-auto max-h-56 border border-white/10"></pre>
         </div>
 
       </div>
@@ -687,24 +789,24 @@
   <!-- =========================================================
        6. NEW / EDIT HABIT MODAL
        ========================================================= -->
-  <div id="habitModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-    <div class="mac-window w-full max-w-md rounded-2xl p-6 border border-white/15">
+  <div id="habitModal" class="fixed inset-0 bg-black/65 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+    <div class="mac-window w-full max-w-md rounded-2xl md:rounded-3xl p-5 sm:p-6 border border-white/15">
       <div class="flex items-center justify-between mb-4">
-        <h3 id="habitModalTitle" class="text-base font-semibold">New Personal Habit</h3>
-        <button onclick="closeHabitModal()" class="text-slate-400 hover:text-white text-sm">✕</button>
+        <h3 id="habitModalTitle" class="text-sm sm:text-base font-semibold">New Personal Habit</h3>
+        <button onclick="closeHabitModal()" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-slate-300 hover:text-white text-xs">✕</button>
       </div>
 
       <form id="habitForm" onsubmit="saveHabit(event)" class="space-y-4">
         <input type="hidden" id="habitIdInput" />
         <div>
           <label class="block text-xs font-medium mb-1">Habit Title</label>
-          <input id="habitNameInput" type="text" required placeholder="e.g., Full-Stack Architecture" class="w-full bg-black/10 dark:bg-white/10 border border-white/15 rounded-xl px-3 py-2 text-sm focus:outline-none" />
+          <input id="habitNameInput" type="text" required placeholder="e.g., Code Full-Stack Architecture" class="w-full bg-black/10 dark:bg-white/10 border border-white/15 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none" />
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-medium mb-1">Category</label>
-            <select id="habitCategoryInput" class="w-full bg-black/10 dark:bg-white/10 border border-white/15 rounded-xl px-3 py-2 text-sm">
+            <select id="habitCategoryInput" class="w-full bg-black/10 dark:bg-white/10 border border-white/15 rounded-xl px-3 py-2.5 text-sm">
               <option value="Coding">Coding</option>
               <option value="Reading">Reading</option>
               <option value="Fitness">Fitness</option>
@@ -714,49 +816,52 @@
           </div>
           <div>
             <label class="block text-xs font-medium mb-1">Weekly Target (Days)</label>
-            <input id="habitTargetInput" type="number" min="1" max="7" value="7" required class="w-full bg-black/10 dark:bg-white/10 border border-white/15 rounded-xl px-3 py-2 text-sm" />
+            <input id="habitTargetInput" type="number" min="1" max="7" value="7" required class="w-full bg-black/10 dark:bg-white/10 border border-white/15 rounded-xl px-3 py-2.5 text-sm" />
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-medium mb-1">Icon</label>
-            <select id="habitIconInput" class="w-full bg-black/10 dark:bg-white/10 border border-white/15 rounded-xl px-3 py-2 text-sm">
+            <select id="habitIconInput" class="w-full bg-black/10 dark:bg-white/10 border border-white/15 rounded-xl px-3 py-2.5 text-sm">
               <option value="💻">💻 Code</option>
               <option value="📚">📚 Read</option>
               <option value="🏋️">🏋️ Workout</option>
-              <option value="🧘">🧘 Focus</option>
+              <option value="🧘">🧘 Meditate</option>
               <option value="💧">💧 Hydrate</option>
-              <option value="⚡">⚡ Deep Work</option>
+              <option value="⚡">⚡ Deep Focus</option>
+              <option value="🎯">🎯 Goal</option>
+              <option value="🏃">🏃 Run</option>
             </select>
           </div>
           <div>
             <label class="block text-xs font-medium mb-1">Accent Color</label>
-            <select id="habitColorInput" class="w-full bg-black/10 dark:bg-white/10 border border-white/15 rounded-xl px-3 py-2 text-sm">
+            <select id="habitColorInput" class="w-full bg-black/10 dark:bg-white/10 border border-white/15 rounded-xl px-3 py-2.5 text-sm">
               <option value="#3b82f6">Blue</option>
               <option value="#10b981">Emerald</option>
               <option value="#f43f5e">Rose</option>
               <option value="#a855f7">Purple</option>
               <option value="#f59e0b">Amber</option>
+              <option value="#06b6d4">Cyan</option>
             </select>
           </div>
         </div>
 
         <div class="flex justify-end gap-2 pt-3 border-t border-white/10">
           <button type="button" onclick="closeHabitModal()" class="px-4 py-2 rounded-xl bg-black/10 dark:bg-white/10 text-xs font-medium">Cancel</button>
-          <button type="submit" class="px-4 py-2 rounded-xl bg-blue-500 text-white text-xs font-semibold">Save Habit</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-blue-500 text-white text-xs font-semibold shadow-md">Save Habit</button>
         </div>
       </form>
     </div>
   </div>
 
+  <!-- =========================================================
+       7. SECURE ARCHITECTURE & CORE JAVASCRIPT ENGINE
+       ========================================================= -->
   <script>
-    // =========================================================
-    // STORAGE KEYS & ISOLATED MULTI-USER ARCHITECTURE
-    // =========================================================
-    const USERS_REGISTRY_KEY = 'pulsehabit_users_v3';
-    const ACTIVE_SESSION_KEY = 'pulsehabit_session_v3';
-    const USER_DATA_PREFIX   = 'pulsehabit_userdata_v3_';
+    const USERS_REGISTRY_KEY = 'pulsehabit_users_v4';
+    const ACTIVE_SESSION_KEY = 'pulsehabit_session_v4';
+    const USER_DATA_PREFIX   = 'pulsehabit_userdata_v4_';
     const DAY_LABELS         = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
     let usersRegistry = [];
@@ -764,8 +869,30 @@
     let selectedLockUid = null;
     let weekOffset = 0;
     let currentFilter = 'All';
+    let matrixViewMode = window.innerWidth < 768 ? 'cards' : 'table';
+    let failedLoginAttempts = 0;
+    let lockoutTimer = null;
 
     let userData = createEmptyUserData();
+
+    // --- CRYPTOGRAPHIC SECURITY (SHA-256) ---
+    async function hashPin(pin, salt = 'pulsehabit_secure_salt_v4') {
+      try {
+        const msgBuffer = new TextEncoder().encode(salt + pin);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      } catch (e) {
+        // Fallback in case of non-secure context
+        let hash = 0;
+        const str = salt + pin;
+        for (let i = 0; i < str.length; i++) {
+          hash = ((hash << 5) - hash) + str.charCodeAt(i);
+          hash |= 0;
+        }
+        return 'fb_' + Math.abs(hash).toString(16);
+      }
+    }
 
     function createEmptyUserData() {
       return {
@@ -811,7 +938,7 @@
       });
     }
 
-    // --- LOAD / SAVE REGISTRY & USER DATA ---
+    // --- REGISTRY & PERSONAL DATA LOAD/SAVE ---
     function loadRegistry() {
       try {
         const raw = localStorage.getItem(USERS_REGISTRY_KEY);
@@ -842,20 +969,84 @@
       } catch (e) {
         userData = createEmptyUserData();
       }
+
+      // Background Sync Fetch
+      fetchSyncFromServer(uid);
     }
 
     function savePersonalData() {
       if (!currentUser) return;
       localStorage.setItem(USER_DATA_PREFIX + currentUser.uid, JSON.stringify(userData));
+      sendSyncToServer(currentUser.uid);
     }
 
-    // =========================================================
-    // 1. FIRST-TIME BOOT WIZARD LOGIC
-    // =========================================================
+    // --- COST-FREE LIVE SYNC (WEB, DESKTOP, ANDROID) ---
+    function sendSyncToServer(uid) {
+      try {
+        fetch(`/api/sync/${uid}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uid, user: currentUser, data: userData })
+        })
+        .then(r => r.ok ? r.json() : null)
+        .then(res => {
+          if (res && res.success) {
+            updateSyncStatus(true);
+          }
+        })
+        .catch(() => updateSyncStatus(false));
+      } catch (e) {
+        updateSyncStatus(false);
+      }
+    }
+
+    function fetchSyncFromServer(uid) {
+      try {
+        fetch(`/api/sync/${uid}`)
+          .then(r => r.ok ? r.json() : null)
+          .then(res => {
+            if (res && res.data) {
+              userData = {
+                ...createEmptyUserData(),
+                ...res.data,
+                boost: { ...createEmptyUserData().boost, ...(res.data.boost || {}) },
+                preferences: { ...createEmptyUserData().preferences, ...(res.data.preferences || {}) }
+              };
+              localStorage.setItem(USER_DATA_PREFIX + uid, JSON.stringify(userData));
+              updateSyncStatus(true);
+              renderAll();
+            }
+          })
+          .catch(() => updateSyncStatus(false));
+      } catch (e) {
+        updateSyncStatus(false);
+      }
+    }
+
+    function updateSyncStatus(isOnline) {
+      const el = document.getElementById('syncIndicator');
+      if (!el) return;
+      if (isOnline) {
+        el.className = 'flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/20';
+        el.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span><span class="hidden xs:inline">Synced</span>';
+      } else {
+        el.className = 'flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/20';
+        el.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span><span class="hidden xs:inline">Offline</span>';
+      }
+    }
+
+    function forceSyncNow() {
+      if (currentUser) {
+        savePersonalData();
+        fetchSyncFromServer(currentUser.uid);
+        alert('Sync signal dispatched to local server.');
+      }
+    }
+
+    // --- FIRST BOOT WIZARD ---
     function checkBootOrLockState() {
       loadRegistry();
       if (usersRegistry.length === 0) {
-        // First time ever booting the system
         document.getElementById('firstBootOverlay').classList.remove('hidden');
         document.getElementById('firstBootOverlay').classList.add('flex');
         document.getElementById('lockScreen').classList.add('hidden');
@@ -877,7 +1068,7 @@
       document.getElementById('bootStepBadge').textContent = `Step ${step} of 2`;
     }
 
-    function completeFirstBoot(e) {
+    async function completeFirstBoot(e) {
       e.preventDefault();
       const name = document.getElementById('bootName').value.trim();
       const avatar = document.getElementById('bootAvatar').value;
@@ -887,12 +1078,14 @@
 
       if (!name || !pin) return;
 
+      const pinHash = await hashPin(pin);
+
       const newUser = {
         uid: 'usr_' + Date.now().toString(36),
         name,
         avatar,
         track,
-        pinHash: btoa(unescape(encodeURIComponent(pin))),
+        pinHash,
         createdAt: new Date().toISOString()
       };
 
@@ -908,9 +1101,7 @@
       signInUser(newUser);
     }
 
-    // =========================================================
-    // 2. LOCK SCREEN & SESSION MANAGEMENT
-    // =========================================================
+    // --- LOCK SCREEN & AUTHENTICATION ---
     function showLockScreen() {
       loadRegistry();
       if (usersRegistry.length === 0) {
@@ -944,7 +1135,7 @@
       formEl.classList.add('hidden');
 
       listEl.innerHTML = usersRegistry.map(u => `
-        <button onclick="selectLockProfile('${u.uid}')" class="flex flex-col items-center p-3 rounded-2xl bg-white/5 hover:bg-white/15 border border-white/10 transition w-24">
+        <button onclick="selectLockProfile('${u.uid}')" class="flex flex-col items-center p-3 rounded-2xl bg-white/5 hover:bg-white/15 border border-white/10 active:scale-95 transition w-24">
           <span class="w-12 h-12 rounded-full flex items-center justify-center text-2xl bg-white/10 mb-1.5">${u.avatar}</span>
           <span class="text-xs font-semibold truncate w-full text-center">${escapeHtml(u.name)}</span>
         </button>
@@ -961,17 +1152,51 @@
       showLockScreen();
     }
 
-    function handleUnlock(e) {
+    async function handleUnlock(e) {
       e.preventDefault();
+      if (lockoutTimer) return;
+
       const pin = document.getElementById('unlockPinInput').value;
       const user = usersRegistry.find(u => u.uid === selectedLockUid);
       if (!user) return;
 
-      if (btoa(unescape(encodeURIComponent(pin))) !== user.pinHash) {
+      const hashed = await hashPin(pin);
+      // Support both legacy hash and new SHA-256
+      const isMatch = (hashed === user.pinHash) || (btoa(unescape(encodeURIComponent(pin))) === user.pinHash);
+
+      if (!isMatch) {
+        failedLoginAttempts++;
         document.getElementById('loginErrorMsg').classList.remove('hidden');
+        if (failedLoginAttempts >= 5) {
+          triggerLockout();
+        }
         return;
       }
+
+      failedLoginAttempts = 0;
       signInUser(user);
+    }
+
+    function triggerLockout() {
+      const msg = document.getElementById('lockoutMsg');
+      const btn = document.getElementById('unlockSubmitBtn');
+      msg.classList.remove('hidden');
+      btn.disabled = true;
+      btn.classList.add('opacity-50');
+
+      let countdown = 30;
+      lockoutTimer = setInterval(() => {
+        countdown--;
+        msg.textContent = `Too many attempts. Locked for ${countdown}s.`;
+        if (countdown <= 0) {
+          clearInterval(lockoutTimer);
+          lockoutTimer = null;
+          failedLoginAttempts = 0;
+          msg.classList.add('hidden');
+          btn.disabled = false;
+          btn.classList.remove('opacity-50');
+        }
+      }, 1000);
     }
 
     function signInUser(user) {
@@ -988,7 +1213,6 @@
 
       setWallpaper(userData.preferences.wallpaper || 'sequoia');
       setChartMode(userData.preferences.chartMode || 'spline');
-      document.body.classList.toggle('compact-mode', !!userData.preferences.compactMode);
       resetTimerToDefault();
 
       const todayKey = toDateKey(new Date());
@@ -1006,9 +1230,7 @@
       showLockScreen();
     }
 
-    // =========================================================
-    // 3. PROFILE BOOST ENGINE (XP, LEVEL & RANK CALCULATION)
-    // =========================================================
+    // --- PROFILE BOOST CALCULATION ---
     function calculateProfileBoost() {
       let totalCheckIns = 0;
       Object.values(userData.logs).forEach(dayMap => {
@@ -1031,25 +1253,20 @@
       document.getElementById('boostLevelText').textContent = `Level ${level}`;
       document.getElementById('boostXpText').textContent = `${currentLevelXp} / 100 XP (${totalXp} Total)`;
       document.getElementById('boostXpBar').style.width = `${currentLevelXp}%`;
-      document.getElementById('boostFocusTargetLabel').textContent = `Focus Goal: ${userData.boost.dailyFocusGoal || 90}m/day`;
+      document.getElementById('boostFocusTargetLabel').textContent = `Goal: ${userData.boost.dailyFocusGoal || 90}m/day`;
     }
 
-    // =========================================================
-    // 4. SYSTEM SETTINGS (BASIC SETTINGS + MULTI-ACCOUNT MANAGER)
-    // =========================================================
+    // --- SYSTEM SETTINGS MODAL ---
     function openSettingsModal(defaultTab = 'general') {
       if (!currentUser) return;
       document.getElementById('settingsSidebarAvatar').textContent = currentUser.avatar;
       document.getElementById('settingsSidebarName').textContent = currentUser.name;
 
-      // Sync basic toggles
       document.getElementById('prefSoundToggle').checked = !!userData.preferences.sound;
       document.getElementById('pref24HourToggle').checked = !!userData.preferences.use24Hour;
       document.getElementById('prefPomodoroDefault').value = String(userData.preferences.pomodoroDefault || 25);
       document.getElementById('prefDefaultTarget').value = String(userData.preferences.defaultHabitTarget || 7);
-      document.getElementById('prefCompactToggle').checked = !!userData.preferences.compactMode;
 
-      // Sync Profile Boost inputs
       document.getElementById('editProfileName').value = currentUser.name;
       document.getElementById('editProfileTrack').value = currentUser.track || '';
       document.getElementById('editProfileGoal').value = userData.boost.dailyFocusGoal || 90;
@@ -1071,21 +1288,23 @@
 
     function switchSettingsTab(tabName) {
       const titles = {
-        general: 'General & Basic Settings',
-        appearance: 'Appearance & Theme',
+        general: 'General Settings',
+        appearance: 'Appearance & Themes',
         profile: 'Profile Boost Configuration',
         accounts: 'Users & Accounts (Add / Switch)',
-        sync: 'Personal Data & Android Sync'
+        sync: 'Live Sync & Data Management'
       };
-      document.getElementById('settingsTabTitle').textContent = titles[tabName] || 'System Settings';
+      document.getElementById('settingsTabTitle').textContent = titles[tabName] || 'Settings';
 
       document.querySelectorAll('.settings-pane').forEach(el => el.classList.add('hidden'));
-      document.getElementById(`settingsTab-${tabName}`).classList.remove('hidden');
+      const activePane = document.getElementById(`settingsTab-${tabName}`);
+      if (activePane) activePane.classList.remove('hidden');
 
       document.querySelectorAll('.settings-tab-btn').forEach(btn => {
-        btn.className = 'settings-tab-btn text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-2 hover:bg-white/10';
+        btn.className = 'settings-tab-btn text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-2 hover:bg-white/10 flex-shrink-0';
       });
-      document.getElementById(`tabBtn-${tabName}`).className = 'settings-tab-btn text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-2 bg-blue-500 text-white';
+      const activeBtn = document.getElementById(`tabBtn-${tabName}`);
+      if (activeBtn) activeBtn.className = 'settings-tab-btn text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-2 bg-blue-500 text-white flex-shrink-0';
     }
 
     function saveBasicSettings() {
@@ -1093,9 +1312,7 @@
       userData.preferences.use24Hour = document.getElementById('pref24HourToggle').checked;
       userData.preferences.pomodoroDefault = parseInt(document.getElementById('prefPomodoroDefault').value, 10) || 25;
       userData.preferences.defaultHabitTarget = parseInt(document.getElementById('prefDefaultTarget').value, 10) || 7;
-      userData.preferences.compactMode = document.getElementById('prefCompactToggle').checked;
 
-      document.body.classList.toggle('compact-mode', userData.preferences.compactMode);
       savePersonalData();
       resetTimerToDefault();
       updateClocks();
@@ -1140,7 +1357,7 @@
       }).join('');
     }
 
-    function addAccountFromSettings(e) {
+    async function addAccountFromSettings(e) {
       e.preventDefault();
       const name = document.getElementById('newAccName').value.trim();
       const track = document.getElementById('newAccTrack').value.trim() || 'Personal Workspace';
@@ -1149,12 +1366,14 @@
 
       if (!name || !pin) return;
 
+      const pinHash = await hashPin(pin);
+
       const newUser = {
         uid: 'usr_' + Date.now().toString(36),
         name,
         avatar,
         track,
-        pinHash: btoa(unescape(encodeURIComponent(pin))),
+        pinHash,
         createdAt: new Date().toISOString()
       };
 
@@ -1195,9 +1414,7 @@
       document.getElementById('jsonPayloadPreview').textContent = JSON.stringify(payload, null, 2);
     }
 
-    // =========================================================
-    // 5. HABITS, RINGS, CHARTS & POMODORO
-    // =========================================================
+    // --- AUDIO HAPTIC FEEDBACK ---
     let audioCtx = null;
     function playHaptic() {
       if (!userData.preferences.sound) return;
@@ -1208,14 +1425,15 @@
         osc.connect(gain);
         gain.connect(audioCtx.destination);
         osc.frequency.setValueAtTime(580, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(920, audioCtx.currentTime + 0.06);
-        gain.gain.setValueAtTime(0.07, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.065);
+        osc.frequency.exponentialRampToValueAtTime(920, audioCtx.currentTime + 0.05);
+        gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.06);
         osc.start();
-        osc.stop(audioCtx.currentTime + 0.065);
+        osc.stop(audioCtx.currentTime + 0.06);
       } catch (e) {}
     }
 
+    // --- HABITS MANAGEMENT ---
     function toggleDayCheck(habitId, dateKey) {
       if (!userData.logs[dateKey]) userData.logs[dateKey] = {};
       userData.logs[dateKey][habitId] = !userData.logs[dateKey][habitId];
@@ -1297,9 +1515,19 @@
       renderAll();
     }
 
+    function setMatrixView(mode) {
+      matrixViewMode = mode;
+      document.getElementById('btnViewCards').className = mode === 'cards' ? 'px-2 py-1 rounded-lg bg-blue-500 text-white font-medium' : 'px-2 py-1 rounded-lg opacity-70';
+      document.getElementById('btnViewTable').className = mode === 'table' ? 'px-2 py-1 rounded-lg bg-blue-500 text-white font-medium' : 'px-2 py-1 rounded-lg opacity-70';
+      renderMatrix();
+    }
+
+    // --- MATRIX RENDERING (ADAPTIVE CARDS OR TABLE) ---
     function renderMatrix() {
       const container = document.getElementById('habitMatrixContainer');
       const weekDays = getWeekDates(weekOffset);
+      const todayKey = toDateKey(new Date());
+
       document.getElementById('weekRangeLabel').textContent = weekOffset === 0
         ? `This Week (${weekDays[0].key.slice(5)} – ${weekDays[6].key.slice(5)})`
         : `${weekDays[0].key.slice(5)} – ${weekDays[6].key.slice(5)}`;
@@ -1312,15 +1540,68 @@
 
       if (userData.habits.length === 0) {
         container.innerHTML = `
-          <div class="py-10 px-4 text-center border border-dashed border-black/10 dark:border-white/10 rounded-xl">
+          <div class="py-10 px-4 text-center border border-dashed border-black/10 dark:border-white/10 rounded-2xl">
             <h3 class="text-sm font-semibold">Zero Habits Logged Yet</h3>
-            <p class="text-xs text-slate-400 mt-1 mb-4">Add your first habit to start earning Profile Boost XP (+15 XP per check-in).</p>
-            <button onclick="openHabitModal()" class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold px-4 py-2 rounded-xl">+ Create First Habit</button>
+            <p class="text-xs text-slate-400 mt-1 mb-4">Add your first habit to start boosting your profile XP (+15 XP per check-in).</p>
+            <button onclick="openHabitModal()" class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md">+ Create First Habit</button>
           </div>
         `;
         return;
       }
 
+      // 1. MOBILE-FRIENDLY CARDS VIEW
+      if (matrixViewMode === 'cards') {
+        const cardsHtml = filtered.map(h => {
+          let done = 0;
+          const dayChips = weekDays.map(d => {
+            const checked = !!(userData.logs[d.key] && userData.logs[d.key][h.id]);
+            if (checked) done++;
+            const isToday = d.key === todayKey;
+            return `
+              <button onclick="toggleDayCheck('${h.id}', '${d.key}')" class="flex-1 flex flex-col items-center py-1.5 px-1 rounded-xl transition ${isToday ? 'ring-1 ring-blue-400' : ''}" style="${checked ? `background:${h.color}28; border:1px solid ${h.color}66; color:#fff;` : 'background:rgba(150,150,160,0.06); border:1px solid rgba(150,150,160,0.12);'}">
+                <span class="text-[9px] font-mono opacity-70">${d.label[0]}</span>
+                <span class="text-xs font-bold mt-0.5" style="${checked ? `color:${h.color};` : ''}">${checked ? '✓' : d.dayNum}</span>
+              </button>
+            `;
+          }).join('');
+
+          const pct = Math.min(100, Math.round((done / h.target) * 100));
+
+          return `
+            <div class="p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-white/10 space-y-3">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2.5 truncate">
+                  <span class="w-9 h-9 rounded-xl flex items-center justify-center text-base flex-shrink-0" style="background:${h.color}22;">${h.icon}</span>
+                  <div class="truncate">
+                    <h4 class="text-xs font-bold truncate">${escapeHtml(h.name)}</h4>
+                    <p class="text-[10px] text-slate-400">${h.category} • Target ${h.target}d/wk</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2 flex-shrink-0">
+                  <span class="text-xs font-mono font-bold" style="color:${h.color};">${done}/${h.target}</span>
+                  <button onclick="openHabitModal('${h.id}')" class="p-1.5 rounded-lg hover:bg-white/10 text-xs opacity-70 hover:opacity-100">✎</button>
+                  <button onclick="deleteHabit('${h.id}')" class="p-1.5 rounded-lg hover:bg-white/10 text-xs text-rose-400 opacity-70 hover:opacity-100">🗑</button>
+                </div>
+              </div>
+
+              <!-- Day Chips Row -->
+              <div class="flex gap-1.5">
+                ${dayChips}
+              </div>
+
+              <!-- Progress Bar -->
+              <div class="w-full h-1.5 bg-black/10 dark:bg-white/10 rounded-full overflow-hidden">
+                <div class="h-full rounded-full transition-all duration-300" style="width:${pct}%; background:${h.color};"></div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        container.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 gap-3">${cardsHtml}</div>`;
+        return;
+      }
+
+      // 2. DESKTOP FULL TABLE VIEW
       const rows = filtered.map(h => {
         let done = 0;
         const cells = weekDays.map(d => {
@@ -1371,6 +1652,7 @@
       `;
     }
 
+    // --- ACTIVITY RINGS & WEEKLY STREAK CHART ---
     function renderRingsAndChart() {
       const weekDays = getWeekDates(weekOffset);
       const totalHabits = userData.habits.length;
@@ -1424,64 +1706,134 @@
       document.getElementById('streakBadge').textContent = `🔥 ${activeDays} Active Day${activeDays === 1 ? '' : 's'}`;
 
       const chartContainer = document.getElementById('chartContainer');
+      const todayKey = toDateKey(new Date());
+
+      // 1. BAR / COLUMN MODE
       if (userData.preferences.chartMode === 'bar') {
         chartContainer.innerHTML = `
-          <div class="flex items-end justify-between gap-2 h-full px-2">
-            ${weekDays.map((d, i) => `
-              <div class="flex-1 flex flex-col items-center justify-end h-full">
-                <div class="text-[10px] font-mono mb-1">${dailyPcts[i]}%</div>
-                <div class="w-full max-w-[32px] h-28 bg-black/10 dark:bg-white/5 rounded-xl overflow-hidden flex items-end p-0.5">
-                  <div class="w-full rounded-lg bg-gradient-to-t from-blue-600 to-cyan-400 transition-all duration-500" style="height:${Math.max(4, dailyPcts[i])}\%; opacity:${dailyPcts[i] === 0 ? 0.2 : 1};"></div>
+          <div class="flex flex-col h-full justify-between">
+            <div class="flex items-end justify-between gap-1.5 h-28 px-2 pt-2">
+              ${weekDays.map((d, i) => `
+                <div class="flex-1 flex flex-col items-center justify-end h-full group">
+                  <div class="text-[10px] font-mono mb-1 text-slate-400 group-hover:text-white transition">${dailyPcts[i]}%</div>
+                  <div class="w-full max-w-[28px] h-20 bg-black/10 dark:bg-white/5 rounded-xl overflow-hidden flex items-end p-0.5">
+                    <div class="w-full rounded-lg bg-gradient-to-t from-blue-600 to-cyan-400 transition-all duration-500" style="height:${Math.max(6, dailyPcts[i])}%; opacity:${dailyPcts[i] === 0 ? 0.25 : 1};"></div>
+                  </div>
                 </div>
-                <span class="text-[11px] text-slate-400 mt-1.5">${d.label}</span>
-              </div>
-            `).join('')}
+              `).join('')}
+            </div>
+            <!-- Bottom Day Labels Axis -->
+            <div class="flex justify-between items-center px-2 pt-2 border-t border-black/5 dark:border-white/10">
+              ${weekDays.map((d) => `
+                <div class="flex-1 text-center">
+                  <span class="text-[11px] ${d.isToday ? 'text-blue-400 font-bold bg-blue-500/15 px-2 py-0.5 rounded-md' : 'text-slate-400 font-medium'}">${d.label}</span>
+                </div>
+              `).join('')}
+            </div>
           </div>
         `;
         return;
       }
 
-      const w = 560, h = 130, padX = 28, padY = 18;
-      const uw = w - padX * 2, uh = h - padY * 2;
-      const pts = dailyPcts.map((pct, i) => ({
-        x: padX + i * (uw / 6),
-        y: padY + uh - (pct / 100) * uh,
-        pct,
-        label: weekDays[i].label
-      }));
+      // 2. SPLINE CURVE MODE (Apple Health / macOS Sequoia Style)
+      // Compute actual pixel container width for 1:1 aspect ratio
+      const w = Math.max(300, Math.floor(chartContainer.clientWidth || 560));
+      const h = 110;
+      const padX = 28;
+      const padY = 16;
+      const graphW = w - padX * 2;
+      const graphH = h - padY * 2;
 
-      let dPath = `M ${pts[0].x} ${pts[0].y}`;
+      // Coordinate mapping: 0% at baseline (h - padY), 100% at peak (padY)
+      const pts = dailyPcts.map((pct, i) => {
+        const x = padX + i * (graphW / 6);
+        const y = (h - padY) - (pct / 100) * graphH;
+        return {
+          x,
+          y,
+          pct,
+          label: weekDays[i].label,
+          isToday: weekDays[i].isToday
+        };
+      });
+
+      // Construct smooth cubic bezier curve
+      let pathD = `M ${pts[0].x} ${pts[0].y}`;
       for (let i = 0; i < pts.length - 1; i++) {
-        const mX = (pts[i].x + pts[i + 1].x) / 2;
-        dPath += ` C ${mX} ${pts[i].y}, ${mX} ${pts[i + 1].y}, ${pts[i + 1].x} ${pts[i + 1].y}`;
+        const p0 = pts[i];
+        const p1 = pts[i + 1];
+        const cp1x = p0.x + (p1.x - p0.x) / 2;
+        const cp1y = p0.y;
+        const cp2x = p0.x + (p1.x - p0.x) / 2;
+        const cp2y = p1.y;
+        pathD += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p1.x} ${p1.y}`;
       }
-      const area = `${dPath} L ${pts[6].x} ${h - padY} L ${pts[0].x} ${h - padY} Z`;
 
+      const areaPath = `${pathD} L ${pts[pts.length - 1].x} ${h} L ${pts[0].x} ${h} Z`;
+
+      // Render chart: Top SVG graph (1:1 aspect ratio) + Bottom crisp HTML typography axis
       chartContainer.innerHTML = `
-        <svg viewBox="0 0 ${w} ${h + 22}" class="w-full h-full overflow-visible">
-          <defs>
-            <linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.45"/>
-              <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.0"/>
-            </linearGradient>
-          </defs>
-          <path d="${area}" fill="url(#sg)" />
-          <path d="${dPath}" fill="none" stroke="#3b82f6" stroke-width="2.8" />
-          ${pts.map(p => `
-            <g>
-              <circle cx="${p.x}" cy="${p.y}" r="4.5" fill="#3b82f6" stroke="#fff" stroke-width="1.5" />
-              <text x="${p.x}" y="${p.y - 9}" text-anchor="middle" class="text-[10px] fill-current opacity-75 font-mono">${p.pct}%</text>
-              <text x="${p.x}" y="${h + 12}" text-anchor="middle" class="text-[11px] fill-slate-400">${p.label}</text>
-            </g>
-          `).join('')}
-        </svg>
+        <div class="flex flex-col h-full justify-between select-none">
+          <!-- Graph Graphic Area -->
+          <div class="relative w-full h-[110px]">
+            <svg class="w-full h-full overflow-visible" viewBox="0 0 ${w} ${h}">
+              <defs>
+                <linearGradient id="appleSplineGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.35" />
+                  <stop offset="65%" stop-color="#06b6d4" stop-opacity="0.10" />
+                  <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.0" />
+                </linearGradient>
+                <linearGradient id="appleLineGrad" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#3b82f6" />
+                  <stop offset="100%" stop-color="#38bdf8" />
+                </linearGradient>
+                <filter id="appleGlow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="2.5" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+              </defs>
+
+              <!-- Reference Grid Lines -->
+              <line x1="${padX}" y1="${padY}" x2="${w - padX}" y2="${padY}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="3 3" stroke-width="1" />
+              <line x1="${padX}" y1="${padY + graphH / 2}" x2="${w - padX}" y2="${padY + graphH / 2}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="3 3" stroke-width="1" />
+              <line x1="${padX}" y1="${h - padY}" x2="${w - padX}" y2="${h - padY}" stroke="rgba(255,255,255,0.09)" stroke-width="1" />
+
+              <!-- Area Gradient Fill -->
+              <path d="${areaPath}" fill="url(#appleSplineGrad)" />
+
+              <!-- Smooth Spline Line -->
+              <path d="${pathD}" fill="none" stroke="url(#appleLineGrad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" filter="url(#appleGlow)" />
+
+              <!-- Circular Glowing Data Points (Crisp 1:1 Circles) -->
+              ${pts.map(p => `
+                <g class="cursor-pointer group">
+                  <circle cx="${p.x}" cy="${p.y}" r="9" fill="transparent" />
+                  <circle cx="${p.x}" cy="${p.y}" r="6" fill="#3b82f6" fill-opacity="0.25" />
+                  <circle cx="${p.x}" cy="${p.y}" r="4" fill="#ffffff" stroke="#3b82f6" stroke-width="2.5" />
+                  <!-- Percentage Label floating above dot -->
+                  <text x="${p.x}" y="${Math.max(11, p.y - 8)}" text-anchor="middle" font-size="10" font-family="ui-monospace, monospace" font-weight="600" fill="${p.pct > 0 ? '#38bdf8' : '#64748b'}">${p.pct}%</text>
+                </g>
+              `).join('')}
+            </svg>
+          </div>
+
+          <!-- Bottom Day Labels Axis (Crisp Typography, Never Squished) -->
+          <div class="flex justify-between items-center px-1 pt-1.5 border-t border-black/5 dark:border-white/10">
+            ${weekDays.map(d => `
+              <div class="flex-1 text-center">
+                <span class="text-[11px] tracking-tight ${d.isToday ? 'text-blue-400 font-bold bg-blue-500/20 border border-blue-400/30 px-2 py-0.5 rounded-lg' : 'text-slate-400 font-medium'}">${d.label}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
       `;
     }
 
+    // --- 35-DAY CONSISTENCY HEATMAP ---
     function renderHeatmap() {
       const grid = document.getElementById('heatmapGrid');
-      const total = userData.habits.length;
-      let active = 0, html = '';
+      let html = '';
+      let active = 0;
       const today = new Date();
 
       for (let i = 34; i >= 0; i--) {
@@ -1489,22 +1841,23 @@
         d.setDate(today.getDate() - i);
         const key = toDateKey(d);
         const log = userData.logs[key] || {};
-        const done = total > 0 ? userData.habits.filter(h => log[h.id]).length : 0;
-        const ratio = total > 0 ? done / total : 0;
-        if (done > 0) active++;
+        const count = Object.values(log).filter(Boolean).length;
+        const total = userData.habits.length || 1;
+        const ratio = count / total;
 
         let bg = 'bg-black/10 dark:bg-white/5';
-        if (ratio > 0 && ratio < 0.4) bg = 'bg-emerald-500/30';
-        else if (ratio >= 0.4 && ratio < 0.8) bg = 'bg-emerald-500/60';
-        else if (ratio >= 0.8) bg = 'bg-emerald-400';
+        if (ratio > 0) active++;
+        if (ratio > 0 && ratio <= 0.33) bg = 'bg-emerald-500/30';
+        else if (ratio > 0.33 && ratio <= 0.75) bg = 'bg-emerald-500/60';
+        else if (ratio > 0.75) bg = 'bg-emerald-400';
 
-        html += `<div class="h-5 rounded-md ${bg}" title="${key}: ${Math.round(ratio * 100)}%"></div>`;
+        html += `<div class="h-4.5 rounded-md ${bg}" title="${key}: ${Math.round(ratio * 100)}%"></div>`;
       }
       grid.innerHTML = html;
       document.getElementById('heatmapActiveDays').textContent = `${active} active day${active === 1 ? '' : 's'}`;
     }
 
-    // --- POMODORO TIMER (+25 XP BOOST ON COMPLETION) ---
+    // --- FOCUS TIMER (+25 XP BOOST) ---
     let timerSeconds = 25 * 60;
     let timerInterval = null;
 
@@ -1545,6 +1898,7 @@
             playHaptic();
             calculateProfileBoost();
             btn.textContent = 'Start';
+            alert('🎉 Focus Session Completed! +25 Profile Boost XP Earned!');
           }
         }, 1000);
       }
@@ -1556,7 +1910,7 @@
         userData.habits.map(h => `<option value="${h.id}">${escapeHtml(h.icon + ' ' + h.name)}</option>`).join('');
     }
 
-    // --- MOOD, NOTES & EXPORT ---
+    // --- MOOD & NOTES ---
     function selectMood(mood) {
       const key = toDateKey(new Date());
       if (!userData.dailyNotes[key]) userData.dailyNotes[key] = { mood: '', text: '' };
@@ -1585,7 +1939,7 @@
       const blob = new Blob([JSON.stringify({ profile: currentUser, data: userData }, null, 2)], { type: 'application/json' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = `pulsehabit_${currentUser.name.toLowerCase()}.json`;
+      a.download = `pulsehabit_${currentUser.name.toLowerCase()}_backup.json`;
       a.click();
     }
 
@@ -1600,13 +1954,14 @@
           savePersonalData();
           renderAll();
           updateSyncPreview();
-        } catch (err) { alert('Invalid JSON'); }
+          alert('Backup restored successfully!');
+        } catch (err) { alert('Invalid JSON Backup file'); }
       };
       reader.readAsText(file);
     }
 
     function clearCurrentUserData() {
-      if (!confirm('Reset all habits and XP for your profile?')) return;
+      if (!confirm('Reset all habits, logs, and XP for your profile?')) return;
       userData = createEmptyUserData();
       savePersonalData();
       renderAll();
@@ -1617,8 +1972,8 @@
       currentFilter = cat;
       document.querySelectorAll('.cat-btn').forEach(btn => {
         btn.className = btn.dataset.cat === cat
-          ? 'cat-btn px-3 py-1 rounded-lg text-xs font-medium bg-blue-500 text-white'
-          : 'cat-btn px-3 py-1 rounded-lg text-xs font-medium bg-black/5 dark:bg-white/5';
+          ? 'cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-blue-500 text-white flex-shrink-0'
+          : 'cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-black/5 dark:bg-white/5 flex-shrink-0';
       });
       renderMatrix();
     }
@@ -1647,25 +2002,36 @@
       if (action === 'max') {
         win.classList.toggle('max-w-7xl');
         win.classList.toggle('max-w-full');
+      } else if (action === 'min') {
+        win.classList.toggle('p-2');
       }
     }
 
     function escapeHtml(s) {
-      return String(s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+      return String(s || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
     }
 
     function updateClocks() {
       const now = new Date();
       const use24 = !!(userData.preferences && userData.preferences.use24Hour);
-      document.getElementById('macClock').textContent = now.toLocaleString('en-US', {
-        weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: !use24
-      });
-      document.getElementById('lockDate').textContent = now.toLocaleDateString('en-US', {
-        weekday: 'long', month: 'long', day: 'numeric'
-      });
-      document.getElementById('lockTime').textContent = now.toLocaleTimeString('en-US', {
-        hour: '2-digit', minute: '2-digit', hour12: false
-      });
+      const clockEl = document.getElementById('macClock');
+      if (clockEl) {
+        clockEl.textContent = now.toLocaleString('en-US', {
+          weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: !use24
+        });
+      }
+      const lockDateEl = document.getElementById('lockDate');
+      if (lockDateEl) {
+        lockDateEl.textContent = now.toLocaleDateString('en-US', {
+          weekday: 'long', month: 'long', day: 'numeric'
+        });
+      }
+      const lockTimeEl = document.getElementById('lockTime');
+      if (lockTimeEl) {
+        lockTimeEl.textContent = now.toLocaleTimeString('en-US', {
+          hour: '2-digit', minute: '2-digit', hour12: false
+        });
+      }
     }
 
     function renderAll() {
@@ -1677,6 +2043,21 @@
       updateTimerSelect();
       renderMood();
     }
+
+    // Auto-detect mobile screen & re-render responsive chart on resize
+    let resizeDebounce = null;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeDebounce);
+      resizeDebounce = setTimeout(() => {
+        const isMobile = window.innerWidth < 768;
+        if (isMobile && matrixViewMode === 'table') {
+          setMatrixView('cards');
+        }
+        if (currentUser) {
+          renderRingsAndChart();
+        }
+      }, 80);
+    });
 
     // --- INIT ---
     updateClocks();
