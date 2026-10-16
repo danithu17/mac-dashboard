@@ -31,6 +31,7 @@ if (!gotTheLock) {
       minHeight: 600,
       title: 'PulseHabit Pro',
       frame: false, // Frameless for pure authentic Apple unified window
+      icon: path.join(__dirname, 'assets', process.platform === 'win32' ? 'icon.ico' : 'icon.png'),
       backgroundColor: '#0b0f19',
       show: false,
       webPreferences: {

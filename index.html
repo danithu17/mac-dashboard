@@ -7,6 +7,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="theme-color" content="#0b0f19" />
   <title>PulseHabit Pro — Apple Ecosystem Edition</title>
+  <link rel="icon" type="image/png" href="icon.png" />
+  <link rel="apple-touch-icon" href="icon.png" />
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -167,9 +169,7 @@
       <!-- Step Indicator -->
       <div class="flex items-center justify-between border-b border-white/10 pb-4">
         <div class="flex items-center gap-2.5">
-          <svg class="w-6 h-6 fill-current text-blue-400" viewBox="0 0 170 170">
-            <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.69-3.04-7.67-7.81-11.96-14.34-5.7-8.66-10.15-18.79-13.32-30.4-3.18-11.61-4.77-22.75-4.77-33.43 0-14.15 3.42-26.04 10.27-35.66 6.84-9.63 15.66-14.51 26.46-14.65 4.9 0 10.42 1.34 16.58 4.02 6.16 2.68 10.16 4.08 12.01 4.2 1.85.12 6.08-1.42 12.69-4.63 6.6-3.21 12.18-4.63 16.73-4.26 12.44.75 22.45 5.48 30.04 14.18-10.84 6.53-16.14 15.54-15.9 27.03.24 10.14 4.14 18.66 11.69 25.57 7.55 6.91 16.53 10.81 26.94 11.69-2.22 6.75-4.73 13.59-7.53 20.52zM119.22 31.86c0-7.39 2.66-14.42 7.97-21.1 5.31-6.68 11.96-10.76 19.96-12.24.4 1.36.6 2.7.6 4.02 0 7.39-2.73 14.43-8.19 21.1-5.46 6.67-12.23 10.74-20.34 12.22z"/>
-          </svg>
+          <img src="icon.png" class="w-8 h-8 rounded-xl shadow-md border border-white/20 object-cover flex-shrink-0" alt="PulseHabit Icon" />
           <div>
             <h1 class="text-base font-bold tracking-tight">Apple Setup Assistant</h1>
             <p class="text-xs text-white/50">First-Time Profile & Security Initialization</p>
@@ -268,7 +268,8 @@
        3. MACOS LOCK SCREEN (SECURITY & MULTI-USER SWITCHING)
        ========================================================= -->
   <div id="lockScreen" class="fixed inset-0 z-50 hidden flex-col items-center justify-between p-6 bg-black/60 backdrop-blur-2xl text-white">
-    <div class="text-center mt-6 sm:mt-10">
+    <div class="text-center mt-6 sm:mt-10 flex flex-col items-center">
+      <img src="icon.png" class="w-16 h-16 rounded-2xl shadow-2xl border border-white/20 mb-3 object-cover shadow-blue-500/10" alt="PulseHabit App Icon" />
       <div id="lockDate" class="text-xs sm:text-sm font-medium tracking-wide text-white/80 uppercase"></div>
       <div id="lockTime" class="text-5xl sm:text-7xl font-bold tracking-tight mt-1 font-mono"></div>
     </div>
@@ -333,9 +334,7 @@
 
         <!-- Brand & Workspace Title -->
         <div class="flex items-center gap-2 pl-1 mac-no-drag">
-          <svg class="w-4 h-4 fill-current text-white/95" viewBox="0 0 170 170">
-            <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.69-3.04-7.67-7.81-11.96-14.34-5.7-8.66-10.15-18.79-13.32-30.4-3.18-11.61-4.77-22.75-4.77-33.43 0-14.15 3.42-26.04 10.27-35.66 6.84-9.63 15.66-14.51 26.46-14.65 4.9 0 10.42 1.34 16.58 4.02 6.16 2.68 10.16 4.08 12.01 4.2 1.85.12 6.08-1.42 12.69-4.63 6.6-3.21 12.18-4.63 16.73-4.26 12.44.75 22.45 5.48 30.04 14.18-10.84 6.53-16.14 15.54-15.9 27.03.24 10.14 4.14 18.66 11.69 25.57 7.55 6.91 16.53 10.81 26.94 11.69-2.22 6.75-4.73 13.59-7.53 20.52zM119.22 31.86c0-7.39 2.66-14.42 7.97-21.1 5.31-6.68 11.96-10.76 19.96-12.24.4 1.36.6 2.7.6 4.02 0 7.39-2.73 14.43-8.19 21.1-5.46 6.67-12.23 10.74-20.34 12.22z"/>
-          </svg>
+          <img src="icon.png" class="w-5 h-5 rounded-[5px] shadow-sm border border-white/20 object-cover flex-shrink-0" alt="PulseHabit Icon" />
           <span class="font-bold text-xs tracking-tight">PulseHabit</span>
           <span class="text-white/30 text-xs font-mono hidden sm:inline">/</span>
           <span id="workspaceHeaderTitle" class="text-xs font-semibold text-white/80 truncate max-w-[130px] sm:max-w-none hidden sm:inline">Workspace</span>
@@ -388,7 +387,7 @@
     </header>
 
     <!-- Main Workspace Content -->
-    <div class="p-3 sm:p-5 md:p-6 space-y-4 sm:space-y-5">
+    <div class="p-3 sm:p-5 md:p-6 pb-28 space-y-4 sm:space-y-5">
 
       <!-- PROFILE BOOST BANNER -->
       <div class="mac-card rounded-2xl p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border border-blue-500/20">
@@ -641,6 +640,76 @@
 
       </div>
 
+    </div>
+
+    <!-- Authentic macOS Sequoia Floating Glass Dock -->
+    <div class="fixed bottom-3 inset-x-0 z-30 flex justify-center pointer-events-none px-4">
+      <div class="pointer-events-auto flex items-end gap-2 sm:gap-2.5 px-3.5 py-2 rounded-2xl bg-white/20 dark:bg-black/50 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-black/50 transition-all select-none max-w-full overflow-x-auto no-scrollbar">
+        
+        <!-- App Main Squircle Icon -->
+        <div class="group relative flex flex-col items-center">
+          <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-[11px] overflow-hidden shadow-md border border-white/20 transition-transform duration-200 group-hover:-translate-y-2 group-hover:scale-110 active:scale-95 cursor-pointer flex-shrink-0" onclick="window.scrollTo({top:0, behavior:'smooth'})" title="PulseHabit Pro">
+            <img src="icon.png" class="w-full h-full object-cover" alt="PulseHabit" />
+          </div>
+          <span class="w-1 h-1 rounded-full bg-white/70 mt-1"></span>
+          <span class="absolute -top-7 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 backdrop-blur-md text-white text-[10px] font-medium px-2 py-0.5 rounded-md pointer-events-none whitespace-nowrap border border-white/10 hidden sm:block">PulseHabit Pro</span>
+        </div>
+
+        <!-- Vertical Divider -->
+        <div class="w-[1px] h-8 bg-white/15 my-auto mx-0.5"></div>
+
+        <!-- New Habit -->
+        <div class="group relative flex flex-col items-center">
+          <button onclick="openHabitModal()" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 text-white flex items-center justify-center text-lg shadow-md border border-white/20 transition-transform duration-200 group-hover:-translate-y-2 group-hover:scale-110 active:scale-95 flex-shrink-0" title="New Habit">
+            +
+          </button>
+          <span class="absolute -top-7 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 backdrop-blur-md text-white text-[10px] font-medium px-2 py-0.5 rounded-md pointer-events-none whitespace-nowrap border border-white/10 hidden sm:block">New Habit</span>
+        </div>
+
+        <!-- Activity Rings -->
+        <div class="group relative flex flex-col items-center">
+          <button onclick="window.scrollTo({top:200, behavior:'smooth'})" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-rose-500 to-pink-600 text-white flex items-center justify-center text-base shadow-md border border-white/20 transition-transform duration-200 group-hover:-translate-y-2 group-hover:scale-110 active:scale-95 flex-shrink-0" title="Activity Rings">
+            ⭕
+          </button>
+          <span class="absolute -top-7 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 backdrop-blur-md text-white text-[10px] font-medium px-2 py-0.5 rounded-md pointer-events-none whitespace-nowrap border border-white/10 hidden sm:block">Activity Rings</span>
+        </div>
+
+        <!-- Awards Gallery -->
+        <div class="group relative flex flex-col items-center">
+          <button onclick="openAwardsModal()" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-600 text-white flex items-center justify-center text-base shadow-md border border-white/20 transition-transform duration-200 group-hover:-translate-y-2 group-hover:scale-110 active:scale-95 flex-shrink-0" title="Awards Gallery">
+            🏅
+          </button>
+          <span class="absolute -top-7 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 backdrop-blur-md text-white text-[10px] font-medium px-2 py-0.5 rounded-md pointer-events-none whitespace-nowrap border border-white/10 hidden sm:block">Awards Gallery</span>
+        </div>
+
+        <!-- Quick Notes Archive -->
+        <div class="group relative flex flex-col items-center">
+          <button onclick="openNotesArchiveModal()" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white flex items-center justify-center text-base shadow-md border border-white/20 transition-transform duration-200 group-hover:-translate-y-2 group-hover:scale-110 active:scale-95 flex-shrink-0" title="Quick Notes">
+            📝
+          </button>
+          <span class="absolute -top-7 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 backdrop-blur-md text-white text-[10px] font-medium px-2 py-0.5 rounded-md pointer-events-none whitespace-nowrap border border-white/10 hidden sm:block">Quick Notes</span>
+        </div>
+
+        <!-- Focus Timer -->
+        <div class="group relative flex flex-col items-center">
+          <button onclick="toggleTimer()" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 text-white flex items-center justify-center text-base shadow-md border border-white/20 transition-transform duration-200 group-hover:-translate-y-2 group-hover:scale-110 active:scale-95 flex-shrink-0" title="Focus Timer">
+            ⏱️
+          </button>
+          <span class="absolute -top-7 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 backdrop-blur-md text-white text-[10px] font-medium px-2 py-0.5 rounded-md pointer-events-none whitespace-nowrap border border-white/10 hidden sm:block">Focus Timer</span>
+        </div>
+
+        <!-- Vertical Divider -->
+        <div class="w-[1px] h-8 bg-white/15 my-auto mx-0.5"></div>
+
+        <!-- System Settings -->
+        <div class="group relative flex flex-col items-center">
+          <button onclick="openSettingsModal('general')" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-zinc-800 text-white flex items-center justify-center text-base shadow-md border border-white/20 transition-transform duration-200 group-hover:-translate-y-2 group-hover:scale-110 active:scale-95 flex-shrink-0" title="Settings">
+            ⚙️
+          </button>
+          <span class="absolute -top-7 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 backdrop-blur-md text-white text-[10px] font-medium px-2 py-0.5 rounded-md pointer-events-none whitespace-nowrap border border-white/10 hidden sm:block">System Settings</span>
+        </div>
+
+      </div>
     </div>
   </main>
 

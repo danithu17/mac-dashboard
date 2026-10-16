@@ -1,0 +1,2678 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#0b0f19" />
+  <title>PulseHabit Pro — Apple Ecosystem Edition</title>
+  <link rel="icon" type="image/png" href="icon.png" />
+  <link rel="apple-touch-icon" href="icon.png" />
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"SF Pro Text"', 'Inter', 'system-ui', 'sans-serif'],
+            mono: ['"SF Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
+          },
+          screens: {
+            'xs': '420px',
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    :root {
+      --glass-bg: rgba(255, 255, 255, 0.82);
+      --glass-border: rgba(0, 0, 0, 0.08);
+      --card-bg: rgba(255, 255, 255, 0.7);
+      --card-border: rgba(0, 0, 0, 0.06);
+    }
+
+    html.dark {
+      --glass-bg: rgba(18, 20, 28, 0.82);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --card-bg: rgba(28, 30, 42, 0.65);
+      --card-border: rgba(255, 255, 255, 0.08);
+    }
+
+    * {
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+    }
+
+    html {
+      color-scheme: dark;
+    }
+
+    /* macOS Sleek Floating Scrollbar */
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.22);
+      border-radius: 9999px;
+      border: 1px solid transparent;
+      background-clip: padding-box;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.4);
+      background-clip: padding-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Inter, system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+      overflow-x: hidden;
+      min-height: 100vh;
+      min-height: 100dvh;
+      transition: background 0.4s ease;
+    }
+
+    input, textarea, select {
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    /* Apple Wallpapers */
+    .wp-sequoia {
+      background:
+        radial-gradient(circle at 18% 15%, rgba(255, 115, 75, 0.38) 0%, transparent 45%),
+        radial-gradient(circle at 85% 20%, rgba(56, 189, 248, 0.38) 0%, transparent 50%),
+        radial-gradient(circle at 50% 85%, rgba(99, 102, 241, 0.42) 0%, transparent 55%),
+        linear-gradient(135deg, #0b0f19 0%, #131b2e 50%, #1a162b 100%);
+      background-attachment: fixed;
+    }
+    .wp-sonoma {
+      background:
+        radial-gradient(circle at 15% 75%, rgba(16, 185, 129, 0.36) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.32) 0%, transparent 45%),
+        radial-gradient(circle at 55% 50%, rgba(14, 165, 233, 0.34) 0%, transparent 55%),
+        linear-gradient(135deg, #091921 0%, #0f292f 50%, #181c2b 100%);
+      background-attachment: fixed;
+    }
+    .wp-midnight {
+      background:
+        radial-gradient(circle at 30% 20%, rgba(139, 92, 246, 0.24) 0%, transparent 50%),
+        radial-gradient(circle at 75% 80%, rgba(37, 99, 235, 0.24) 0%, transparent 50%),
+        linear-gradient(160deg, #050508 0%, #0d0e15 60%, #08090f 100%);
+      background-attachment: fixed;
+    }
+
+    .mac-window {
+      background: var(--glass-bg);
+      backdrop-filter: blur(40px) saturate(190%);
+      -webkit-backdrop-filter: blur(40px) saturate(190%);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 24px 60px -15px rgba(0, 0, 0, 0.6), 0 0 0 0.5px rgba(255, 255, 255, 0.12) inset;
+    }
+
+    .mac-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(24px) saturate(160%);
+      -webkit-backdrop-filter: blur(24px) saturate(160%);
+      border: 1px solid var(--card-border);
+      box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.15);
+    }
+
+    .ring-circle {
+      transition: stroke-dashoffset 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+    }
+
+    .check-cell {
+      transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .check-cell:active {
+      transform: scale(0.88);
+    }
+
+    /* macOS Window Dragging */
+    .mac-titlebar {
+      -webkit-app-region: drag;
+    }
+    .mac-no-drag, button, input, select, textarea, a {
+      -webkit-app-region: no-drag;
+    }
+
+    /* Traffic light symbol styling */
+    .traffic-btn:hover span {
+      opacity: 1 !important;
+    }
+  </style>
+</head>
+<body class="wp-sequoia text-slate-900 dark:text-slate-100 min-h-screen m-0 p-0 overflow-x-hidden flex flex-col">
+
+  <!-- =========================================================
+       2. FIRST-TIME BOOT WIZARD (WHEN ZERO ACCOUNTS EXIST)
+       ========================================================= -->
+  <div id="firstBootOverlay" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/75 backdrop-blur-3xl text-white">
+    <div class="w-full max-w-lg bg-zinc-900/90 border border-white/15 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
+      
+      <!-- Step Indicator -->
+      <div class="flex items-center justify-between border-b border-white/10 pb-4">
+        <div class="flex items-center gap-2.5">
+          <img src="icon.png" class="w-8 h-8 rounded-xl shadow-md border border-white/20 object-cover flex-shrink-0" alt="PulseHabit Icon" />
+          <div>
+            <h1 class="text-base font-bold tracking-tight">Apple Setup Assistant</h1>
+            <p class="text-xs text-white/50">First-Time Profile & Security Initialization</p>
+          </div>
+        </div>
+        <span id="bootStepBadge" class="text-xs font-mono px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30">Step 1 of 2</span>
+      </div>
+
+      <!-- STEP 1: Welcome -->
+      <div id="bootStep1" class="space-y-5">
+        <div class="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-2">
+          <div class="text-sm font-semibold text-blue-400">⚡ Profile Boost Engine Activated</div>
+          <p class="text-xs text-white/70 leading-relaxed">
+            Welcome to PulseHabit Pro. Your workspace starts with zero dummy data. Every real habit check-in and Pomodoro session boosts your profile XP, Rank, and consistency index.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3 text-center">
+          <div class="p-3 rounded-xl bg-white/5 border border-white/10">
+            <div class="text-xl">🛡️</div>
+            <div class="text-xs font-semibold mt-1">SHA-256</div>
+            <div class="text-[10px] text-white/50">Secured PIN</div>
+          </div>
+          <div class="p-3 rounded-xl bg-white/5 border border-white/10">
+            <div class="text-xl">🚀</div>
+            <div class="text-xs font-semibold mt-1">XP & Ranks</div>
+            <div class="text-[10px] text-white/50">Level Up</div>
+          </div>
+          <div class="p-3 rounded-xl bg-white/5 border border-white/10">
+            <div class="text-xl">📱</div>
+            <div class="text-xs font-semibold mt-1">Live Sync</div>
+            <div class="text-[10px] text-white/50">Web & Android</div>
+          </div>
+        </div>
+
+        <button onclick="goToBootStep(2)" class="w-full py-3 rounded-xl bg-blue-500 hover:bg-blue-600 text-xs font-semibold shadow-lg transition">
+          Configure Primary Administrator Profile →
+        </button>
+      </div>
+
+      <!-- STEP 2: Create Profile -->
+      <form id="bootStep2" onsubmit="completeFirstBoot(event)" class="space-y-4 hidden">
+        <div>
+          <label class="block text-xs text-white/80 mb-1">Your Name / Handle</label>
+          <input id="bootName" type="text" required placeholder="e.g., Danithu" class="w-full bg-white/10 border border-white/20 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-blue-400" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs text-white/80 mb-1">Avatar</label>
+            <select id="bootAvatar" class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none">
+              <option value="👨‍💻" class="text-black">👨‍💻 Developer</option>
+              <option value="🚀" class="text-black">🚀 Founder</option>
+              <option value="⚡" class="text-black">⚡ Architect</option>
+              <option value="🎯" class="text-black">🎯 Strategist</option>
+              <option value="🧠" class="text-black">🧠 Engineer</option>
+              <option value="👑" class="text-black">👑 Leader</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs text-white/80 mb-1">Primary Track</label>
+            <select id="bootTrack" class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none">
+              <option value="Software Engineering" class="text-black">Software Engineering</option>
+              <option value="High Performance" class="text-black">High Performance</option>
+              <option value="Full-Stack & Fitness" class="text-black">Full-Stack & Fitness</option>
+              <option value="Creator & Research" class="text-black">Creator & Research</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs text-white/80 mb-1">Daily Focus Target (Minutes)</label>
+          <input id="bootFocusGoal" type="number" min="15" max="480" value="90" required class="w-full bg-white/10 border border-white/20 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-blue-400" />
+        </div>
+
+        <div>
+          <label class="block text-xs text-white/80 mb-1">Security PIN / Password (SHA-256 Hashed)</label>
+          <input id="bootPin" type="password" required placeholder="Set your login PIN or password" class="w-full bg-white/10 border border-white/20 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-blue-400" />
+          <p class="text-[10px] text-white/40 mt-1">Secured with cryptographic hashing for maximum privacy.</p>
+        </div>
+
+        <div class="flex gap-2 pt-2">
+          <button type="button" onclick="goToBootStep(1)" class="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-medium">
+            ← Back
+          </button>
+          <button type="submit" class="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-xs font-semibold shadow-lg transition">
+            Initialize Workspace & Boost Profile ⚡
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- =========================================================
+       3. MACOS LOCK SCREEN (SECURITY & MULTI-USER SWITCHING)
+       ========================================================= -->
+  <div id="lockScreen" class="fixed inset-0 z-50 hidden flex-col items-center justify-between p-6 bg-black/60 backdrop-blur-2xl text-white">
+    <div class="text-center mt-6 sm:mt-10 flex flex-col items-center">
+      <img src="icon.png" class="w-16 h-16 rounded-2xl shadow-2xl border border-white/20 mb-3 object-cover shadow-blue-500/10" alt="PulseHabit App Icon" />
+      <div id="lockDate" class="text-xs sm:text-sm font-medium tracking-wide text-white/80 uppercase"></div>
+      <div id="lockTime" class="text-5xl sm:text-7xl font-bold tracking-tight mt-1 font-mono"></div>
+    </div>
+
+    <div class="w-full max-w-sm bg-black/50 border border-white/15 backdrop-blur-3xl rounded-3xl p-6 shadow-2xl space-y-4">
+      <div class="text-center">
+        <h2 class="text-sm font-semibold">Select Profile to Unlock</h2>
+        <p class="text-[11px] text-white/50 mt-0.5">Isolated user vaults with zero cross-leakage</p>
+      </div>
+
+      <!-- User Avatars Grid -->
+      <div id="lockProfilesList" class="flex justify-center gap-3 flex-wrap py-1 max-h-48 overflow-y-auto"></div>
+
+      <!-- Password / PIN Form -->
+      <form id="unlockForm" onsubmit="handleUnlock(event)" class="space-y-3 hidden">
+        <div class="text-center">
+          <div id="lockSelectedAvatar" class="w-14 h-14 rounded-full mx-auto flex items-center justify-center text-2xl bg-white/10 border border-white/20 shadow-inner"></div>
+          <div id="lockSelectedName" class="text-sm font-semibold mt-2"></div>
+          <div id="lockSelectedTrack" class="text-[11px] text-blue-400"></div>
+        </div>
+
+        <div>
+          <input id="unlockPinInput" type="password" required placeholder="Enter PIN / Password" class="w-full bg-white/10 border border-white/20 rounded-xl px-3.5 py-2.5 text-center text-sm text-white placeholder-white/40 focus:outline-none focus:border-blue-400" />
+          <p id="loginErrorMsg" class="text-[11px] text-rose-400 text-center mt-1 hidden">Incorrect PIN / Password</p>
+          <p id="lockoutMsg" class="text-[11px] text-amber-400 text-center mt-1 hidden">Too many attempts. Locked for 30s.</p>
+        </div>
+
+        <div class="flex gap-2">
+          <button type="button" onclick="clearLockSelection()" class="flex-1 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-medium">Switch</button>
+          <button type="submit" id="unlockSubmitBtn" class="flex-1 py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-xs font-semibold">Unlock →</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="text-[11px] text-white/40 text-center">
+      PulseHabit Pro • Multi-Platform Secure Storage
+    </div>
+  </div>
+
+  <!-- =========================================================
+       4. MAIN WORKSPACE CONTAINER
+       ========================================================= -->
+  <main id="appWindow" class="w-full min-h-screen flex flex-col transition-all duration-300">
+    
+    <!-- Unified macOS Sequoia Title Bar (Single Native Window Header) -->
+    <header class="mac-titlebar sticky top-0 z-40 h-[52px] px-3 sm:px-4 flex items-center justify-between border-b border-white/10 bg-[#0c1017]/90 dark:bg-[#0c1017]/90 backdrop-blur-2xl shadow-sm select-none">
+      
+      <!-- Left: Apple Traffic Lights + Brand & Workspace Title -->
+      <div class="flex items-center gap-3">
+        <!-- Authentic macOS Traffic Lights -->
+        <div class="flex items-center gap-2 group/lights mac-no-drag">
+          <button onclick="windowAction('close')" class="traffic-btn w-3.5 h-3.5 rounded-full bg-[#ff5f56] border border-[#e0443e] flex items-center justify-center text-[8px] text-[#4c0002] font-bold shadow-sm hover:opacity-100 transition" title="Close">
+            <span class="opacity-0 transition-opacity">✕</span>
+          </button>
+          <button onclick="windowAction('min')" class="traffic-btn w-3.5 h-3.5 rounded-full bg-[#ffbd2e] border border-[#dea123] flex items-center justify-center text-[8px] text-[#5c3c00] font-bold shadow-sm hover:opacity-100 transition" title="Minimize">
+            <span class="opacity-0 transition-opacity">−</span>
+          </button>
+          <button onclick="windowAction('max')" class="traffic-btn w-3.5 h-3.5 rounded-full bg-[#27c93f] border border-[#1aab29] flex items-center justify-center text-[8px] text-[#003d07] font-bold shadow-sm hover:opacity-100 transition" title="Zoom / Maximize">
+            <span class="opacity-0 transition-opacity">+</span>
+          </button>
+        </div>
+
+        <!-- Brand & Workspace Title -->
+        <div class="flex items-center gap-2 pl-1 mac-no-drag">
+          <img src="icon.png" class="w-5 h-5 rounded-[5px] shadow-sm border border-white/20 object-cover flex-shrink-0" alt="PulseHabit Icon" />
+          <span class="font-bold text-xs tracking-tight">PulseHabit</span>
+          <span class="text-white/30 text-xs font-mono hidden sm:inline">/</span>
+          <span id="workspaceHeaderTitle" class="text-xs font-semibold text-white/80 truncate max-w-[130px] sm:max-w-none hidden sm:inline">Workspace</span>
+        </div>
+      </div>
+
+      <!-- Center: Week Navigator -->
+      <div class="flex items-center gap-1 bg-black/20 dark:bg-white/10 p-1 rounded-xl text-xs mac-no-drag border border-white/10 shadow-inner">
+        <button onclick="shiftWeek(-1)" class="px-2 py-0.5 rounded-lg hover:bg-white/15 active:scale-95 transition" title="Previous Week">‹</button>
+        <button onclick="resetToCurrentWeek()" id="weekRangeLabel" class="px-2.5 py-0.5 font-mono text-[11px] font-semibold text-center truncate">This Week</button>
+        <button onclick="shiftWeek(1)" class="px-2 py-0.5 rounded-lg hover:bg-white/15 active:scale-95 transition" title="Next Week">›</button>
+      </div>
+
+      <!-- Right: Action Buttons, Settings, Sync, User Profile, Lock, Clock -->
+      <div class="flex items-center gap-1.5 sm:gap-2 mac-no-drag">
+        <!-- New Habit Button -->
+        <button onclick="openHabitModal()" class="flex items-center gap-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold px-2.5 sm:px-3 py-1.5 rounded-xl shadow-md active:scale-95 transition">
+          <span class="text-sm leading-none">+</span>
+          <span class="hidden xs:inline">New Habit</span>
+        </button>
+
+        <!-- Settings Button -->
+        <button onclick="openSettingsModal('general')" class="flex items-center gap-1 bg-black/20 dark:bg-white/10 hover:bg-white/20 text-xs font-medium p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl border border-white/10 transition" title="Settings">
+          <svg class="w-3.5 h-3.5 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <span class="hidden md:inline">Settings</span>
+        </button>
+
+        <!-- Sync Pill -->
+        <span id="syncIndicator" class="flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/20" title="Sync Status">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="hidden lg:inline">Synced</span>
+        </span>
+
+        <!-- User Profile Pill -->
+        <button onclick="openSettingsModal('profile')" class="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 px-2 sm:px-2.5 py-1 rounded-full text-[11px] transition">
+          <span id="topUserAvatar" class="text-sm">👨‍💻</span>
+          <span id="topUserName" class="font-semibold max-w-[80px] truncate">User</span>
+          <span id="topUserLevel" class="text-[10px] font-mono text-amber-300 bg-amber-500/20 px-1.5 rounded-full">Lv.1</span>
+        </button>
+
+        <!-- Lock Button -->
+        <button onclick="lockSession()" class="flex items-center gap-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 p-1.5 sm:px-2.5 sm:py-1 rounded-xl text-[11px] font-semibold transition" title="Lock Workspace">
+          <svg class="w-3 h-3 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          <span class="hidden sm:inline">Lock</span>
+        </button>
+
+        <!-- Real-time Clock -->
+        <span id="macClock" class="font-mono text-[11px] hidden xl:inline ml-1 text-white/80"></span>
+      </div>
+    </header>
+
+    <!-- Main Workspace Content -->
+    <div class="p-3 sm:p-5 md:p-6 pb-28 space-y-4 sm:space-y-5">
+
+      <!-- PROFILE BOOST BANNER -->
+      <div class="mac-card rounded-2xl p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border border-blue-500/20">
+        <div class="flex items-center gap-3 w-full md:w-auto">
+          <div id="boostAvatar" class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500/30 to-purple-500/30 border border-white/15 flex items-center justify-center text-2xl shadow-inner flex-shrink-0">
+            👨‍💻
+          </div>
+          <div class="flex-1 truncate">
+            <div class="flex items-center gap-2 flex-wrap">
+              <h2 id="boostName" class="text-sm font-bold truncate">User</h2>
+              <span id="boostRankBadge" class="text-[10px] font-mono font-semibold uppercase px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30 flex-shrink-0">
+                Initiate
+              </span>
+              <button onclick="openAwardsModal()" class="flex items-center gap-1 text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-400/30 flex-shrink-0 transition" title="View Apple Watch Awards">
+                <span>🏅</span><span id="boostAwardsBadge">Awards 0/8</span>
+              </button>
+            </div>
+            <p id="boostTrack" class="text-xs text-slate-500 dark:text-slate-400 truncate">Software Engineering</p>
+          </div>
+        </div>
+
+        <!-- XP Bar -->
+        <div class="w-full md:w-72">
+          <div class="flex justify-between text-[11px] font-mono mb-1">
+            <span id="boostLevelText" class="font-semibold text-amber-400">Level 1</span>
+            <span id="boostXpText" class="text-slate-400">0 / 100 XP</span>
+          </div>
+          <div class="w-full h-2 rounded-full bg-black/15 dark:bg-white/10 overflow-hidden">
+            <div id="boostXpBar" class="h-full bg-gradient-to-r from-blue-500 via-indigo-400 to-emerald-400 transition-all duration-500" style="width: 0%"></div>
+          </div>
+          <div class="text-[10px] text-slate-400 mt-1 flex justify-between">
+            <span>+15 XP per check-in</span>
+            <span id="boostFocusTargetLabel">Goal: 90m/day</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TOP ROW: Activity Rings + Weekly Streak Chart -->
+      <div class="grid grid-cols-1 xl:grid-cols-12 gap-4 sm:gap-5">
+        
+        <!-- Activity Rings Card -->
+        <div class="mac-card rounded-2xl p-4 sm:p-5 xl:col-span-5 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h2 class="text-sm font-semibold">Activity Rings</h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Weekly completion rings</p>
+            </div>
+            <span id="streakBadge" class="text-xs font-mono px-2.5 py-1 rounded-full bg-orange-500/15 text-orange-400 border border-orange-500/20">
+              🔥 0 Active Days
+            </span>
+          </div>
+
+          <div class="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 my-auto py-2">
+            <!-- Rings SVG -->
+            <div class="relative w-36 h-36 flex-shrink-0 flex items-center justify-center">
+              <svg class="w-full h-full" viewBox="0 0 140 140">
+                <circle cx="70" cy="70" r="56" stroke="rgba(250, 17, 79, 0.16)" stroke-width="11" fill="none" />
+                <circle cx="70" cy="70" r="42" stroke="rgba(164, 255, 0, 0.16)" stroke-width="11" fill="none" />
+                <circle cx="70" cy="70" r="28" stroke="rgba(0, 245, 234, 0.16)" stroke-width="11" fill="none" />
+
+                <circle id="ringOverall" class="ring-circle" cx="70" cy="70" r="56" stroke="#fa114f" stroke-width="11" stroke-linecap="round" fill="none" stroke-dasharray="351.86" stroke-dashoffset="351.86" />
+                <circle id="ringCraft" class="ring-circle" cx="70" cy="70" r="42" stroke="#a4ff00" stroke-width="11" stroke-linecap="round" fill="none" stroke-dasharray="263.89" stroke-dashoffset="263.89" />
+                <circle id="ringVitality" class="ring-circle" cx="70" cy="70" r="28" stroke="#00f5ea" stroke-width="11" stroke-linecap="round" fill="none" stroke-dasharray="175.93" stroke-dashoffset="175.93" />
+              </svg>
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <span id="ringCenterPct" class="text-lg font-bold font-mono">0%</span>
+              </div>
+            </div>
+
+            <!-- Ring Labels -->
+            <div class="space-y-2.5 w-full">
+              <div class="bg-black/5 dark:bg-white/5 p-2 rounded-xl">
+                <div class="flex justify-between text-xs font-semibold">
+                  <span class="text-[#fa114f] flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-[#fa114f]"></span> Overall Goal
+                  </span>
+                  <span id="labelOverall" class="font-mono">0% (0/0)</span>
+                </div>
+                <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">All weekly check-ins</p>
+              </div>
+
+              <div class="bg-black/5 dark:bg-white/5 p-2 rounded-xl">
+                <div class="flex justify-between text-xs font-semibold">
+                  <span class="text-[#a4ff00] flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-[#a4ff00]"></span> Craft & Intellect
+                  </span>
+                  <span id="labelCraft" class="font-mono">0%</span>
+                </div>
+                <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Coding & Reading</p>
+              </div>
+
+              <div class="bg-black/5 dark:bg-white/5 p-2 rounded-xl">
+                <div class="flex justify-between text-xs font-semibold">
+                  <span class="text-[#00f5ea] flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-[#00f5ea]"></span> Vitality & Mind
+                  </span>
+                  <span id="labelVitality" class="font-mono">0%</span>
+                </div>
+                <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Fitness, Mindfulness & Hydration</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Weekly Streak Chart Card -->
+        <div class="mac-card rounded-2xl p-4 sm:p-5 xl:col-span-7 flex flex-col justify-between">
+          <div class="flex items-center justify-between gap-2 mb-3">
+            <div>
+              <h2 class="text-sm font-semibold">Weekly Streak Chart</h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Day-by-day consistency</p>
+            </div>
+            <div class="flex bg-black/10 dark:bg-white/10 p-0.5 rounded-lg text-xs">
+              <button onclick="setChartMode('spline')" id="btnSpline" class="px-2.5 py-1 rounded-md bg-blue-500 text-white font-medium">Spline</button>
+              <button onclick="setChartMode('bar')" id="btnBar" class="px-2.5 py-1 rounded-md opacity-70">Columns</button>
+            </div>
+          </div>
+          <div id="chartContainer" class="relative h-44 w-full pt-1"></div>
+        </div>
+
+      </div>
+
+      <!-- MIDDLE ROW: Habits Matrix & Filter -->
+      <div class="mac-card rounded-2xl p-4 sm:p-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <!-- Category Filter Pills (Mobile Scrollable) -->
+          <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
+            <button onclick="setFilter('All')" data-cat="All" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-blue-500 text-white flex-shrink-0">All</button>
+            <button onclick="setFilter('Coding')" data-cat="Coding" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-black/5 dark:bg-white/5 flex-shrink-0">💻 Coding</button>
+            <button onclick="setFilter('Reading')" data-cat="Reading" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-black/5 dark:bg-white/5 flex-shrink-0">📚 Reading</button>
+            <button onclick="setFilter('Fitness')" data-cat="Fitness" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-black/5 dark:bg-white/5 flex-shrink-0">🏋️ Fitness</button>
+            <button onclick="setFilter('Mindfulness')" data-cat="Mindfulness" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-black/5 dark:bg-white/5 flex-shrink-0">🧘 Mindfulness</button>
+            <button onclick="setFilter('Hydration')" data-cat="Hydration" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-black/5 dark:bg-white/5 flex-shrink-0">💧 Hydration</button>
+          </div>
+
+          <!-- Search & Mobile View Toggle -->
+          <div class="flex items-center gap-2">
+            <input id="searchInput" oninput="renderAll()" type="text" placeholder="Search habits..." class="bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl px-3 py-1.5 text-xs focus:outline-none w-full sm:w-48" />
+            
+            <!-- View Mode Switcher -->
+            <div class="flex bg-black/10 dark:bg-white/10 p-0.5 rounded-xl text-xs flex-shrink-0">
+              <button onclick="setMatrixView('cards')" id="btnViewCards" class="px-2 py-1 rounded-lg bg-blue-500 text-white font-medium" title="Cards View">Cards</button>
+              <button onclick="setMatrixView('table')" id="btnViewTable" class="px-2 py-1 rounded-lg opacity-70" title="Table View">Table</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Matrix / Cards Output Container -->
+        <div id="habitMatrixContainer" class="overflow-x-auto no-scrollbar"></div>
+      </div>
+
+      <!-- BOTTOM ROW: Focus Timer + 35-Day Heatmap + Daily Reflection -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
+        
+        <!-- Focus Timer -->
+        <div class="mac-card rounded-2xl p-4 sm:p-5 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <h3 class="text-sm font-semibold">Focus Timer (+25 XP)</h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Boosts profile XP on completion</p>
+            </div>
+            <select id="timerHabitSelect" class="bg-black/10 dark:bg-white/10 border border-white/10 rounded-lg px-2 py-1 text-xs max-w-[120px] truncate">
+              <option value="">General Focus</option>
+            </select>
+          </div>
+
+          <div class="my-4 text-center">
+            <div id="timerDisplay" class="text-5xl font-mono font-bold tracking-tight">25:00</div>
+            <div class="flex justify-center gap-2 mt-3 text-xs">
+              <button onclick="setTimerPreset(25)" class="px-3 py-1 rounded-lg bg-black/10 dark:bg-white/10 hover:bg-white/20">25m</button>
+              <button onclick="setTimerPreset(50)" class="px-3 py-1 rounded-lg bg-black/10 dark:bg-white/10 hover:bg-white/20">50m</button>
+              <button onclick="setTimerPreset(5)" class="px-3 py-1 rounded-lg bg-black/10 dark:bg-white/10 hover:bg-white/20">5m</button>
+            </div>
+          </div>
+
+          <div class="flex gap-2">
+            <button onclick="toggleTimer()" id="timerStartBtn" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold py-2.5 rounded-xl shadow-md active:scale-95 transition">Start</button>
+            <button onclick="resetTimerToDefault()" class="px-4 py-2.5 rounded-xl bg-black/10 dark:bg-white/10 hover:bg-white/15 text-xs font-medium">Reset</button>
+          </div>
+        </div>
+
+        <!-- Consistency Heatmap & Calendar (35D / Month / 365D) -->
+        <div class="mac-card rounded-2xl p-4 sm:p-5 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <h3 class="text-sm font-semibold">Consistency Matrix</h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Activity heatmap & calendar</p>
+            </div>
+            <!-- Matrix Mode Selector -->
+            <div class="flex bg-black/10 dark:bg-white/10 p-0.5 rounded-lg text-[10px]">
+              <button onclick="setConsistencyMode('35d')" id="btnCons35d" class="px-2 py-0.5 rounded-md bg-blue-500 text-white font-medium">35D</button>
+              <button onclick="setConsistencyMode('month')" id="btnConsMonth" class="px-2 py-0.5 rounded-md opacity-70">Month</button>
+              <button onclick="setConsistencyMode('year')" id="btnConsYear" class="px-2 py-0.5 rounded-md opacity-70">365D</button>
+            </div>
+          </div>
+
+          <div id="heatmapContentArea" class="my-auto py-1 min-h-[120px] flex items-center justify-center">
+            <div id="heatmapGrid" class="grid grid-cols-7 gap-1.5 w-full"></div>
+          </div>
+
+          <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-white/5">
+            <span id="heatmapActiveDays" class="font-mono text-emerald-400">0 active days</span>
+            <div class="flex items-center gap-1">
+              <span class="w-2.5 h-2.5 rounded-sm bg-black/10 dark:bg-white/5" title="0%"></span>
+              <span class="w-2.5 h-2.5 rounded-sm bg-emerald-500/30" title="1-33%"></span>
+              <span class="w-2.5 h-2.5 rounded-sm bg-emerald-500/60" title="34-75%"></span>
+              <span class="w-2.5 h-2.5 rounded-sm bg-emerald-400" title="76-100%"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Daily Reflection & Quick Notes (Apple Notes style) -->
+        <div class="mac-card rounded-2xl p-4 sm:p-5 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <div class="flex items-center gap-1.5">
+                <h3 class="text-sm font-semibold">Quick Notes & Mood</h3>
+                <button onclick="openNotesArchiveModal()" class="text-[10px] text-blue-400 hover:text-blue-300 hover:underline">Archive</button>
+              </div>
+              <div class="flex items-center gap-1 text-[11px] font-mono text-slate-400 mt-0.5">
+                <button onclick="shiftNotesDate(-1)" class="hover:text-white px-1 rounded hover:bg-white/10" title="Previous Day">‹</button>
+                <span id="journalDateLabel">Today</span>
+                <button onclick="shiftNotesDate(1)" class="hover:text-white px-1 rounded hover:bg-white/10" title="Next Day">›</button>
+              </div>
+            </div>
+            <span id="saveIndicator" class="text-[10px] text-emerald-400 font-mono">Saved</span>
+          </div>
+
+          <div class="flex items-center justify-between gap-1 my-1.5 bg-black/5 dark:bg-white/5 p-1 rounded-xl">
+            <button onclick="selectMood('⚡')" data-mood="⚡" class="mood-btn flex-1 py-1 rounded-lg text-sm hover:bg-white/10 transition" title="Energized">⚡</button>
+            <button onclick="selectMood('🔥')" data-mood="🔥" class="mood-btn flex-1 py-1 rounded-lg text-sm hover:bg-white/10 transition" title="Productive">🔥</button>
+            <button onclick="selectMood('😌')" data-mood="😌" class="mood-btn flex-1 py-1 rounded-lg text-sm hover:bg-white/10 transition" title="Calm">😌</button>
+            <button onclick="selectMood('😐')" data-mood="😐" class="mood-btn flex-1 py-1 rounded-lg text-sm hover:bg-white/10 transition" title="Neutral">😐</button>
+            <button onclick="selectMood('🔋')" data-mood="🔋" class="mood-btn flex-1 py-1 rounded-lg text-sm hover:bg-white/10 transition" title="Drained">🔋</button>
+          </div>
+
+          <!-- Quick Tags -->
+          <div class="flex items-center gap-1 mb-1.5 text-[10px] overflow-x-auto no-scrollbar">
+            <button onclick="insertNoteTag('💡 Idea: ')" class="px-2 py-0.5 rounded-md bg-white/5 hover:bg-white/10 text-amber-300 border border-white/5 flex-shrink-0">💡 Idea</button>
+            <button onclick="insertNoteTag('🎯 Win: ')" class="px-2 py-0.5 rounded-md bg-white/5 hover:bg-white/10 text-emerald-300 border border-white/5 flex-shrink-0">🎯 Win</button>
+            <button onclick="insertNoteTag('⚠️ Blocker: ')" class="px-2 py-0.5 rounded-md bg-white/5 hover:bg-white/10 text-rose-300 border border-white/5 flex-shrink-0">⚠️ Blocker</button>
+          </div>
+
+          <textarea id="reflectionInput" oninput="saveReflection()" rows="3" placeholder="Log thoughts, ideas or reflections..." class="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl p-2.5 text-xs focus:outline-none resize-none"></textarea>
+
+          <div class="flex items-center justify-between text-[10px] text-slate-400 mt-1 pt-1 border-t border-white/5">
+            <span id="noteWordCount">0 words</span>
+            <span class="text-emerald-400/80 flex items-center gap-1">🔒 Vault Secured</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Authentic macOS Sequoia Floating Glass Dock -->
+    <div class="fixed bottom-3 inset-x-0 z-30 flex justify-center pointer-events-none px-4">
+      <div class="pointer-events-auto flex items-end gap-2 sm:gap-2.5 px-3.5 py-2 rounded-2xl bg-white/20 dark:bg-black/50 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-black/50 transition-all select-none max-w-full overflow-x-auto no-scrollbar">
+        
+        <!-- App Main Squircle Icon -->
+        <div class="group relative flex flex-col items-center">
+          <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-[11px] overflow-hidden shadow-md border border-white/20 transition-transform duration-200 group-hover:-translate-y-2 group-hover:scale-110 active:scale-95 cursor-pointer flex-shrink-0" onclick="window.scrollTo({top:0, behavior:'smooth'})" title="PulseHabit Pro">
+            <img src="icon.png" class="w-full h-full object-cover" alt="PulseHabit" />
+          </div>
+          <span class="w-1 h-1 rounded-full bg-white/70 mt-1"></span>
+          <span class="absolute -top-7 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 backdrop-blur-md text-white text-[10px] font-medium px-2 py-0.5 rounded-md pointer-events-none whitespace-nowrap border border-white/10 hidden sm:block">PulseHabit Pro</span>
+        </div>
+
+        <!-- Vertical Divider -->
+        <div class="w-[1px] h-8 bg-white/15 my-auto mx-0.5"></div>
+
+        <!-- New Habit -->
+        <div class="group relative flex flex-col items-center">
+          <button onclick="openHabitModal()" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 text-white flex items-center justify-center text-lg shadow-md border border-white/20 transition-transform duration-200 group-hover:-translate-y-2 group-hover:scale-110 active:scale-95 flex-shrink-0" title="New Habit">
+            +
+          </button>
+          <span class="absolute -top-7 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 backdrop-blur-md text-white text-[10px] font-medium px-2 py-0.5 rounded-md pointer-events-none whitespace-nowrap border border-white/10 hidden sm:block">New Habit</span>
+        </div>
+
+        <!-- Activity Rings -->
+        <div class="group relative flex flex-col items-center">
+          <button onclick="window.scrollTo({top:200, behavior:'smooth'})" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-rose-500 to-pink-600 text-white flex items-center justify-center text-base shadow-md border border-white/20 transition-transform duration-200 group-hover:-translate-y-2 group-hover:scale-110 active:scale-95 flex-shrink-0" title="Activity Rings">
+            ⭕
+          </button>
+          <span class="absolute -top-7 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 backdrop-blur-md text-white text-[10px] font-medium px-2 py-0.5 rounded-md pointer-events-none whitespace-nowrap border border-white/10 hidden sm:block">Activity Rings</span>
+        </div>
+
+        <!-- Awards Gallery -->
+        <div class="group relative flex flex-col items-center">
+          <button onclick="openAwardsModal()" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-600 text-white flex items-center justify-center text-base shadow-md border border-white/20 transition-transform duration-200 group-hover:-translate-y-2 group-hover:scale-110 active:scale-95 flex-shrink-0" title="Awards Gallery">
+            🏅
+          </button>
+          <span class="absolute -top-7 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 backdrop-blur-md text-white text-[10px] font-medium px-2 py-0.5 rounded-md pointer-events-none whitespace-nowrap border border-white/10 hidden sm:block">Awards Gallery</span>
+        </div>
+
+        <!-- Quick Notes Archive -->
+        <div class="group relative flex flex-col items-center">
+          <button onclick="openNotesArchiveModal()" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white flex items-center justify-center text-base shadow-md border border-white/20 transition-transform duration-200 group-hover:-translate-y-2 group-hover:scale-110 active:scale-95 flex-shrink-0" title="Quick Notes">
+            📝
+          </button>
+          <span class="absolute -top-7 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 backdrop-blur-md text-white text-[10px] font-medium px-2 py-0.5 rounded-md pointer-events-none whitespace-nowrap border border-white/10 hidden sm:block">Quick Notes</span>
+        </div>
+
+        <!-- Focus Timer -->
+        <div class="group relative flex flex-col items-center">
+          <button onclick="toggleTimer()" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 text-white flex items-center justify-center text-base shadow-md border border-white/20 transition-transform duration-200 group-hover:-translate-y-2 group-hover:scale-110 active:scale-95 flex-shrink-0" title="Focus Timer">
+            ⏱️
+          </button>
+          <span class="absolute -top-7 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 backdrop-blur-md text-white text-[10px] font-medium px-2 py-0.5 rounded-md pointer-events-none whitespace-nowrap border border-white/10 hidden sm:block">Focus Timer</span>
+        </div>
+
+        <!-- Vertical Divider -->
+        <div class="w-[1px] h-8 bg-white/15 my-auto mx-0.5"></div>
+
+        <!-- System Settings -->
+        <div class="group relative flex flex-col items-center">
+          <button onclick="openSettingsModal('general')" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-zinc-800 text-white flex items-center justify-center text-base shadow-md border border-white/20 transition-transform duration-200 group-hover:-translate-y-2 group-hover:scale-110 active:scale-95 flex-shrink-0" title="Settings">
+            ⚙️
+          </button>
+          <span class="absolute -top-7 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 backdrop-blur-md text-white text-[10px] font-medium px-2 py-0.5 rounded-md pointer-events-none whitespace-nowrap border border-white/10 hidden sm:block">System Settings</span>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- =========================================================
+       5. SYSTEM SETTINGS MODAL (FULL DIALOG)
+       ========================================================= -->
+  <div id="settingsModal" class="fixed inset-0 bg-black/65 backdrop-blur-md z-50 hidden items-center justify-center p-3 sm:p-4">
+    <div class="mac-window w-full max-w-3xl rounded-2xl md:rounded-3xl border border-white/15 overflow-hidden flex flex-col md:flex-row h-[580px] max-h-[92vh]">
+      
+      <!-- Left Sidebar Navigation -->
+      <div class="w-full md:w-56 bg-black/30 border-b md:border-b-0 md:border-r border-white/10 p-3 flex flex-row md:flex-col gap-1 overflow-x-auto no-scrollbar flex-shrink-0">
+        <div class="hidden md:flex items-center gap-2.5 px-2 py-2 mb-2 border-b border-white/10">
+          <span id="settingsSidebarAvatar" class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-base">👨‍💻</span>
+          <div class="truncate">
+            <div id="settingsSidebarName" class="text-xs font-bold truncate">User</div>
+            <div class="text-[10px] text-slate-400">Apple ID & Profile</div>
+          </div>
+        </div>
+
+        <button onclick="switchSettingsTab('general')" id="tabBtn-general" class="settings-tab-btn text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-2 bg-blue-500 text-white flex-shrink-0">
+          <span>⚙️</span><span>General</span>
+        </button>
+        <button onclick="switchSettingsTab('appearance')" id="tabBtn-appearance" class="settings-tab-btn text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-2 hover:bg-white/10 flex-shrink-0">
+          <span>🎨</span><span>Appearance</span>
+        </button>
+        <button onclick="switchSettingsTab('profile')" id="tabBtn-profile" class="settings-tab-btn text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-2 hover:bg-white/10 flex-shrink-0">
+          <span>🚀</span><span>Profile Boost</span>
+        </button>
+        <button onclick="switchSettingsTab('accounts')" id="tabBtn-accounts" class="settings-tab-btn text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-2 hover:bg-white/10 flex-shrink-0">
+          <span>👥</span><span>Accounts</span>
+        </button>
+        <button onclick="switchSettingsTab('sync')" id="tabBtn-sync" class="settings-tab-btn text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-2 hover:bg-white/10 flex-shrink-0">
+          <span>📱</span><span>Live Sync</span>
+        </button>
+        <button onclick="switchSettingsTab('backup')" id="tabBtn-backup" class="settings-tab-btn text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-2 hover:bg-white/10 flex-shrink-0">
+          <span>💾</span><span>Data & Backup</span>
+        </button>
+      </div>
+
+      <!-- Right Content Area -->
+      <div class="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4">
+        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+          <h3 id="settingsTabTitle" class="text-sm sm:text-base font-bold">General Settings</h3>
+          <button onclick="closeSettingsModal()" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-slate-300 hover:text-white text-xs">✕</button>
+        </div>
+
+        <!-- TAB 1: GENERAL -->
+        <div id="settingsTab-general" class="settings-pane space-y-3">
+          <div class="p-4 rounded-xl bg-black/10 dark:bg-white/5 border border-white/10 space-y-4 text-xs">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-semibold">Haptic Audio Effects</div>
+                <div class="text-[11px] text-slate-400">Play Apple tactile click sound on habit check</div>
+              </div>
+              <input type="checkbox" id="prefSoundToggle" onchange="saveBasicSettings()" class="w-4 h-4 accent-blue-500" />
+            </div>
+
+            <div class="flex items-center justify-between border-t border-white/10 pt-3">
+              <div>
+                <div class="font-semibold">24-Hour Menu Bar Clock</div>
+                <div class="text-[11px] text-slate-400">Use 24-hour military time format</div>
+              </div>
+              <input type="checkbox" id="pref24HourToggle" onchange="saveBasicSettings()" class="w-4 h-4 accent-blue-500" />
+            </div>
+
+            <div class="flex items-center justify-between border-t border-white/10 pt-3">
+              <div>
+                <div class="font-semibold">Default Pomodoro Duration</div>
+                <div class="text-[11px] text-slate-400">Minutes for fresh focus timers</div>
+              </div>
+              <select id="prefPomodoroDefault" onchange="saveBasicSettings()" class="bg-black/20 border border-white/15 rounded-lg px-2.5 py-1 text-xs">
+                <option value="25">25 Minutes</option>
+                <option value="50">50 Minutes</option>
+                <option value="90">90 Minutes</option>
+              </select>
+            </div>
+
+            <div class="flex items-center justify-between border-t border-white/10 pt-3">
+              <div>
+                <div class="font-semibold">Default Habit Weekly Target</div>
+                <div class="text-[11px] text-slate-400">Pre-filled target days for new habits</div>
+              </div>
+              <select id="prefDefaultTarget" onchange="saveBasicSettings()" class="bg-black/20 border border-white/15 rounded-lg px-2.5 py-1 text-xs">
+                <option value="7">7 Days / Week</option>
+                <option value="5">5 Days / Week</option>
+                <option value="3">3 Days / Week</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: APPEARANCE -->
+        <div id="settingsTab-appearance" class="settings-pane space-y-3 hidden">
+          <div class="p-4 rounded-xl bg-black/10 dark:bg-white/5 border border-white/10 space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-xs font-semibold">Dark Mode Glass Theme</div>
+                <div class="text-[11px] text-slate-400">Toggle macOS Dark / Light glassmorphism</div>
+              </div>
+              <button onclick="toggleTheme()" class="px-3 py-1.5 rounded-lg bg-blue-500 text-white text-xs font-medium">Toggle Theme</button>
+            </div>
+
+            <div class="border-t border-white/10 pt-3">
+              <div class="text-xs font-semibold mb-2">macOS Dynamic Wallpaper</div>
+              <div class="grid grid-cols-3 gap-2">
+                <button onclick="setWallpaper('sequoia')" class="p-3 rounded-xl border border-white/15 text-xs font-medium bg-gradient-to-r from-orange-500/30 to-indigo-500/30">Sequoia</button>
+                <button onclick="setWallpaper('sonoma')" class="p-3 rounded-xl border border-white/15 text-xs font-medium bg-gradient-to-r from-emerald-500/30 to-sky-500/30">Sonoma</button>
+                <button onclick="setWallpaper('midnight')" class="p-3 rounded-xl border border-white/15 text-xs font-medium bg-zinc-900">Midnight</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 3: PROFILE BOOST -->
+        <div id="settingsTab-profile" class="settings-pane space-y-3 hidden">
+          <div class="p-4 rounded-xl bg-black/10 dark:bg-white/5 border border-white/10 space-y-3">
+            <div>
+              <label class="block text-xs font-medium mb-1">Display Name</label>
+              <input id="editProfileName" type="text" class="w-full bg-black/20 border border-white/15 rounded-xl px-3 py-2 text-xs" />
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-medium mb-1">Primary Focus Track</label>
+                <input id="editProfileTrack" type="text" class="w-full bg-black/20 border border-white/15 rounded-xl px-3 py-2 text-xs" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium mb-1">Daily Focus Goal (Mins)</label>
+                <input id="editProfileGoal" type="number" min="15" max="480" class="w-full bg-black/20 border border-white/15 rounded-xl px-3 py-2 text-xs" />
+              </div>
+            </div>
+            <button onclick="saveProfileEdits()" class="px-4 py-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold">
+              Update Profile Boost Config
+            </button>
+          </div>
+        </div>
+
+        <!-- TAB 4: USERS & ACCOUNTS -->
+        <div id="settingsTab-accounts" class="settings-pane space-y-4 hidden">
+          <div>
+            <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Registered Accounts</h4>
+            <div id="settingsAccountsList" class="space-y-2"></div>
+          </div>
+
+          <!-- Add Account Form -->
+          <form onsubmit="addAccountFromSettings(event)" class="p-4 rounded-xl bg-black/15 dark:bg-white/5 border border-white/10 space-y-3">
+            <h4 class="text-xs font-bold text-blue-400">+ Add Isolated Personal Account</h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <input id="newAccName" type="text" required placeholder="User Name" class="bg-black/20 border border-white/15 rounded-xl px-3 py-2 text-xs" />
+              <input id="newAccTrack" type="text" placeholder="Track (e.g., Software Dev)" class="bg-black/20 border border-white/15 rounded-xl px-3 py-2 text-xs" />
+            </div>
+            <div class="grid grid-cols-2 gap-2.5">
+              <select id="newAccAvatar" class="bg-black/20 border border-white/15 rounded-xl px-2.5 py-2 text-xs">
+                <option value="👨‍💻">👨‍💻 Developer</option>
+                <option value="🚀">🚀 Founder</option>
+                <option value="⚡">⚡ Creator</option>
+                <option value="🎯">🎯 Strategist</option>
+                <option value="👑">👑 Leader</option>
+              </select>
+              <input id="newAccPin" type="password" required placeholder="PIN / Password" class="bg-black/20 border border-white/15 rounded-xl px-3 py-2 text-xs" />
+            </div>
+            <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold">
+              Create Isolated Vault
+            </button>
+          </form>
+        </div>
+
+        <!-- TAB 5: DATA & SYNC -->
+        <div id="settingsTab-sync" class="settings-pane space-y-3 hidden">
+          <div class="p-4 rounded-xl bg-black/10 dark:bg-white/5 border border-white/10 space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-xs font-semibold">Cost-Free Live Sync API</div>
+                <div class="text-[11px] text-slate-400">Syncs instantly with Web, Desktop, & Android</div>
+              </div>
+              <button onclick="forceSyncNow()" class="px-3 py-1.5 rounded-lg bg-blue-500 text-white text-xs font-medium">Sync Now</button>
+            </div>
+            <div class="flex flex-wrap gap-2 pt-2">
+              <button onclick="exportPersonalJson()" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-semibold">Export JSON Backup</button>
+              <label class="px-3 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-300 text-xs font-semibold cursor-pointer">
+                Import JSON
+                <input type="file" accept=".json" onchange="importPersonalJson(event)" class="hidden" />
+              </label>
+              <button onclick="clearCurrentUserData()" class="px-3 py-1.5 rounded-lg bg-rose-500/20 text-rose-300 text-xs font-semibold">Reset My Data</button>
+            </div>
+            <pre id="jsonPayloadPreview" class="bg-black/40 text-emerald-300 font-mono text-[10px] p-3 rounded-xl overflow-x-auto max-h-48 border border-white/10"></pre>
+          </div>
+        </div>
+
+        <!-- TAB 6: DATA BACKUP & CSV EXPORT -->
+        <div id="settingsTab-backup" class="settings-pane space-y-3 hidden">
+          <div class="p-4 rounded-xl bg-black/10 dark:bg-white/5 border border-white/10 space-y-4">
+            <div>
+              <h4 class="text-xs font-bold text-blue-400">Export & Backup Vault</h4>
+              <p class="text-[11px] text-slate-400">Download your personal data for safe keeping or spreadsheet analysis.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+              <button onclick="exportPersonalJson()" class="p-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex flex-col items-start gap-1 text-left transition active:scale-95">
+                <div class="flex items-center gap-2 text-xs font-bold text-white">
+                  <span>📥</span><span>JSON Vault Backup</span>
+                </div>
+                <span class="text-[10px] text-slate-400">Complete raw backup including habits, history, reflections & XP</span>
+              </button>
+
+              <button onclick="exportCsvReport()" class="p-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex flex-col items-start gap-1 text-left transition active:scale-95">
+                <div class="flex items-center gap-2 text-xs font-bold text-emerald-400">
+                  <span>📊</span><span>CSV Habit Report</span>
+                </div>
+                <span class="text-[10px] text-slate-400">Excel / Numbers spreadsheet formatted with completion rates & streaks</span>
+              </button>
+            </div>
+
+            <div class="border-t border-white/10 pt-3 space-y-2">
+              <h4 class="text-xs font-bold text-amber-400">Restore Vault from Backup</h4>
+              <p class="text-[11px] text-slate-400">Restore your habits and check-in timeline from a previously exported JSON backup file.</p>
+              <label class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-semibold cursor-pointer border border-amber-500/30 transition">
+                <span>📂 Select JSON File to Restore</span>
+                <input type="file" accept=".json" onchange="importPersonalJson(event)" class="hidden" />
+              </label>
+            </div>
+
+            <div class="border-t border-white/10 pt-3">
+              <h4 class="text-xs font-bold text-rose-400">Danger Zone</h4>
+              <p class="text-[11px] text-slate-400 mb-2">Reset current profile vault to empty initial state.</p>
+              <button onclick="clearCurrentUserData()" class="px-3.5 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 text-xs font-semibold border border-rose-500/30 transition">
+                Wipe Profile Vault Data
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       6. NEW / EDIT HABIT MODAL
+       ========================================================= -->
+  <div id="habitModal" class="fixed inset-0 bg-black/65 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+    <div class="mac-window w-full max-w-md rounded-2xl md:rounded-3xl p-5 sm:p-6 border border-white/15">
+      <div class="flex items-center justify-between mb-4">
+        <h3 id="habitModalTitle" class="text-sm sm:text-base font-semibold">New Personal Habit</h3>
+        <button onclick="closeHabitModal()" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-slate-300 hover:text-white text-xs">✕</button>
+      </div>
+
+      <form id="habitForm" onsubmit="saveHabit(event)" class="space-y-4">
+        <input type="hidden" id="habitIdInput" />
+        <div>
+          <label class="block text-xs font-medium mb-1">Habit Title</label>
+          <input id="habitNameInput" type="text" required placeholder="e.g., Code Full-Stack Architecture" class="w-full bg-black/10 dark:bg-white/10 border border-white/15 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium mb-1">Category</label>
+            <select id="habitCategoryInput" class="w-full bg-black/10 dark:bg-white/10 border border-white/15 rounded-xl px-3 py-2.5 text-sm">
+              <option value="Coding">Coding</option>
+              <option value="Reading">Reading</option>
+              <option value="Fitness">Fitness</option>
+              <option value="Mindfulness">Mindfulness</option>
+              <option value="Hydration">Hydration</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium mb-1">Weekly Target (Days)</label>
+            <input id="habitTargetInput" type="number" min="1" max="7" value="7" required class="w-full bg-black/10 dark:bg-white/10 border border-white/15 rounded-xl px-3 py-2.5 text-sm" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium mb-1">Icon</label>
+            <select id="habitIconInput" class="w-full bg-black/10 dark:bg-white/10 border border-white/15 rounded-xl px-3 py-2.5 text-sm">
+              <option value="💻">💻 Code</option>
+              <option value="📚">📚 Read</option>
+              <option value="🏋️">🏋️ Workout</option>
+              <option value="🧘">🧘 Meditate</option>
+              <option value="💧">💧 Hydrate</option>
+              <option value="⚡">⚡ Deep Focus</option>
+              <option value="🎯">🎯 Goal</option>
+              <option value="🏃">🏃 Run</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium mb-1">Accent Color</label>
+            <select id="habitColorInput" class="w-full bg-black/10 dark:bg-white/10 border border-white/15 rounded-xl px-3 py-2.5 text-sm">
+              <option value="#3b82f6">Blue</option>
+              <option value="#10b981">Emerald</option>
+              <option value="#f43f5e">Rose</option>
+              <option value="#a855f7">Purple</option>
+              <option value="#f59e0b">Amber</option>
+              <option value="#06b6d4">Cyan</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3 border-t border-white/10">
+          <button type="button" onclick="closeHabitModal()" class="px-4 py-2 rounded-xl bg-black/10 dark:bg-white/10 text-xs font-medium">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-blue-500 text-white text-xs font-semibold shadow-md">Save Habit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       7. APPLE WATCH ACTIVITY AWARDS MODAL
+       ========================================================= -->
+  <div id="awardsModal" class="fixed inset-0 bg-black/75 backdrop-blur-md z-50 hidden items-center justify-center p-3 sm:p-4">
+    <div class="mac-window w-full max-w-2xl rounded-2xl md:rounded-3xl p-5 sm:p-6 border border-white/15 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl">🏅</span>
+          <div>
+            <h3 class="text-base font-bold tracking-tight">Activity Awards Gallery</h3>
+            <p class="text-xs text-slate-400">Apple Watch & Fitness Milestone Medals</p>
+          </div>
+        </div>
+        <button onclick="closeAwardsModal()" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-slate-300 hover:text-white text-xs">✕</button>
+      </div>
+
+      <div id="awardsGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 py-2">
+        <!-- Rendered dynamically by evaluateAwards() -->
+      </div>
+
+      <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs text-slate-400">
+        <span id="awardsUnlockedSummary">0 of 8 Medals Unlocked</span>
+        <span class="text-[11px] text-amber-400 font-mono">Keep pushing your streak! 🔥</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       8. APPLE QUICK NOTES ARCHIVE MODAL
+       ========================================================= -->
+  <div id="notesArchiveModal" class="fixed inset-0 bg-black/75 backdrop-blur-md z-50 hidden items-center justify-center p-3 sm:p-4">
+    <div class="mac-window w-full max-w-2xl rounded-2xl md:rounded-3xl p-5 sm:p-6 border border-white/15 max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3 mb-3">
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl">📝</span>
+          <div>
+            <h3 class="text-base font-bold tracking-tight">Quick Notes Archive</h3>
+            <p class="text-xs text-slate-400">Chronological reflection history & mood logs</p>
+          </div>
+        </div>
+        <button onclick="closeNotesArchiveModal()" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-slate-300 hover:text-white text-xs">✕</button>
+      </div>
+
+      <div class="mb-3">
+        <input id="notesSearchInput" oninput="renderNotesArchive()" type="text" placeholder="Search past thoughts and tags (e.g. 'Idea', 'Win')..." class="w-full bg-black/10 dark:bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs focus:outline-none" />
+      </div>
+
+      <div id="notesArchiveList" class="flex-1 overflow-y-auto space-y-2.5 pr-1 min-h-[220px]">
+        <!-- Rendered dynamically by renderNotesArchive() -->
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       9. SECURE ARCHITECTURE & CORE JAVASCRIPT ENGINE
+       ========================================================= -->
+  <script>
+    const USERS_REGISTRY_KEY = 'pulsehabit_users_v4';
+    const ACTIVE_SESSION_KEY = 'pulsehabit_session_v4';
+    const USER_DATA_PREFIX   = 'pulsehabit_userdata_v4_';
+    const DAY_LABELS         = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+    let usersRegistry = [];
+    let currentUser = null;
+    let selectedLockUid = null;
+    let weekOffset = 0;
+    let currentFilter = 'All';
+    let matrixViewMode = window.innerWidth < 768 ? 'cards' : 'table';
+    let failedLoginAttempts = 0;
+    let lockoutTimer = null;
+
+    let userData = createEmptyUserData();
+
+    // --- CRYPTOGRAPHIC SECURITY (SHA-256) ---
+    async function hashPin(pin, salt = 'pulsehabit_secure_salt_v4') {
+      try {
+        const msgBuffer = new TextEncoder().encode(salt + pin);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      } catch (e) {
+        // Fallback in case of non-secure context
+        let hash = 0;
+        const str = salt + pin;
+        for (let i = 0; i < str.length; i++) {
+          hash = ((hash << 5) - hash) + str.charCodeAt(i);
+          hash |= 0;
+        }
+        return 'fb_' + Math.abs(hash).toString(16);
+      }
+    }
+
+    function createEmptyUserData() {
+      return {
+        habits: [],
+        logs: {},
+        dailyNotes: {},
+        boost: {
+          bonusXp: 0,
+          dailyFocusGoal: 90
+        },
+        preferences: {
+          wallpaper: 'sequoia',
+          chartMode: 'spline',
+          sound: true,
+          use24Hour: false,
+          pomodoroDefault: 25,
+          defaultHabitTarget: 7,
+          compactMode: false
+        }
+      };
+    }
+
+    function toDateKey(d) {
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+    function getWeekDates(offset = 0) {
+      const now = new Date();
+      const day = now.getDay();
+      const diff = (day === 0 ? -6 : 1) - day;
+      const monday = new Date(now);
+      monday.setDate(now.getDate() + diff + offset * 7);
+
+      return Array.from({ length: 7 }, (_, i) => {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        return {
+          key: toDateKey(d),
+          label: DAY_LABELS[i],
+          dayNum: d.getDate(),
+          isToday: toDateKey(d) === toDateKey(new Date())
+        };
+      });
+    }
+
+    // --- REGISTRY & PERSONAL DATA LOAD/SAVE ---
+    function loadRegistry() {
+      try {
+        const raw = localStorage.getItem(USERS_REGISTRY_KEY);
+        usersRegistry = raw ? JSON.parse(raw) : [];
+      } catch (e) {
+        usersRegistry = [];
+      }
+    }
+
+    function saveRegistry() {
+      localStorage.setItem(USERS_REGISTRY_KEY, JSON.stringify(usersRegistry));
+    }
+
+    function loadPersonalData(uid) {
+      try {
+        const raw = localStorage.getItem(USER_DATA_PREFIX + uid);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          userData = {
+            ...createEmptyUserData(),
+            ...parsed,
+            boost: { ...createEmptyUserData().boost, ...(parsed.boost || {}) },
+            preferences: { ...createEmptyUserData().preferences, ...(parsed.preferences || {}) }
+          };
+        } else {
+          userData = createEmptyUserData();
+        }
+      } catch (e) {
+        userData = createEmptyUserData();
+      }
+
+      // Background Sync Fetch
+      fetchSyncFromServer(uid);
+    }
+
+    function savePersonalData() {
+      if (!currentUser) return;
+      localStorage.setItem(USER_DATA_PREFIX + currentUser.uid, JSON.stringify(userData));
+      sendSyncToServer(currentUser.uid);
+    }
+
+    // --- COST-FREE LIVE SYNC (WEB, DESKTOP, ANDROID) ---
+    function sendSyncToServer(uid) {
+      try {
+        fetch(`/api/sync/${uid}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uid, user: currentUser, data: userData })
+        })
+        .then(r => r.ok ? r.json() : null)
+        .then(res => {
+          if (res && res.success) {
+            updateSyncStatus(true);
+          }
+        })
+        .catch(() => updateSyncStatus(false));
+      } catch (e) {
+        updateSyncStatus(false);
+      }
+    }
+
+    function fetchSyncFromServer(uid) {
+      try {
+        fetch(`/api/sync/${uid}`)
+          .then(r => r.ok ? r.json() : null)
+          .then(res => {
+            if (res && res.data) {
+              userData = {
+                ...createEmptyUserData(),
+                ...res.data,
+                boost: { ...createEmptyUserData().boost, ...(res.data.boost || {}) },
+                preferences: { ...createEmptyUserData().preferences, ...(res.data.preferences || {}) }
+              };
+              localStorage.setItem(USER_DATA_PREFIX + uid, JSON.stringify(userData));
+              updateSyncStatus(true);
+              renderAll();
+            }
+          })
+          .catch(() => updateSyncStatus(false));
+      } catch (e) {
+        updateSyncStatus(false);
+      }
+    }
+
+    function updateSyncStatus(isOnline) {
+      const el = document.getElementById('syncIndicator');
+      if (!el) return;
+      if (isOnline) {
+        el.className = 'flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/20';
+        el.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span><span class="hidden xs:inline">Synced</span>';
+      } else {
+        el.className = 'flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/20';
+        el.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span><span class="hidden xs:inline">Offline</span>';
+      }
+    }
+
+    function forceSyncNow() {
+      if (currentUser) {
+        savePersonalData();
+        fetchSyncFromServer(currentUser.uid);
+        alert('Sync signal dispatched to local server.');
+      }
+    }
+
+    // --- FIRST BOOT WIZARD ---
+    function checkBootOrLockState() {
+      loadRegistry();
+      if (usersRegistry.length === 0) {
+        document.getElementById('firstBootOverlay').classList.remove('hidden');
+        document.getElementById('firstBootOverlay').classList.add('flex');
+        document.getElementById('lockScreen').classList.add('hidden');
+        return;
+      }
+
+      const activeUid = sessionStorage.getItem(ACTIVE_SESSION_KEY);
+      const found = usersRegistry.find(u => u.uid === activeUid);
+      if (found) {
+        signInUser(found);
+      } else {
+        showLockScreen();
+      }
+    }
+
+    function goToBootStep(step) {
+      document.getElementById('bootStep1').classList.toggle('hidden', step !== 1);
+      document.getElementById('bootStep2').classList.toggle('hidden', step !== 2);
+      document.getElementById('bootStepBadge').textContent = `Step ${step} of 2`;
+    }
+
+    async function completeFirstBoot(e) {
+      e.preventDefault();
+      const name = document.getElementById('bootName').value.trim();
+      const avatar = document.getElementById('bootAvatar').value;
+      const track = document.getElementById('bootTrack').value;
+      const focusGoal = parseInt(document.getElementById('bootFocusGoal').value, 10) || 90;
+      const pin = document.getElementById('bootPin').value;
+
+      if (!name || !pin) return;
+
+      const pinHash = await hashPin(pin);
+
+      const newUser = {
+        uid: 'usr_' + Date.now().toString(36),
+        name,
+        avatar,
+        track,
+        pinHash,
+        createdAt: new Date().toISOString()
+      };
+
+      usersRegistry.push(newUser);
+      saveRegistry();
+
+      const initialData = createEmptyUserData();
+      initialData.boost.dailyFocusGoal = focusGoal;
+      localStorage.setItem(USER_DATA_PREFIX + newUser.uid, JSON.stringify(initialData));
+
+      document.getElementById('firstBootOverlay').classList.add('hidden');
+      document.getElementById('firstBootOverlay').classList.remove('flex');
+      signInUser(newUser);
+    }
+
+    // --- LOCK SCREEN & AUTHENTICATION ---
+    function showLockScreen() {
+      loadRegistry();
+      if (usersRegistry.length === 0) {
+        checkBootOrLockState();
+        return;
+      }
+
+      const lockEl = document.getElementById('lockScreen');
+      lockEl.classList.remove('hidden');
+      lockEl.classList.add('flex');
+
+      const listEl = document.getElementById('lockProfilesList');
+      const formEl = document.getElementById('unlockForm');
+
+      if (selectedLockUid) {
+        const u = usersRegistry.find(x => x.uid === selectedLockUid);
+        if (u) {
+          listEl.classList.add('hidden');
+          formEl.classList.remove('hidden');
+          document.getElementById('lockSelectedAvatar').textContent = u.avatar;
+          document.getElementById('lockSelectedName').textContent = u.name;
+          document.getElementById('lockSelectedTrack').textContent = u.track || 'Personal Track';
+          document.getElementById('unlockPinInput').value = '';
+          document.getElementById('loginErrorMsg').classList.add('hidden');
+          setTimeout(() => document.getElementById('unlockPinInput').focus(), 50);
+          return;
+        }
+      }
+
+      listEl.classList.remove('hidden');
+      formEl.classList.add('hidden');
+
+      listEl.innerHTML = usersRegistry.map(u => `
+        <button onclick="selectLockProfile('${u.uid}')" class="flex flex-col items-center p-3 rounded-2xl bg-white/5 hover:bg-white/15 border border-white/10 active:scale-95 transition w-24">
+          <span class="w-12 h-12 rounded-full flex items-center justify-center text-2xl bg-white/10 mb-1.5">${u.avatar}</span>
+          <span class="text-xs font-semibold truncate w-full text-center">${escapeHtml(u.name)}</span>
+        </button>
+      `).join('');
+    }
+
+    function selectLockProfile(uid) {
+      selectedLockUid = uid;
+      showLockScreen();
+    }
+
+    function clearLockSelection() {
+      selectedLockUid = null;
+      showLockScreen();
+    }
+
+    async function handleUnlock(e) {
+      e.preventDefault();
+      if (lockoutTimer) return;
+
+      const pin = document.getElementById('unlockPinInput').value;
+      const user = usersRegistry.find(u => u.uid === selectedLockUid);
+      if (!user) return;
+
+      const hashed = await hashPin(pin);
+      // Support both legacy hash and new SHA-256
+      const isMatch = (hashed === user.pinHash) || (btoa(unescape(encodeURIComponent(pin))) === user.pinHash);
+
+      if (!isMatch) {
+        failedLoginAttempts++;
+        document.getElementById('loginErrorMsg').classList.remove('hidden');
+        if (failedLoginAttempts >= 5) {
+          triggerLockout();
+        }
+        return;
+      }
+
+      failedLoginAttempts = 0;
+      signInUser(user);
+    }
+
+    function triggerLockout() {
+      const msg = document.getElementById('lockoutMsg');
+      const btn = document.getElementById('unlockSubmitBtn');
+      msg.classList.remove('hidden');
+      btn.disabled = true;
+      btn.classList.add('opacity-50');
+
+      let countdown = 30;
+      lockoutTimer = setInterval(() => {
+        countdown--;
+        msg.textContent = `Too many attempts. Locked for ${countdown}s.`;
+        if (countdown <= 0) {
+          clearInterval(lockoutTimer);
+          lockoutTimer = null;
+          failedLoginAttempts = 0;
+          msg.classList.add('hidden');
+          btn.disabled = false;
+          btn.classList.remove('opacity-50');
+        }
+      }, 1000);
+    }
+
+    function signInUser(user) {
+      currentUser = user;
+      sessionStorage.setItem(ACTIVE_SESSION_KEY, user.uid);
+      loadPersonalData(user.uid);
+
+      document.getElementById('lockScreen').classList.add('hidden');
+      document.getElementById('lockScreen').classList.remove('flex');
+
+      document.getElementById('topUserAvatar').textContent = user.avatar;
+      document.getElementById('topUserName').textContent = user.name;
+      document.getElementById('workspaceHeaderTitle').textContent = `${user.name}'s Workspace`;
+
+      setWallpaper(userData.preferences.wallpaper || 'sequoia');
+      setChartMode(userData.preferences.chartMode || 'spline');
+      resetTimerToDefault();
+
+      currentNotesDate = toDateKey(new Date());
+      const journalEl = document.getElementById('journalDateLabel');
+      if (journalEl) journalEl.textContent = 'Today';
+      const refInput = document.getElementById('reflectionInput');
+      if (refInput) refInput.value = (userData.dailyNotes[currentNotesDate] && userData.dailyNotes[currentNotesDate].text) || '';
+
+      renderAll();
+    }
+
+    function lockSession() {
+      currentUser = null;
+      selectedLockUid = null;
+      sessionStorage.removeItem(ACTIVE_SESSION_KEY);
+      closeSettingsModal();
+      showLockScreen();
+    }
+
+    // --- PROFILE BOOST CALCULATION ---
+    function calculateProfileBoost() {
+      let totalCheckIns = 0;
+      Object.values(userData.logs).forEach(dayMap => {
+        totalCheckIns += Object.keys(dayMap).filter(k => dayMap[k]).length;
+      });
+
+      const totalXp = (totalCheckIns * 15) + (userData.boost.bonusXp || 0);
+      const level = Math.floor(totalXp / 100) + 1;
+      const currentLevelXp = totalXp % 100;
+
+      const ranks = ['Initiate', 'Builder', 'Architect', 'Prime', 'Apex Vanguard'];
+      const rankIndex = Math.min(ranks.length - 1, Math.floor((level - 1) / 2));
+      const rankTitle = ranks[rankIndex];
+
+      document.getElementById('topUserLevel').textContent = `Lv.${level}`;
+      document.getElementById('boostAvatar').textContent = currentUser.avatar;
+      document.getElementById('boostName').textContent = currentUser.name;
+      document.getElementById('boostTrack').textContent = currentUser.track || 'Personal Workspace';
+      document.getElementById('boostRankBadge').textContent = rankTitle;
+      document.getElementById('boostLevelText').textContent = `Level ${level}`;
+      document.getElementById('boostXpText').textContent = `${currentLevelXp} / 100 XP (${totalXp} Total)`;
+      document.getElementById('boostXpBar').style.width = `${currentLevelXp}%`;
+      document.getElementById('boostFocusTargetLabel').textContent = `Goal: ${userData.boost.dailyFocusGoal || 90}m/day`;
+    }
+
+    // --- SYSTEM SETTINGS MODAL ---
+    function openSettingsModal(defaultTab = 'general') {
+      if (!currentUser) return;
+      document.getElementById('settingsSidebarAvatar').textContent = currentUser.avatar;
+      document.getElementById('settingsSidebarName').textContent = currentUser.name;
+
+      document.getElementById('prefSoundToggle').checked = !!userData.preferences.sound;
+      document.getElementById('pref24HourToggle').checked = !!userData.preferences.use24Hour;
+      document.getElementById('prefPomodoroDefault').value = String(userData.preferences.pomodoroDefault || 25);
+      document.getElementById('prefDefaultTarget').value = String(userData.preferences.defaultHabitTarget || 7);
+
+      document.getElementById('editProfileName').value = currentUser.name;
+      document.getElementById('editProfileTrack').value = currentUser.track || '';
+      document.getElementById('editProfileGoal').value = userData.boost.dailyFocusGoal || 90;
+
+      renderSettingsAccountsList();
+      updateSyncPreview();
+
+      switchSettingsTab(defaultTab);
+      const modal = document.getElementById('settingsModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeSettingsModal() {
+      const modal = document.getElementById('settingsModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function switchSettingsTab(tabName) {
+      const titles = {
+        general: 'General Settings',
+        appearance: 'Appearance & Themes',
+        profile: 'Profile Boost Configuration',
+        accounts: 'Users & Accounts (Add / Switch)',
+        sync: 'Live Sync & Data Management',
+        backup: 'Data Backup & CSV Export'
+      };
+      document.getElementById('settingsTabTitle').textContent = titles[tabName] || 'Settings';
+
+      document.querySelectorAll('.settings-pane').forEach(el => el.classList.add('hidden'));
+      const activePane = document.getElementById(`settingsTab-${tabName}`);
+      if (activePane) activePane.classList.remove('hidden');
+
+      document.querySelectorAll('.settings-tab-btn').forEach(btn => {
+        btn.className = 'settings-tab-btn text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-2 hover:bg-white/10 flex-shrink-0';
+      });
+      const activeBtn = document.getElementById(`tabBtn-${tabName}`);
+      if (activeBtn) activeBtn.className = 'settings-tab-btn text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-2 bg-blue-500 text-white flex-shrink-0';
+    }
+
+    function saveBasicSettings() {
+      userData.preferences.sound = document.getElementById('prefSoundToggle').checked;
+      userData.preferences.use24Hour = document.getElementById('pref24HourToggle').checked;
+      userData.preferences.pomodoroDefault = parseInt(document.getElementById('prefPomodoroDefault').value, 10) || 25;
+      userData.preferences.defaultHabitTarget = parseInt(document.getElementById('prefDefaultTarget').value, 10) || 7;
+
+      savePersonalData();
+      resetTimerToDefault();
+      updateClocks();
+    }
+
+    function saveProfileEdits() {
+      const newName = document.getElementById('editProfileName').value.trim();
+      const newTrack = document.getElementById('editProfileTrack').value.trim();
+      const newGoal = parseInt(document.getElementById('editProfileGoal').value, 10) || 90;
+
+      if (newName) currentUser.name = newName;
+      currentUser.track = newTrack;
+      userData.boost.dailyFocusGoal = newGoal;
+
+      saveRegistry();
+      savePersonalData();
+      signInUser(currentUser);
+    }
+
+    function renderSettingsAccountsList() {
+      const container = document.getElementById('settingsAccountsList');
+      container.innerHTML = usersRegistry.map(u => {
+        const isCurrent = currentUser && u.uid === currentUser.uid;
+        return `
+          <div class="flex items-center justify-between p-2.5 rounded-xl bg-black/15 dark:bg-white/5 border border-white/10">
+            <div class="flex items-center gap-2.5">
+              <span class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-base">${u.avatar}</span>
+              <div>
+                <div class="text-xs font-semibold flex items-center gap-1.5">
+                  <span>${escapeHtml(u.name)}</span>
+                  ${isCurrent ? '<span class="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300">Active</span>' : ''}
+                </div>
+                <div class="text-[10px] text-slate-400">${escapeHtml(u.track || 'Personal')}</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5">
+              ${!isCurrent ? `<button onclick="switchToAccountFromSettings('${u.uid}')" class="px-2.5 py-1 rounded-lg bg-blue-500/20 text-blue-300 text-[11px] font-medium">Switch</button>` : ''}
+              ${usersRegistry.length > 1 ? `<button onclick="deleteUserAccount('${u.uid}')" class="px-2 py-1 rounded-lg bg-rose-500/20 text-rose-300 text-[11px]">Delete</button>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function addAccountFromSettings(e) {
+      e.preventDefault();
+      const name = document.getElementById('newAccName').value.trim();
+      const track = document.getElementById('newAccTrack').value.trim() || 'Personal Workspace';
+      const avatar = document.getElementById('newAccAvatar').value;
+      const pin = document.getElementById('newAccPin').value;
+
+      if (!name || !pin) return;
+
+      const pinHash = await hashPin(pin);
+
+      const newUser = {
+        uid: 'usr_' + Date.now().toString(36),
+        name,
+        avatar,
+        track,
+        pinHash,
+        createdAt: new Date().toISOString()
+      };
+
+      usersRegistry.push(newUser);
+      saveRegistry();
+      localStorage.setItem(USER_DATA_PREFIX + newUser.uid, JSON.stringify(createEmptyUserData()));
+
+      document.getElementById('newAccName').value = '';
+      document.getElementById('newAccTrack').value = '';
+      document.getElementById('newAccPin').value = '';
+
+      renderSettingsAccountsList();
+    }
+
+    function switchToAccountFromSettings(uid) {
+      selectedLockUid = uid;
+      lockSession();
+    }
+
+    function deleteUserAccount(uid) {
+      if (!confirm('Delete this user account and its isolated data?')) return;
+      localStorage.removeItem(USER_DATA_PREFIX + uid);
+      usersRegistry = usersRegistry.filter(u => u.uid !== uid);
+      saveRegistry();
+      if (currentUser && currentUser.uid === uid) {
+        lockSession();
+      } else {
+        renderSettingsAccountsList();
+      }
+    }
+
+    function updateSyncPreview() {
+      const payload = {
+        uid: currentUser.uid,
+        profile: { name: currentUser.name, track: currentUser.track, avatar: currentUser.avatar },
+        data: userData
+      };
+      document.getElementById('jsonPayloadPreview').textContent = JSON.stringify(payload, null, 2);
+    }
+
+    // --- AUDIO HAPTIC FEEDBACK ---
+    let audioCtx = null;
+    function playHaptic() {
+      if (!userData.preferences.sound) return;
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.frequency.setValueAtTime(580, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(920, audioCtx.currentTime + 0.05);
+        gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.06);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.06);
+      } catch (e) {}
+    }
+
+    // --- HABITS MANAGEMENT ---
+    function toggleDayCheck(habitId, dateKey) {
+      if (!userData.logs[dateKey]) userData.logs[dateKey] = {};
+      userData.logs[dateKey][habitId] = !userData.logs[dateKey][habitId];
+      if (!userData.logs[dateKey][habitId]) delete userData.logs[dateKey][habitId];
+      else playHaptic();
+      savePersonalData();
+      renderAll();
+    }
+
+    function openHabitModal(editId = null) {
+      const modal = document.getElementById('habitModal');
+      const form = document.getElementById('habitForm');
+      form.reset();
+      document.getElementById('habitTargetInput').value = userData.preferences.defaultHabitTarget || 7;
+
+      if (editId) {
+        const h = userData.habits.find(x => x.id === editId);
+        if (!h) return;
+        document.getElementById('habitModalTitle').textContent = 'Edit Habit';
+        document.getElementById('habitIdInput').value = h.id;
+        document.getElementById('habitNameInput').value = h.name;
+        document.getElementById('habitCategoryInput').value = h.category;
+        document.getElementById('habitTargetInput').value = h.target;
+        document.getElementById('habitIconInput').value = h.icon;
+        document.getElementById('habitColorInput').value = h.color;
+      } else {
+        document.getElementById('habitModalTitle').textContent = 'New Personal Habit';
+        document.getElementById('habitIdInput').value = '';
+      }
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeHabitModal() {
+      document.getElementById('habitModal').classList.add('hidden');
+      document.getElementById('habitModal').classList.remove('flex');
+    }
+
+    function saveHabit(e) {
+      e.preventDefault();
+      const id = document.getElementById('habitIdInput').value;
+      const name = document.getElementById('habitNameInput').value.trim();
+      const category = document.getElementById('habitCategoryInput').value;
+      const target = Math.min(7, Math.max(1, parseInt(document.getElementById('habitTargetInput').value, 10) || 7));
+      const icon = document.getElementById('habitIconInput').value;
+      const color = document.getElementById('habitColorInput').value;
+
+      if (!name) return;
+
+      if (id) {
+        const existing = userData.habits.find(h => h.id === id);
+        if (existing) Object.assign(existing, { name, category, target, icon, color });
+      } else {
+        userData.habits.push({
+          id: 'hab_' + Date.now().toString(36),
+          name, category, target, icon, color
+        });
+      }
+
+      savePersonalData();
+      closeHabitModal();
+      renderAll();
+    }
+
+    function deleteHabit(id) {
+      userData.habits = userData.habits.filter(h => h.id !== id);
+      savePersonalData();
+      renderAll();
+    }
+
+    function shiftWeek(delta) {
+      weekOffset += delta;
+      renderAll();
+    }
+
+    function resetToCurrentWeek() {
+      weekOffset = 0;
+      renderAll();
+    }
+
+    function setMatrixView(mode) {
+      matrixViewMode = mode;
+      document.getElementById('btnViewCards').className = mode === 'cards' ? 'px-2 py-1 rounded-lg bg-blue-500 text-white font-medium' : 'px-2 py-1 rounded-lg opacity-70';
+      document.getElementById('btnViewTable').className = mode === 'table' ? 'px-2 py-1 rounded-lg bg-blue-500 text-white font-medium' : 'px-2 py-1 rounded-lg opacity-70';
+      renderMatrix();
+    }
+
+    // --- MATRIX RENDERING (ADAPTIVE CARDS OR TABLE) ---
+    function renderMatrix() {
+      const container = document.getElementById('habitMatrixContainer');
+      const weekDays = getWeekDates(weekOffset);
+      const todayKey = toDateKey(new Date());
+
+      document.getElementById('weekRangeLabel').textContent = weekOffset === 0
+        ? `This Week (${weekDays[0].key.slice(5)} – ${weekDays[6].key.slice(5)})`
+        : `${weekDays[0].key.slice(5)} – ${weekDays[6].key.slice(5)}`;
+
+      const q = document.getElementById('searchInput').value.trim().toLowerCase();
+      const filtered = userData.habits.filter(h =>
+        (currentFilter === 'All' || h.category === currentFilter) &&
+        (h.name.toLowerCase().includes(q) || h.category.toLowerCase().includes(q))
+      );
+
+      if (userData.habits.length === 0) {
+        container.innerHTML = `
+          <div class="py-10 px-4 text-center border border-dashed border-black/10 dark:border-white/10 rounded-2xl">
+            <h3 class="text-sm font-semibold">Zero Habits Logged Yet</h3>
+            <p class="text-xs text-slate-400 mt-1 mb-4">Add your first habit to start boosting your profile XP (+15 XP per check-in).</p>
+            <button onclick="openHabitModal()" class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md">+ Create First Habit</button>
+          </div>
+        `;
+        return;
+      }
+
+      // 1. MOBILE-FRIENDLY CARDS VIEW
+      if (matrixViewMode === 'cards') {
+        const cardsHtml = filtered.map(h => {
+          let done = 0;
+          const dayChips = weekDays.map(d => {
+            const checked = !!(userData.logs[d.key] && userData.logs[d.key][h.id]);
+            if (checked) done++;
+            const isToday = d.key === todayKey;
+            return `
+              <button onclick="toggleDayCheck('${h.id}', '${d.key}')" class="flex-1 flex flex-col items-center py-1.5 px-1 rounded-xl transition ${isToday ? 'ring-1 ring-blue-400' : ''}" style="${checked ? `background:${h.color}28; border:1px solid ${h.color}66; color:#fff;` : 'background:rgba(150,150,160,0.06); border:1px solid rgba(150,150,160,0.12);'}">
+                <span class="text-[9px] font-mono opacity-70">${d.label[0]}</span>
+                <span class="text-xs font-bold mt-0.5" style="${checked ? `color:${h.color};` : ''}">${checked ? '✓' : d.dayNum}</span>
+              </button>
+            `;
+          }).join('');
+
+          const pct = Math.min(100, Math.round((done / h.target) * 100));
+
+          return `
+            <div class="p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-white/10 space-y-3">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2.5 truncate">
+                  <span class="w-9 h-9 rounded-xl flex items-center justify-center text-base flex-shrink-0" style="background:${h.color}22;">${h.icon}</span>
+                  <div class="truncate">
+                    <h4 class="text-xs font-bold truncate">${escapeHtml(h.name)}</h4>
+                    <p class="text-[10px] text-slate-400">${h.category} • Target ${h.target}d/wk</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2 flex-shrink-0">
+                  <span class="text-xs font-mono font-bold" style="color:${h.color};">${done}/${h.target}</span>
+                  <button onclick="openHabitModal('${h.id}')" class="p-1.5 rounded-lg hover:bg-white/10 text-xs opacity-70 hover:opacity-100">✎</button>
+                  <button onclick="deleteHabit('${h.id}')" class="p-1.5 rounded-lg hover:bg-white/10 text-xs text-rose-400 opacity-70 hover:opacity-100">🗑</button>
+                </div>
+              </div>
+
+              <!-- Day Chips Row -->
+              <div class="flex gap-1.5">
+                ${dayChips}
+              </div>
+
+              <!-- Progress Bar -->
+              <div class="w-full h-1.5 bg-black/10 dark:bg-white/10 rounded-full overflow-hidden">
+                <div class="h-full rounded-full transition-all duration-300" style="width:${pct}%; background:${h.color};"></div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        container.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 gap-3">${cardsHtml}</div>`;
+        return;
+      }
+
+      // 2. DESKTOP FULL TABLE VIEW
+      const rows = filtered.map(h => {
+        let done = 0;
+        const cells = weekDays.map(d => {
+          const checked = !!(userData.logs[d.key] && userData.logs[d.key][h.id]);
+          if (checked) done++;
+          return `
+            <td class="py-2.5 px-1.5 text-center">
+              <button onclick="toggleDayCheck('${h.id}', '${d.key}')" class="check-cell w-8 h-8 rounded-xl inline-flex items-center justify-center text-xs font-bold border" style="${checked ? `background:${h.color}; border-color:${h.color}; color:#fff;` : 'background:rgba(150,150,160,0.08); border-color:rgba(150,150,160,0.18);'}">
+                ${checked ? '✓' : ''}
+              </button>
+            </td>
+          `;
+        }).join('');
+        const pct = Math.min(100, Math.round((done / h.target) * 100));
+        return `
+          <tr class="border-b border-black/5 dark:border-white/5">
+            <td class="py-3 pr-4">
+              <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-xl flex items-center justify-center text-sm" style="background:${h.color}22;">${h.icon}</span>
+                <div>
+                  <div class="text-xs font-semibold">${escapeHtml(h.name)}</div>
+                  <div class="text-[10px] text-slate-400">${h.category} • ${h.target}d/wk</div>
+                </div>
+              </div>
+            </td>
+            ${cells}
+            <td class="py-3 pl-3 text-right font-mono text-xs">${done}/${h.target} (${pct}%)</td>
+            <td class="py-3 pl-2 text-right">
+              <button onclick="openHabitModal('${h.id}')" class="p-1 text-xs opacity-60 hover:opacity-100">✎</button>
+              <button onclick="deleteHabit('${h.id}')" class="p-1 text-xs text-rose-400 opacity-60 hover:opacity-100">🗑</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      container.innerHTML = `
+        <table class="w-full text-left border-collapse min-w-[620px]">
+          <thead>
+            <tr class="border-b border-black/10 dark:border-white/10 text-[11px] text-slate-400">
+              <th class="pb-2">HABIT</th>
+              ${weekDays.map(d => `<th class="pb-2 text-center ${d.isToday ? 'text-blue-400 font-bold' : ''}">${d.label}<div class="text-[10px] font-mono">${d.dayNum}</div></th>`).join('')}
+              <th class="pb-2 text-right">GOAL</th>
+              <th class="pb-2 text-right w-14">EDIT</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+    }
+
+    // --- ACTIVITY RINGS & WEEKLY STREAK CHART ---
+    function renderRingsAndChart() {
+      const weekDays = getWeekDates(weekOffset);
+      const totalHabits = userData.habits.length;
+
+      const countSub = (sub) => {
+        let c = 0;
+        weekDays.forEach(d => {
+          const log = userData.logs[d.key] || {};
+          sub.forEach(h => { if (log[h.id]) c++; });
+        });
+        return c;
+      };
+
+      const totalChecks = countSub(userData.habits);
+      const totalTarget = userData.habits.reduce((s, h) => s + h.target, 0);
+      const overallPct = totalTarget > 0 ? Math.min(100, Math.round((totalChecks / totalTarget) * 100)) : 0;
+
+      const craftH = userData.habits.filter(h => h.category === 'Coding' || h.category === 'Reading');
+      const craftT = craftH.reduce((s, h) => s + h.target, 0);
+      const craftPct = craftT > 0 ? Math.min(100, Math.round((countSub(craftH) / craftT) * 100)) : 0;
+
+      const vitH = userData.habits.filter(h => ['Fitness', 'Mindfulness', 'Hydration'].includes(h.category));
+      const vitT = vitH.reduce((s, h) => s + h.target, 0);
+      const vitPct = vitT > 0 ? Math.min(100, Math.round((countSub(vitH) / vitT) * 100)) : 0;
+
+      const setRing = (id, r, p) => {
+        const el = document.getElementById(id);
+        const c = 2 * Math.PI * r;
+        el.style.strokeDasharray = c.toFixed(2);
+        el.style.strokeDashoffset = (c - (p / 100) * c).toFixed(2);
+      };
+
+      setRing('ringOverall', 56, overallPct);
+      setRing('ringCraft', 42, craftPct);
+      setRing('ringVitality', 28, vitPct);
+
+      document.getElementById('ringCenterPct').textContent = `${overallPct}%`;
+      document.getElementById('labelOverall').textContent = `${overallPct}% (${totalChecks}/${totalTarget})`;
+      document.getElementById('labelCraft').textContent = `${craftPct}%`;
+      document.getElementById('labelVitality').textContent = `${vitPct}%`;
+
+      let activeDays = 0;
+      const dailyPcts = weekDays.map(d => {
+        if (totalHabits === 0) return 0;
+        const log = userData.logs[d.key] || {};
+        const done = userData.habits.filter(h => log[h.id]).length;
+        if (done > 0) activeDays++;
+        return Math.round((done / totalHabits) * 100);
+      });
+
+      document.getElementById('streakBadge').textContent = `🔥 ${activeDays} Active Day${activeDays === 1 ? '' : 's'}`;
+
+      const chartContainer = document.getElementById('chartContainer');
+      const todayKey = toDateKey(new Date());
+
+      // 1. BAR / COLUMN MODE
+      if (userData.preferences.chartMode === 'bar') {
+        chartContainer.innerHTML = `
+          <div class="flex flex-col h-full justify-between">
+            <div class="flex items-end justify-between gap-1.5 h-28 px-2 pt-2">
+              ${weekDays.map((d, i) => `
+                <div class="flex-1 flex flex-col items-center justify-end h-full group">
+                  <div class="text-[10px] font-mono mb-1 text-slate-400 group-hover:text-white transition">${dailyPcts[i]}%</div>
+                  <div class="w-full max-w-[28px] h-20 bg-black/10 dark:bg-white/5 rounded-xl overflow-hidden flex items-end p-0.5">
+                    <div class="w-full rounded-lg bg-gradient-to-t from-blue-600 to-cyan-400 transition-all duration-500" style="height:${Math.max(6, dailyPcts[i])}%; opacity:${dailyPcts[i] === 0 ? 0.25 : 1};"></div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+            <!-- Bottom Day Labels Axis -->
+            <div class="flex justify-between items-center px-2 pt-2 border-t border-black/5 dark:border-white/10">
+              ${weekDays.map((d) => `
+                <div class="flex-1 text-center">
+                  <span class="text-[11px] ${d.isToday ? 'text-blue-400 font-bold bg-blue-500/15 px-2 py-0.5 rounded-md' : 'text-slate-400 font-medium'}">${d.label}</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      // 2. SPLINE CURVE MODE (Apple Health / macOS Sequoia Style)
+      // Compute actual pixel container width for 1:1 aspect ratio
+      const w = Math.max(300, Math.floor(chartContainer.clientWidth || 560));
+      const h = 110;
+      const padX = 28;
+      const padY = 16;
+      const graphW = w - padX * 2;
+      const graphH = h - padY * 2;
+
+      // Coordinate mapping: 0% at baseline (h - padY), 100% at peak (padY)
+      const pts = dailyPcts.map((pct, i) => {
+        const x = padX + i * (graphW / 6);
+        const y = (h - padY) - (pct / 100) * graphH;
+        return {
+          x,
+          y,
+          pct,
+          label: weekDays[i].label,
+          isToday: weekDays[i].isToday
+        };
+      });
+
+      // Construct smooth cubic bezier curve
+      let pathD = `M ${pts[0].x} ${pts[0].y}`;
+      for (let i = 0; i < pts.length - 1; i++) {
+        const p0 = pts[i];
+        const p1 = pts[i + 1];
+        const cp1x = p0.x + (p1.x - p0.x) / 2;
+        const cp1y = p0.y;
+        const cp2x = p0.x + (p1.x - p0.x) / 2;
+        const cp2y = p1.y;
+        pathD += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p1.x} ${p1.y}`;
+      }
+
+      const areaPath = `${pathD} L ${pts[pts.length - 1].x} ${h} L ${pts[0].x} ${h} Z`;
+
+      // Render chart: Top SVG graph (1:1 aspect ratio) + Bottom crisp HTML typography axis
+      chartContainer.innerHTML = `
+        <div class="flex flex-col h-full justify-between select-none">
+          <!-- Graph Graphic Area -->
+          <div class="relative w-full h-[110px]">
+            <svg class="w-full h-full overflow-visible" viewBox="0 0 ${w} ${h}">
+              <defs>
+                <linearGradient id="appleSplineGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.35" />
+                  <stop offset="65%" stop-color="#06b6d4" stop-opacity="0.10" />
+                  <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.0" />
+                </linearGradient>
+                <linearGradient id="appleLineGrad" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#3b82f6" />
+                  <stop offset="100%" stop-color="#38bdf8" />
+                </linearGradient>
+                <filter id="appleGlow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="2.5" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+              </defs>
+
+              <!-- Reference Grid Lines -->
+              <line x1="${padX}" y1="${padY}" x2="${w - padX}" y2="${padY}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="3 3" stroke-width="1" />
+              <line x1="${padX}" y1="${padY + graphH / 2}" x2="${w - padX}" y2="${padY + graphH / 2}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="3 3" stroke-width="1" />
+              <line x1="${padX}" y1="${h - padY}" x2="${w - padX}" y2="${h - padY}" stroke="rgba(255,255,255,0.09)" stroke-width="1" />
+
+              <!-- Area Gradient Fill -->
+              <path d="${areaPath}" fill="url(#appleSplineGrad)" />
+
+              <!-- Smooth Spline Line -->
+              <path d="${pathD}" fill="none" stroke="url(#appleLineGrad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" filter="url(#appleGlow)" />
+
+              <!-- Circular Glowing Data Points (Crisp 1:1 Circles) -->
+              ${pts.map(p => `
+                <g class="cursor-pointer group">
+                  <circle cx="${p.x}" cy="${p.y}" r="9" fill="transparent" />
+                  <circle cx="${p.x}" cy="${p.y}" r="6" fill="#3b82f6" fill-opacity="0.25" />
+                  <circle cx="${p.x}" cy="${p.y}" r="4" fill="#ffffff" stroke="#3b82f6" stroke-width="2.5" />
+                  <!-- Percentage Label floating above dot -->
+                  <text x="${p.x}" y="${Math.max(11, p.y - 8)}" text-anchor="middle" font-size="10" font-family="ui-monospace, monospace" font-weight="600" fill="${p.pct > 0 ? '#38bdf8' : '#64748b'}">${p.pct}%</text>
+                </g>
+              `).join('')}
+            </svg>
+          </div>
+
+          <!-- Bottom Day Labels Axis (Crisp Typography, Never Squished) -->
+          <div class="flex justify-between items-center px-1 pt-1.5 border-t border-black/5 dark:border-white/10">
+            ${weekDays.map(d => `
+              <div class="flex-1 text-center">
+                <span class="text-[11px] tracking-tight ${d.isToday ? 'text-blue-400 font-bold bg-blue-500/20 border border-blue-400/30 px-2 py-0.5 rounded-lg' : 'text-slate-400 font-medium'}">${d.label}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // --- CONSISTENCY MATRIX (35D / MONTH CALENDAR / 365D GITHUB MATRIX) ---
+    let consistencyMode = '35d';
+
+    function setConsistencyMode(mode) {
+      consistencyMode = mode;
+      document.getElementById('btnCons35d').className = mode === '35d' ? 'px-2 py-0.5 rounded-md bg-blue-500 text-white font-medium' : 'px-2 py-0.5 rounded-md opacity-70';
+      document.getElementById('btnConsMonth').className = mode === 'month' ? 'px-2 py-0.5 rounded-md bg-blue-500 text-white font-medium' : 'px-2 py-0.5 rounded-md opacity-70';
+      document.getElementById('btnConsYear').className = mode === 'year' ? 'px-2 py-0.5 rounded-md bg-blue-500 text-white font-medium' : 'px-2 py-0.5 rounded-md opacity-70';
+      renderHeatmap();
+    }
+
+    function renderHeatmap() {
+      const container = document.getElementById('heatmapContentArea');
+      if (!container) return;
+
+      const today = new Date();
+      let totalActive = 0;
+
+      if (consistencyMode === '35d') {
+        let html = '<div class="grid grid-cols-7 gap-1.5 w-full">';
+        for (let i = 34; i >= 0; i--) {
+          const d = new Date(today);
+          d.setDate(today.getDate() - i);
+          const key = toDateKey(d);
+          const log = userData.logs[key] || {};
+          const count = Object.values(log).filter(Boolean).length;
+          const total = userData.habits.length || 1;
+          const ratio = count / total;
+
+          let bg = 'bg-black/10 dark:bg-white/5';
+          if (ratio > 0) totalActive++;
+          if (ratio > 0 && ratio <= 0.33) bg = 'bg-emerald-500/30';
+          else if (ratio > 0.33 && ratio <= 0.75) bg = 'bg-emerald-500/60';
+          else if (ratio > 0.75) bg = 'bg-emerald-400';
+
+          html += `<div class="h-4.5 rounded-md ${bg} transition hover:scale-110 cursor-pointer" title="${key}: ${count}/${total} (${Math.round(ratio * 100)}%)"></div>`;
+        }
+        html += '</div>';
+        container.innerHTML = html;
+        document.getElementById('heatmapActiveDays').textContent = `${totalActive} active / 35 days`;
+      } else if (consistencyMode === 'month') {
+        // Month Calendar View with Apple styling
+        const year = today.getFullYear();
+        const month = today.getMonth();
+        const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        const firstDay = new Date(year, month, 1).getDay();
+        const startPad = (firstDay === 0 ? 6 : firstDay - 1);
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        let html = `<div class="w-full space-y-1">
+          <div class="flex justify-between text-[11px] font-semibold text-slate-400 px-1">
+            <span>${monthNames[month]} ${year}</span>
+            <span class="text-emerald-400 font-mono">Monthly View</span>
+          </div>
+          <div class="grid grid-cols-7 gap-1 text-[9px] text-center font-mono text-slate-500">
+            <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
+          </div>
+          <div class="grid grid-cols-7 gap-1">`;
+
+        for (let p = 0; p < startPad; p++) {
+          html += `<div class="h-5 rounded-md opacity-5"></div>`;
+        }
+
+        for (let d = 1; d <= daysInMonth; d++) {
+          const dateObj = new Date(year, month, d);
+          const key = toDateKey(dateObj);
+          const isToday = key === toDateKey(today);
+          const log = userData.logs[key] || {};
+          const count = Object.values(log).filter(Boolean).length;
+          const total = userData.habits.length || 1;
+          const ratio = count / total;
+
+          let bg = 'bg-black/10 dark:bg-white/5';
+          if (ratio > 0) totalActive++;
+          if (ratio > 0 && ratio <= 0.33) bg = 'bg-emerald-500/30';
+          else if (ratio > 0.33 && ratio <= 0.75) bg = 'bg-emerald-500/60';
+          else if (ratio > 0.75) bg = 'bg-emerald-400';
+
+          const ringStyle = isToday ? 'ring-1 ring-blue-400' : '';
+          html += `<div class="h-5 rounded-md ${bg} ${ringStyle} flex items-center justify-center text-[9px] font-mono cursor-pointer hover:scale-105 transition" title="${key}: ${count}/${total} check-ins">
+            <span class="${ratio > 0.5 ? 'text-black font-bold' : 'text-slate-300'}">${d}</span>
+          </div>`;
+        }
+        html += `</div></div>`;
+        container.innerHTML = html;
+        document.getElementById('heatmapActiveDays').textContent = `${totalActive} active this month`;
+      } else if (consistencyMode === 'year') {
+        // Full Year (365 Days) GitHub-style Matrix
+        let html = `<div class="w-full overflow-x-auto no-scrollbar py-1">
+          <div class="grid grid-flow-col grid-rows-7 gap-1 min-w-[500px]">`;
+
+        for (let i = 364; i >= 0; i--) {
+          const d = new Date(today);
+          d.setDate(today.getDate() - i);
+          const key = toDateKey(d);
+          const log = userData.logs[key] || {};
+          const count = Object.values(log).filter(Boolean).length;
+          const total = userData.habits.length || 1;
+          const ratio = count / total;
+
+          let bg = 'bg-black/10 dark:bg-white/5';
+          if (ratio > 0) totalActive++;
+          if (ratio > 0 && ratio <= 0.33) bg = 'bg-emerald-500/30';
+          else if (ratio > 0.33 && ratio <= 0.75) bg = 'bg-emerald-500/60';
+          else if (ratio > 0.75) bg = 'bg-emerald-400';
+
+          html += `<div class="w-2.5 h-2.5 rounded-[2px] ${bg} hover:scale-125 transition cursor-pointer" title="${key}: ${count}/${total} (${Math.round(ratio * 100)}%)"></div>`;
+        }
+        html += `</div></div>`;
+        container.innerHTML = html;
+        document.getElementById('heatmapActiveDays').textContent = `${totalActive} active / 365 days`;
+      }
+    }
+
+    // --- FOCUS TIMER (+25 XP BOOST) ---
+    let timerSeconds = 25 * 60;
+    let timerInterval = null;
+
+    function resetTimerToDefault() {
+      const def = (userData.preferences && userData.preferences.pomodoroDefault) || 25;
+      setTimerPreset(def);
+    }
+
+    function setTimerPreset(mins) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      timerSeconds = mins * 60;
+      const m = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
+      const s = String(timerSeconds % 60).padStart(2, '0');
+      document.getElementById('timerDisplay').textContent = `${m}:${s}`;
+      document.getElementById('timerStartBtn').textContent = 'Start';
+    }
+
+    function toggleTimer() {
+      const btn = document.getElementById('timerStartBtn');
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        btn.textContent = 'Resume';
+      } else {
+        btn.textContent = 'Pause';
+        timerInterval = setInterval(() => {
+          if (timerSeconds > 0) {
+            timerSeconds--;
+            const m = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
+            const s = String(timerSeconds % 60).padStart(2, '0');
+            document.getElementById('timerDisplay').textContent = `${m}:${s}`;
+          } else {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            userData.boost.bonusXp = (userData.boost.bonusXp || 0) + 25;
+            savePersonalData();
+            playHaptic();
+            calculateProfileBoost();
+            evaluateAwards();
+            btn.textContent = 'Start';
+            alert('🎉 Focus Session Completed! +25 Profile Boost XP Earned!');
+          }
+        }, 1000);
+      }
+    }
+
+    function updateTimerSelect() {
+      const select = document.getElementById('timerHabitSelect');
+      if (!select) return;
+      select.innerHTML = `<option value="">General Focus</option>` +
+        userData.habits.map(h => `<option value="${h.id}">${escapeHtml(h.icon + ' ' + h.name)}</option>`).join('');
+    }
+
+    // --- APPLE WATCH ACTIVITY AWARDS ENGINE ---
+    const AWARDS_DEFINITIONS = [
+      {
+        id: 'first_step',
+        title: 'First Step',
+        desc: 'Completed your very first habit check-in.',
+        icon: '🥇',
+        color: 'from-amber-400 to-amber-600',
+        check: () => {
+          let total = 0;
+          Object.values(userData.logs).forEach(m => total += Object.values(m).filter(Boolean).length);
+          return total >= 1;
+        }
+      },
+      {
+        id: 'streak_7',
+        title: '7-Day Streak',
+        desc: 'Maintained 7 consecutive active check-in days.',
+        icon: '🔥',
+        color: 'from-orange-500 to-red-600',
+        check: () => {
+          let streak = 0;
+          const today = new Date();
+          for (let i = 0; i < 30; i++) {
+            const d = new Date(today);
+            d.setDate(today.getDate() - i);
+            const log = userData.logs[toDateKey(d)] || {};
+            if (Object.values(log).some(Boolean)) streak++;
+            else break;
+          }
+          return streak >= 7;
+        }
+      },
+      {
+        id: 'deep_work',
+        title: 'Deep Work Master',
+        desc: 'Earned 50+ Focus XP from Pomodoro sessions.',
+        icon: '⚡',
+        color: 'from-blue-500 to-indigo-600',
+        check: () => (userData.boost && (userData.boost.bonusXp || 0) >= 50)
+      },
+      {
+        id: 'perfect_day',
+        title: 'Perfect Day',
+        desc: 'Achieved 100% check-ins on all active habits in a single day.',
+        icon: '🎯',
+        color: 'from-rose-500 to-pink-600',
+        check: () => {
+          if (!userData.habits.length) return false;
+          return Object.values(userData.logs).some(log => {
+            const completed = Object.values(log).filter(Boolean).length;
+            return completed >= userData.habits.length;
+          });
+        }
+      },
+      {
+        id: 'century_club',
+        title: 'Century Club',
+        desc: 'Logged 100 lifetime habit check-ins.',
+        icon: '💎',
+        color: 'from-cyan-400 to-blue-600',
+        check: () => {
+          let total = 0;
+          Object.values(userData.logs).forEach(m => total += Object.values(m).filter(Boolean).length);
+          return total >= 100;
+        }
+      },
+      {
+        id: 'vitality_guru',
+        title: 'Zen & Vitality',
+        desc: 'Logged 10+ Mindfulness, Fitness, or Hydration habits.',
+        icon: '🧘',
+        color: 'from-emerald-400 to-teal-600',
+        check: () => {
+          let count = 0;
+          const vitalityIds = new Set(userData.habits.filter(h => ['Fitness', 'Mindfulness', 'Hydration'].includes(h.category)).map(h => h.id));
+          Object.values(userData.logs).forEach(m => {
+            Object.keys(m).forEach(id => {
+              if (vitalityIds.has(id) && m[id]) count++;
+            });
+          });
+          return count >= 10;
+        }
+      },
+      {
+        id: 'level_5',
+        title: 'Apex Vanguard',
+        desc: 'Reached Profile Boost Level 5.',
+        icon: '🚀',
+        color: 'from-purple-500 to-violet-700',
+        check: () => {
+          let totalCheckIns = 0;
+          Object.values(userData.logs).forEach(m => totalCheckIns += Object.values(m).filter(Boolean).length);
+          const totalXp = (totalCheckIns * 15) + (userData.boost.bonusXp || 0);
+          return Math.floor(totalXp / 100) + 1 >= 5;
+        }
+      },
+      {
+        id: 'monthly_legend',
+        title: 'Monthly Legend',
+        desc: 'Logged 20+ active days in consistency history.',
+        icon: '🌟',
+        color: 'from-yellow-400 to-amber-500',
+        check: () => {
+          let active = 0;
+          Object.values(userData.logs).forEach(m => {
+            if (Object.values(m).some(Boolean)) active++;
+          });
+          return active >= 20;
+        }
+      }
+    ];
+
+    function evaluateAwards() {
+      let unlockedCount = 0;
+      const grid = document.getElementById('awardsGrid');
+      let html = '';
+
+      AWARDS_DEFINITIONS.forEach(a => {
+        const isUnlocked = a.check();
+        if (isUnlocked) unlockedCount++;
+
+        html += `
+          <div class="relative group p-3 rounded-2xl border ${isUnlocked ? 'bg-white/5 border-white/15' : 'bg-black/20 border-white/5 opacity-40'} flex flex-col items-center text-center transition hover:scale-105">
+            <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shadow-lg mb-2 ${isUnlocked ? `bg-gradient-to-br ${a.color} shadow-amber-500/10` : 'bg-white/5 grayscale'}">
+              ${a.icon}
+            </div>
+            <div class="text-xs font-bold truncate max-w-full ${isUnlocked ? 'text-white' : 'text-slate-400'}">${a.title}</div>
+            <div class="text-[10px] text-slate-400 mt-1 line-clamp-2 leading-tight">${a.desc}</div>
+            <div class="mt-2 text-[9px] font-mono px-2 py-0.5 rounded-full ${isUnlocked ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-white/5 text-slate-500'}">
+              ${isUnlocked ? '✓ Unlocked' : 'Locked'}
+            </div>
+          </div>
+        `;
+      });
+
+      if (grid) grid.innerHTML = html;
+      const summaryEl = document.getElementById('awardsUnlockedSummary');
+      if (summaryEl) summaryEl.textContent = `${unlockedCount} of ${AWARDS_DEFINITIONS.length} Medals Unlocked`;
+      const badgeEl = document.getElementById('boostAwardsBadge');
+      if (badgeEl) badgeEl.textContent = `Awards ${unlockedCount}/${AWARDS_DEFINITIONS.length}`;
+    }
+
+    function openAwardsModal() {
+      evaluateAwards();
+      const modal = document.getElementById('awardsModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeAwardsModal() {
+      const modal = document.getElementById('awardsModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    // --- APPLE QUICK NOTES & REFLECTIONS ENGINE ---
+    let currentNotesDate = toDateKey(new Date());
+
+    function shiftNotesDate(dir) {
+      const parts = currentNotesDate.split('-').map(Number);
+      const d = new Date(parts[0], parts[1] - 1, parts[2]);
+      d.setDate(d.getDate() + dir);
+      currentNotesDate = toDateKey(d);
+
+      const isToday = currentNotesDate === toDateKey(new Date());
+      document.getElementById('journalDateLabel').textContent = isToday ? 'Today' : currentNotesDate;
+
+      const note = userData.dailyNotes[currentNotesDate] || { mood: '', text: '' };
+      document.getElementById('reflectionInput').value = note.text || '';
+      renderMood();
+      updateNoteWordCount();
+    }
+
+    function insertNoteTag(tag) {
+      const textarea = document.getElementById('reflectionInput');
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const val = textarea.value;
+      textarea.value = val.substring(0, start) + tag + val.substring(end);
+      textarea.focus();
+      textarea.selectionStart = textarea.selectionEnd = start + tag.length;
+      saveReflection();
+    }
+
+    function updateNoteWordCount() {
+      const el = document.getElementById('reflectionInput');
+      if (!el) return;
+      const val = (el.value || '').trim();
+      const count = val ? val.split(/\s+/).length : 0;
+      const countEl = document.getElementById('noteWordCount');
+      if (countEl) countEl.textContent = `${count} word${count === 1 ? '' : 's'}`;
+    }
+
+    function selectMood(mood) {
+      if (!userData.dailyNotes[currentNotesDate]) userData.dailyNotes[currentNotesDate] = { mood: '', text: '' };
+      userData.dailyNotes[currentNotesDate].mood = userData.dailyNotes[currentNotesDate].mood === mood ? '' : mood;
+      savePersonalData();
+      renderMood();
+    }
+
+    function renderMood() {
+      const m = (userData.dailyNotes[currentNotesDate] && userData.dailyNotes[currentNotesDate].mood) || '';
+      document.querySelectorAll('.mood-btn').forEach(btn => {
+        btn.classList.toggle('bg-blue-500/30', btn.dataset.mood === m);
+        btn.classList.toggle('ring-1', btn.dataset.mood === m);
+      });
+    }
+
+    function saveReflection() {
+      if (!userData.dailyNotes[currentNotesDate]) userData.dailyNotes[currentNotesDate] = { mood: '', text: '' };
+      userData.dailyNotes[currentNotesDate].text = document.getElementById('reflectionInput').value;
+      savePersonalData();
+      updateNoteWordCount();
+      const ind = document.getElementById('saveIndicator');
+      if (ind) {
+        ind.textContent = 'Saved';
+        ind.className = 'text-[10px] text-emerald-400 font-mono';
+      }
+    }
+
+    function openNotesArchiveModal() {
+      renderNotesArchive();
+      const modal = document.getElementById('notesArchiveModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeNotesArchiveModal() {
+      const modal = document.getElementById('notesArchiveModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function renderNotesArchive() {
+      const list = document.getElementById('notesArchiveList');
+      if (!list) return;
+      const search = (document.getElementById('notesSearchInput').value || '').toLowerCase();
+      const entries = Object.keys(userData.dailyNotes || {})
+        .filter(k => {
+          const entry = userData.dailyNotes[k];
+          return (entry.text && entry.text.trim()) || entry.mood;
+        })
+        .sort()
+        .reverse();
+
+      if (entries.length === 0) {
+        list.innerHTML = `<div class="text-center py-8 text-xs text-slate-400">No notes written yet. Start typing your thoughts on the dashboard!</div>`;
+        return;
+      }
+
+      let html = '';
+      entries.forEach(k => {
+        const item = userData.dailyNotes[k];
+        const text = item.text || '';
+        const mood = item.mood || '📝';
+        if (search && !text.toLowerCase().includes(search) && !k.includes(search)) return;
+
+        html += `
+          <div onclick="jumpToNoteDate('${k}')" class="p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 cursor-pointer transition">
+            <div class="flex items-center justify-between mb-1">
+              <div class="flex items-center gap-1.5 font-mono text-xs font-semibold text-blue-400">
+                <span>${mood}</span><span>${k}</span>
+              </div>
+              <span class="text-[10px] text-slate-400">Click to view</span>
+            </div>
+            <p class="text-xs text-slate-300 line-clamp-2">${escapeHtml(text) || '<em class="text-slate-500">Only mood logged</em>'}</p>
+          </div>
+        `;
+      });
+
+      list.innerHTML = html || `<div class="text-center py-8 text-xs text-slate-400">No matching entries found.</div>`;
+    }
+
+    function jumpToNoteDate(k) {
+      currentNotesDate = k;
+      document.getElementById('journalDateLabel').textContent = k === toDateKey(new Date()) ? 'Today' : k;
+      const note = userData.dailyNotes[k] || { mood: '', text: '' };
+      document.getElementById('reflectionInput').value = note.text || '';
+      renderMood();
+      updateNoteWordCount();
+      closeNotesArchiveModal();
+    }
+
+    // --- DATA BACKUP, CSV REPORT & RESTORE ENGINE ---
+    function exportCsvReport() {
+      if (!currentUser) return;
+      const headers = ['Habit Name', 'Category', 'Weekly Target (Days)', 'Total Check-ins', 'Current Streak (Days)', 'Completion Rate (%)'];
+      const rows = userData.habits.map(h => {
+        let total = 0;
+        let streak = 0;
+        const today = new Date();
+        for (let i = 0; i < 90; i++) {
+          const d = new Date(today);
+          d.setDate(today.getDate() - i);
+          const key = toDateKey(d);
+          if (userData.logs[key] && userData.logs[key][h.id]) {
+            total++;
+            if (i === streak) streak++;
+          }
+        }
+        const rate = Math.round((total / Math.max(1, (h.target * 12))) * 100);
+        return [
+          `"${(h.name || '').replace(/"/g, '""')}"`,
+          `"${h.category || ''}"`,
+          h.target,
+          total,
+          streak,
+          `${Math.min(100, rate)}%`
+        ];
+      });
+
+      const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', `pulsehabit_${currentUser.name.toLowerCase()}_habits_report.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function exportPersonalJson() {
+      const blob = new Blob([JSON.stringify({ profile: currentUser, data: userData }, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `pulsehabit_${currentUser.name.toLowerCase()}_vault_backup.json`;
+      a.click();
+    }
+
+    function importPersonalJson(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        try {
+          const parsed = JSON.parse(ev.target.result);
+          userData = { ...createEmptyUserData(), ...(parsed.data || parsed) };
+          savePersonalData();
+          renderAll();
+          updateSyncPreview();
+          alert('Backup restored successfully!');
+        } catch (err) { alert('Invalid JSON Backup file'); }
+      };
+      reader.readAsText(file);
+    }
+
+    function clearCurrentUserData() {
+      if (!confirm('Reset all habits, logs, reflections, and XP for your profile?')) return;
+      userData = createEmptyUserData();
+      savePersonalData();
+      renderAll();
+      closeSettingsModal();
+    }
+
+    function setFilter(cat) {
+      currentFilter = cat;
+      document.querySelectorAll('.cat-btn').forEach(btn => {
+        btn.className = btn.dataset.cat === cat
+          ? 'cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-blue-500 text-white flex-shrink-0'
+          : 'cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-black/5 dark:bg-white/5 flex-shrink-0';
+      });
+      renderMatrix();
+    }
+
+    function setChartMode(mode) {
+      userData.preferences.chartMode = mode;
+      document.getElementById('btnSpline').className = mode === 'spline' ? 'px-2.5 py-1 rounded-md bg-blue-500 text-white font-medium' : 'px-2.5 py-1 rounded-md opacity-70';
+      document.getElementById('btnBar').className = mode === 'bar' ? 'px-2.5 py-1 rounded-md bg-blue-500 text-white font-medium' : 'px-2.5 py-1 rounded-md opacity-70';
+      savePersonalData();
+      renderRingsAndChart();
+    }
+
+    function setWallpaper(wp) {
+      userData.preferences.wallpaper = wp;
+      document.body.classList.remove('wp-sequoia', 'wp-sonoma', 'wp-midnight');
+      document.body.classList.add(`wp-${wp}`);
+      savePersonalData();
+    }
+
+    function toggleTheme() {
+      document.documentElement.classList.toggle('dark');
+    }
+
+    function windowAction(action) {
+      if (window.electronAPI && window.electronAPI.isElectron) {
+        if (action === 'close') window.electronAPI.close();
+        else if (action === 'min') window.electronAPI.minimize();
+        else if (action === 'max') window.electronAPI.maximize();
+        return;
+      }
+      const win = document.getElementById('appWindow');
+      if (action === 'max') {
+        win.classList.toggle('max-w-7xl');
+        win.classList.toggle('max-w-full');
+      } else if (action === 'min') {
+        win.classList.toggle('p-2');
+      } else if (action === 'close') {
+        lockSession();
+      }
+    }
+
+    function escapeHtml(s) {
+      return String(s || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+    }
+
+    function updateClocks() {
+      const now = new Date();
+      const use24 = !!(userData.preferences && userData.preferences.use24Hour);
+      const clockEl = document.getElementById('macClock');
+      if (clockEl) {
+        clockEl.textContent = now.toLocaleString('en-US', {
+          weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: !use24
+        });
+      }
+      const lockDateEl = document.getElementById('lockDate');
+      if (lockDateEl) {
+        lockDateEl.textContent = now.toLocaleDateString('en-US', {
+          weekday: 'long', month: 'long', day: 'numeric'
+        });
+      }
+      const lockTimeEl = document.getElementById('lockTime');
+      if (lockTimeEl) {
+        lockTimeEl.textContent = now.toLocaleTimeString('en-US', {
+          hour: '2-digit', minute: '2-digit', hour12: false
+        });
+      }
+    }
+
+    function renderAll() {
+      if (!currentUser) return;
+      calculateProfileBoost();
+      renderMatrix();
+      renderRingsAndChart();
+      renderHeatmap();
+      updateTimerSelect();
+      renderMood();
+      evaluateAwards();
+      updateNoteWordCount();
+    }
+
+    // Auto-detect mobile screen & re-render responsive chart on resize
+    let resizeDebounce = null;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeDebounce);
+      resizeDebounce = setTimeout(() => {
+        const isMobile = window.innerWidth < 768;
+        if (isMobile && matrixViewMode === 'table') {
+          setMatrixView('cards');
+        }
+        if (currentUser) {
+          renderRingsAndChart();
+        }
+      }, 80);
+    });
+
+    // --- INIT ---
+    updateClocks();
+    setInterval(updateClocks, 10000);
+    checkBootOrLockState();
+  </script>
+</body>
+</html>
