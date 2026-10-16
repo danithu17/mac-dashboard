@@ -1,0 +1,78 @@
+name: Build Desktop Windows Installer
+
+on:
+  push:
+    tags:
+      - 'v*-desktop'
+    paths:
+      - 'desktop/**'
+      - '.github/workflows/build-desktop.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-desktop:
+    name: Build & Release Windows Desktop App
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: desktop/package.json
+
+      - name: Install Desktop Dependencies
+        working-directory: desktop
+        run: npm install
+
+      - name: Build Windows NSIS Installer
+        working-directory: desktop
+        run: npm run dist
+
+      - name: Upload Installer Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PulseHabit-Pro-Windows-Installer
+          path: desktop/dist/installer/*.exe
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.0-desktop
+          name: "PulseHabit Pro Desktop v1.0.0 (Windows Installer)"
+          draft: false
+          prerelease: false
+          body: |
+            ## 🖥️ PulseHabit Pro — Desktop Edition (Windows)
+
+            Official Windows Desktop release of **PulseHabit Pro** — the authentic Apple macOS-inspired Habit & Productivity Ecosystem.
+
+            🌐 **Live Web Version**: [https://mac-dashboard-mu.vercel.app/](https://mac-dashboard-mu.vercel.app/)
+
+            ---
+
+            ### ✨ Key Features:
+            - **Authentic macOS Sequoia Glass Dock**: 3D skeuomorphic Apple icons with real-time active indicators and magnification hover effects.
+            - **Apple Fitness Activity Rings**: Live concentric animated SVG rings for Daily Habits, Deep Focus, and Streak Momentum.
+            - **Interactive Focus Timer**: Full Pomodoro cycles with sound, visual progress, and automated XP rewards.
+            - **Apple Watch Awards Gallery**: Unlockable metallic medals with 3D reflection gradients.
+            - **Local-First & Live Cloud Sync**: Works completely offline or syncs seamlessly across Web, Desktop, and Mobile.
+            - **Custom Apple Squircle Icon**: Embedded Windows 256x256 multi-resolution icon and native NSIS setup installer.
+
+            ---
+
+            ### 📥 Download & Installation:
+            1. Download **`PulseHabit Pro Setup 1.0.0.exe`** below.
+            2. Run the installer to install PulseHabit Pro with desktop & start menu shortcuts.
+          files: desktop/dist/installer/*.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

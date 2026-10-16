@@ -644,69 +644,123 @@
 
     <!-- Authentic macOS Sequoia Floating Glass Dock -->
     <div class="fixed bottom-3 inset-x-0 z-30 flex justify-center pointer-events-none px-4">
-      <div class="pointer-events-auto flex items-end gap-2 sm:gap-2.5 px-3.5 py-2 rounded-2xl bg-white/20 dark:bg-black/50 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-black/50 transition-all select-none max-w-full overflow-x-auto no-scrollbar">
+      <div class="pointer-events-auto flex items-end gap-2.5 sm:gap-3 px-3 py-2 rounded-[22px] bg-white/[0.15] dark:bg-[#0c101d]/70 backdrop-blur-3xl border border-white/[0.22] shadow-[0_20px_50px_-10px_rgba(0,0,0,0.65),inset_0_1px_1px_rgba(255,255,255,0.35)] transition-all select-none">
         
-        <!-- App Main Squircle Icon -->
+        <!-- 1. App Main Icon (PulseHabit) -->
         <div class="group relative flex flex-col items-center">
-          <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-[11px] overflow-hidden shadow-md border border-white/20 transition-transform duration-200 group-hover:-translate-y-2 group-hover:scale-110 active:scale-95 cursor-pointer flex-shrink-0" onclick="window.scrollTo({top:0, behavior:'smooth'})" title="PulseHabit Pro">
-            <img src="icon.png" class="w-full h-full object-cover" alt="PulseHabit" />
-          </div>
-          <span class="w-1 h-1 rounded-full bg-white/70 mt-1"></span>
-          <span class="absolute -top-7 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 backdrop-blur-md text-white text-[10px] font-medium px-2 py-0.5 rounded-md pointer-events-none whitespace-nowrap border border-white/10 hidden sm:block">PulseHabit Pro</span>
+          <button onclick="window.scrollTo({top:0, behavior:'smooth'})" class="w-11 h-11 rounded-[11px] overflow-hidden shadow-md border border-white/25 bg-black transition-all duration-200 ease-out group-hover:scale-125 group-hover:-translate-y-2.5 active:scale-95 flex items-center justify-center cursor-pointer" title="PulseHabit Pro">
+            <img src="icon.png" class="w-full h-full object-cover scale-[1.28]" alt="PulseHabit" />
+          </button>
+          <span class="w-1 h-1 rounded-full bg-white/90 mt-1 shadow-sm"></span>
+          <span class="absolute -top-8 opacity-0 group-hover:opacity-100 transition-opacity bg-black/85 backdrop-blur-md text-white text-[11px] font-medium px-2.5 py-0.5 rounded-lg pointer-events-none whitespace-nowrap border border-white/15 shadow-lg">PulseHabit Pro</span>
         </div>
 
-        <!-- Vertical Divider -->
-        <div class="w-[1px] h-8 bg-white/15 my-auto mx-0.5"></div>
+        <!-- Vertical Glass Divider -->
+        <div class="w-[1px] h-7 bg-white/20 my-auto mx-0.5"></div>
 
-        <!-- New Habit -->
+        <!-- 2. New Habit (Apple Reminders / Plus) -->
         <div class="group relative flex flex-col items-center">
-          <button onclick="openHabitModal()" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 text-white flex items-center justify-center text-lg shadow-md border border-white/20 transition-transform duration-200 group-hover:-translate-y-2 group-hover:scale-110 active:scale-95 flex-shrink-0" title="New Habit">
-            +
+          <button onclick="openHabitModal()" class="w-11 h-11 rounded-[11px] bg-gradient-to-b from-[#2c7bff] to-[#1258d4] text-white flex items-center justify-center shadow-md border border-white/30 transition-all duration-200 ease-out group-hover:scale-125 group-hover:-translate-y-2.5 active:scale-95" title="New Habit">
+            <svg class="w-6 h-6 drop-shadow" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+            </svg>
           </button>
-          <span class="absolute -top-7 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 backdrop-blur-md text-white text-[10px] font-medium px-2 py-0.5 rounded-md pointer-events-none whitespace-nowrap border border-white/10 hidden sm:block">New Habit</span>
+          <span class="w-1 h-1 rounded-full bg-transparent mt-1"></span>
+          <span class="absolute -top-8 opacity-0 group-hover:opacity-100 transition-opacity bg-black/85 backdrop-blur-md text-white text-[11px] font-medium px-2.5 py-0.5 rounded-lg pointer-events-none whitespace-nowrap border border-white/15 shadow-lg">New Habit</span>
         </div>
 
-        <!-- Activity Rings -->
+        <!-- 3. Activity Rings (Apple Fitness.app) -->
         <div class="group relative flex flex-col items-center">
-          <button onclick="window.scrollTo({top:200, behavior:'smooth'})" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-rose-500 to-pink-600 text-white flex items-center justify-center text-base shadow-md border border-white/20 transition-transform duration-200 group-hover:-translate-y-2 group-hover:scale-110 active:scale-95 flex-shrink-0" title="Activity Rings">
-            ⭕
+          <button onclick="window.scrollTo({top:200, behavior:'smooth'})" class="w-11 h-11 rounded-[11px] bg-gradient-to-b from-[#181a24] to-[#0a0c14] border border-white/20 shadow-md p-1.5 flex items-center justify-center transition-all duration-200 ease-out group-hover:scale-125 group-hover:-translate-y-2.5 active:scale-95" title="Activity Rings">
+            <svg class="w-full h-full drop-shadow" viewBox="0 0 36 36">
+              <!-- Outer Red -->
+              <circle cx="18" cy="18" r="14" stroke="rgba(250, 17, 79, 0.22)" stroke-width="3.2" fill="none"/>
+              <circle cx="18" cy="18" r="14" stroke="#fa114f" stroke-width="3.2" stroke-dasharray="87.96" stroke-dashoffset="24" stroke-linecap="round" fill="none" transform="rotate(-90 18 18)"/>
+              <!-- Middle Green -->
+              <circle cx="18" cy="18" r="10" stroke="rgba(164, 255, 0, 0.22)" stroke-width="3.2" fill="none"/>
+              <circle cx="18" cy="18" r="10" stroke="#a4ff00" stroke-width="3.2" stroke-dasharray="62.83" stroke-dashoffset="18" stroke-linecap="round" fill="none" transform="rotate(-90 18 18)"/>
+              <!-- Inner Cyan -->
+              <circle cx="18" cy="18" r="6" stroke="rgba(0, 245, 234, 0.22)" stroke-width="3.2" fill="none"/>
+              <circle cx="18" cy="18" r="6" stroke="#00f5ea" stroke-width="3.2" stroke-dasharray="37.7" stroke-dashoffset="10" stroke-linecap="round" fill="none" transform="rotate(-90 18 18)"/>
+            </svg>
           </button>
-          <span class="absolute -top-7 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 backdrop-blur-md text-white text-[10px] font-medium px-2 py-0.5 rounded-md pointer-events-none whitespace-nowrap border border-white/10 hidden sm:block">Activity Rings</span>
+          <span class="w-1 h-1 rounded-full bg-transparent mt-1"></span>
+          <span class="absolute -top-8 opacity-0 group-hover:opacity-100 transition-opacity bg-black/85 backdrop-blur-md text-white text-[11px] font-medium px-2.5 py-0.5 rounded-lg pointer-events-none whitespace-nowrap border border-white/15 shadow-lg">Activity Rings</span>
         </div>
 
-        <!-- Awards Gallery -->
+        <!-- 4. Awards Gallery (Apple Watch Medals) -->
         <div class="group relative flex flex-col items-center">
-          <button onclick="openAwardsModal()" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-600 text-white flex items-center justify-center text-base shadow-md border border-white/20 transition-transform duration-200 group-hover:-translate-y-2 group-hover:scale-110 active:scale-95 flex-shrink-0" title="Awards Gallery">
-            🏅
+          <button onclick="openAwardsModal()" class="w-11 h-11 rounded-[11px] bg-gradient-to-b from-[#261c10] to-[#120d07] border border-amber-500/35 shadow-md flex items-center justify-center transition-all duration-200 ease-out group-hover:scale-125 group-hover:-translate-y-2.5 active:scale-95" title="Awards Gallery">
+            <svg class="w-7 h-7 drop-shadow" viewBox="0 0 24 24" fill="none">
+              <!-- Ribbon -->
+              <path d="M7 2L12 8L17 2H13.5L12 4.5L10.5 2H7Z" fill="#3b82f6"/>
+              <path d="M10.5 2L12 4.5L13.5 2H11Z" fill="#ef4444"/>
+              <!-- Medal -->
+              <circle cx="12" cy="14" r="7" fill="url(#dockGoldGrad)" stroke="#f59e0b" stroke-width="0.8"/>
+              <polygon points="12,10.2 13.4,13 16.3,13.4 14.1,15.4 14.7,18.2 12,16.8 9.3,18.2 9.9,15.4 7.7,13.4 10.6,13" fill="#78350f"/>
+              <defs>
+                <linearGradient id="dockGoldGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#fef08a"/>
+                  <stop offset="50%" stop-color="#f59e0b"/>
+                  <stop offset="100%" stop-color="#b45309"/>
+                </linearGradient>
+              </defs>
+            </svg>
           </button>
-          <span class="absolute -top-7 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 backdrop-blur-md text-white text-[10px] font-medium px-2 py-0.5 rounded-md pointer-events-none whitespace-nowrap border border-white/10 hidden sm:block">Awards Gallery</span>
+          <span class="w-1 h-1 rounded-full bg-transparent mt-1"></span>
+          <span class="absolute -top-8 opacity-0 group-hover:opacity-100 transition-opacity bg-black/85 backdrop-blur-md text-white text-[11px] font-medium px-2.5 py-0.5 rounded-lg pointer-events-none whitespace-nowrap border border-white/15 shadow-lg">Awards Gallery</span>
         </div>
 
-        <!-- Quick Notes Archive -->
+        <!-- 5. Quick Notes (Apple Notes.app) -->
         <div class="group relative flex flex-col items-center">
-          <button onclick="openNotesArchiveModal()" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white flex items-center justify-center text-base shadow-md border border-white/20 transition-transform duration-200 group-hover:-translate-y-2 group-hover:scale-110 active:scale-95 flex-shrink-0" title="Quick Notes">
-            📝
+          <button onclick="openNotesArchiveModal()" class="w-11 h-11 rounded-[11px] bg-[#fbfbfb] border border-black/15 shadow-md overflow-hidden flex flex-col transition-all duration-200 ease-out group-hover:scale-125 group-hover:-translate-y-2.5 active:scale-95" title="Quick Notes">
+            <!-- Notes yellow band -->
+            <div class="h-3.5 bg-gradient-to-r from-[#ffd60a] to-[#ffb703] border-b border-[#cca300] flex items-center justify-between px-1.5 flex-shrink-0">
+              <div class="w-1 h-1 rounded-full bg-[#805300]/40"></div>
+              <div class="w-1 h-1 rounded-full bg-[#805300]/40"></div>
+            </div>
+            <!-- Notes lines -->
+            <div class="flex-1 p-1.5 space-y-1 bg-[#fffdf0]">
+              <div class="h-0.5 bg-amber-400/80 rounded-full w-3/4"></div>
+              <div class="h-0.5 bg-slate-300 rounded-full w-full"></div>
+              <div class="h-0.5 bg-slate-300 rounded-full w-5/6"></div>
+            </div>
           </button>
-          <span class="absolute -top-7 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 backdrop-blur-md text-white text-[10px] font-medium px-2 py-0.5 rounded-md pointer-events-none whitespace-nowrap border border-white/10 hidden sm:block">Quick Notes</span>
+          <span class="w-1 h-1 rounded-full bg-transparent mt-1"></span>
+          <span class="absolute -top-8 opacity-0 group-hover:opacity-100 transition-opacity bg-black/85 backdrop-blur-md text-white text-[11px] font-medium px-2.5 py-0.5 rounded-lg pointer-events-none whitespace-nowrap border border-white/15 shadow-lg">Quick Notes</span>
         </div>
 
-        <!-- Focus Timer -->
+        <!-- 6. Focus Timer (Apple Clock / Stopwatch) -->
         <div class="group relative flex flex-col items-center">
-          <button onclick="toggleTimer()" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 text-white flex items-center justify-center text-base shadow-md border border-white/20 transition-transform duration-200 group-hover:-translate-y-2 group-hover:scale-110 active:scale-95 flex-shrink-0" title="Focus Timer">
-            ⏱️
+          <button onclick="toggleTimer()" class="w-11 h-11 rounded-[11px] bg-gradient-to-b from-[#1c1e28] to-[#0c0d12] border border-white/20 shadow-md p-1 flex items-center justify-center transition-all duration-200 ease-out group-hover:scale-125 group-hover:-translate-y-2.5 active:scale-95" title="Focus Timer">
+            <div class="w-8 h-8 rounded-full bg-[#12141a] border border-white/40 relative flex items-center justify-center shadow-inner">
+              <div class="absolute top-0.5 w-0.5 h-1 bg-white/80"></div>
+              <div class="absolute bottom-0.5 w-0.5 h-1 bg-white/80"></div>
+              <div class="absolute left-0.5 w-1 h-0.5 bg-white/80"></div>
+              <div class="absolute right-0.5 w-1 h-0.5 bg-white/80"></div>
+              <!-- Hands -->
+              <div class="absolute w-0.5 h-2.5 bg-white rounded-full -translate-y-1"></div>
+              <div class="absolute w-2.5 h-0.5 bg-white rounded-full translate-x-1"></div>
+              <div class="absolute w-0.5 h-3 bg-[#ff453a] rounded-full translate-x-0.5 -translate-y-0.5 rotate-45 origin-bottom"></div>
+              <div class="w-1 h-1 rounded-full bg-[#ff453a] z-10"></div>
+            </div>
           </button>
-          <span class="absolute -top-7 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 backdrop-blur-md text-white text-[10px] font-medium px-2 py-0.5 rounded-md pointer-events-none whitespace-nowrap border border-white/10 hidden sm:block">Focus Timer</span>
+          <span class="w-1 h-1 rounded-full bg-transparent mt-1"></span>
+          <span class="absolute -top-8 opacity-0 group-hover:opacity-100 transition-opacity bg-black/85 backdrop-blur-md text-white text-[11px] font-medium px-2.5 py-0.5 rounded-lg pointer-events-none whitespace-nowrap border border-white/15 shadow-lg">Focus Timer</span>
         </div>
 
-        <!-- Vertical Divider -->
-        <div class="w-[1px] h-8 bg-white/15 my-auto mx-0.5"></div>
+        <!-- Vertical Glass Divider -->
+        <div class="w-[1px] h-7 bg-white/20 my-auto mx-0.5"></div>
 
-        <!-- System Settings -->
+        <!-- 7. System Settings (macOS Settings Cog) -->
         <div class="group relative flex flex-col items-center">
-          <button onclick="openSettingsModal('general')" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-zinc-800 text-white flex items-center justify-center text-base shadow-md border border-white/20 transition-transform duration-200 group-hover:-translate-y-2 group-hover:scale-110 active:scale-95 flex-shrink-0" title="Settings">
-            ⚙️
+          <button onclick="openSettingsModal('general')" class="w-11 h-11 rounded-[11px] bg-gradient-to-b from-[#4a4d58] to-[#252730] border border-white/30 shadow-md flex items-center justify-center transition-all duration-200 ease-out group-hover:scale-125 group-hover:-translate-y-2.5 active:scale-95" title="System Settings">
+            <svg class="w-6 h-6 text-slate-200 drop-shadow" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+            </svg>
           </button>
-          <span class="absolute -top-7 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 backdrop-blur-md text-white text-[10px] font-medium px-2 py-0.5 rounded-md pointer-events-none whitespace-nowrap border border-white/10 hidden sm:block">System Settings</span>
+          <span class="w-1 h-1 rounded-full bg-transparent mt-1"></span>
+          <span class="absolute -top-8 opacity-0 group-hover:opacity-100 transition-opacity bg-black/85 backdrop-blur-md text-white text-[11px] font-medium px-2.5 py-0.5 rounded-lg pointer-events-none whitespace-nowrap border border-white/15 shadow-lg">Settings</span>
         </div>
 
       </div>
