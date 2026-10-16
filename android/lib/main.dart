@@ -539,7 +539,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           decoration: BoxDecoration(
                             color: isSelected ? const Color(0x333B82F6) : const Color(0x0AFFFFFF),
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: isSelected ? const Color(0xFF3B82F6) : Colors.transparent),
+                            border: Border.all(color: isSelected ? const Color(0xFF3B82F6) : CupertinoColors.transparent),
                           ),
                           child: Text(mood, style: const TextStyle(fontSize: 16)),
                         ),

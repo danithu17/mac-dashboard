@@ -1,0 +1,91 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'android/**'
+      - '.github/workflows/build-apk.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-apk:
+    name: Build & Release Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Generate Android Host Scaffolding
+        run: |
+          cd android
+          flutter create . --platforms=android --org=com.danithu.pulsehabit
+          flutter doctor -v
+
+      - name: Install Flutter Dependencies
+        run: |
+          cd android
+          flutter pub get
+
+      - name: Compile Release APK
+        run: |
+          cd android
+          flutter build apk --release
+
+      - name: Prepare APK Asset
+        run: |
+          cp android/build/app/outputs/flutter-apk/app-release.apk PulseHabit-Pro-v1.0.0.apk
+          ls -lh PulseHabit-Pro-v1.0.0.apk
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PulseHabit-Pro-Android-APK
+          path: PulseHabit-Pro-v1.0.0.apk
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.0-android
+          name: "PulseHabit Pro Android v1.0.0 (Release APK)"
+          draft: false
+          prerelease: false
+          body: |
+            ## 📱 PulseHabit Pro — Android Mobile Edition (APK)
+
+            Welcome to the official Android companion app for **PulseHabit Pro**!
+
+            ### ✨ Key Features:
+            - **Apple Cupertino UI Design**: Sleek deep-space black frosted glass aesthetic.
+            - **Concentric Activity Rings**: Real-time Overall, Craft, and Vitality goals.
+            - **Daily Habits Matrix**: Check-in rewards (+15 XP) and streak counters.
+            - **Focus Pomodoro Timer**: Earn +25 XP with countdown timers.
+            - **Quick Notes & Mood Tracker**: Reflect and log your daily mental state.
+            - **Apple Watch Awards Gallery**: 8 milestone achievement medals.
+            - **$0 Cost-Free Live Sync**: Connects to your local PC or Vercel server.
+
+            ---
+
+            ### 📥 Download & Installation:
+            Download **`PulseHabit-Pro-v1.0.0.apk`** below and tap to install on your Android device.
+          files: PulseHabit-Pro-v1.0.0.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
