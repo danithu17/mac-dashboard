@@ -5,12 +5,18 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder"
+    "package-win": "electron-packager . \"PulseHabit Pro\" --platform=win32 --arch=x64 --out=dist --overwrite --prune=true"
   },
-  "keywords": ["electron", "macos", "dashboard", "habits"],
+  "keywords": [
+    "electron",
+    "macos",
+    "dashboard",
+    "habits"
+  ],
   "author": "Danithu",
   "license": "MIT",
   "devDependencies": {
-    "electron": "^30.0.0"
+    "@electron/packager": "^20.3.0",
+    "electron": "^30.5.1"
   }
 }

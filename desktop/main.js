@@ -41,7 +41,10 @@ if (!gotTheLock) {
       }
     });
 
-    const webIndexPath = path.join(__dirname, '..', 'web', 'index.html');
+    const fs = require('fs');
+    const localWebPath = path.join(__dirname, 'web', 'index.html');
+    const fallbackPath = path.join(__dirname, '..', 'web', 'index.html');
+    const webIndexPath = fs.existsSync(localWebPath) ? localWebPath : fallbackPath;
     mainWindow.loadFile(webIndexPath);
 
     mainWindow.once('ready-to-show', () => {
