@@ -1,22 +1,48 @@
 {
-  "name": "pulsehabit-desktop",
+  "name": "pulsehabit-pro",
+  "productName": "PulseHabit Pro",
+  "appId": "com.danithu.pulsehabitpro",
   "version": "1.0.0",
-  "description": "PulseHabit Pro — macOS Sequoia Desktop App for Mac & Windows",
+  "description": "PulseHabit Pro — Apple Ecosystem Habit & Focus Dashboard",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "package-win": "electron-packager . \"PulseHabit Pro\" --platform=win32 --arch=x64 --out=dist --icon=assets/icon.ico --overwrite --prune=true"
+    "package-win": "electron-packager . \"PulseHabit Pro\" --platform=win32 --arch=x64 --out=dist --icon=assets/icon.ico --overwrite --prune=true",
+    "dist": "electron-builder --win nsis --x64"
   },
-  "keywords": [
-    "electron",
-    "macos",
-    "dashboard",
-    "habits"
-  ],
+  "build": {
+    "appId": "com.danithu.pulsehabitpro",
+    "productName": "PulseHabit Pro",
+    "directories": {
+      "output": "dist/installer"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "assets/**/*",
+      "web/**/*"
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "PulseHabit Pro",
+      "uninstallDisplayName": "PulseHabit Pro"
+    }
+  },
   "author": "Danithu",
   "license": "MIT",
   "devDependencies": {
     "@electron/packager": "^20.3.0",
-    "electron": "^30.5.1"
+    "electron": "^30.5.1",
+    "electron-builder": "^26.15.3",
+    "png-to-ico": "^2.1.8"
   }
 }
