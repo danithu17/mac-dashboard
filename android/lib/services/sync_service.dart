@@ -3,48 +3,77 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SyncService {
-  static const String defaultServerUrl = 'http://192.168.8.184:3000';
+  // Live Vercel zero-cost sync cloud server as default
+  static const String defaultServerUrl = 'https://mac-dashboard-mu.vercel.app';
+  static const Duration requestTimeout = Duration(seconds: 8);
 
   static Future<String> getServerUrl() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('server_url') ?? defaultServerUrl;
   }
 
-  static Future<void> setServerUrl(String url) async {
+  static Future<bool> setServerUrl(String url) async {
+    final trimmed = url.trim();
+    final uri = Uri.tryParse(trimmed);
+    // Security: Validate URL format and allowed protocols
+    if (uri == null || (!uri.isScheme('http') && !uri.isScheme('https')) || uri.host.isEmpty) {
+      return false;
+    }
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('server_url', url);
+    await prefs.setString('server_url', trimmed);
+    return true;
   }
 
-  // Fetch data for user from Cost-Free Backend API
+  // Security: Sanitize UID
+  static bool isValidUid(String uid) {
+    if (uid.isEmpty || uid.length > 64) return false;
+    if (uid == '__proto__' || uid == 'constructor' || uid == 'prototype') return false;
+    return RegExp(r'^[a-zA-Z0-9_-]+$').hasMatch(uid);
+  }
+
+  // Fetch data for user from Cost-Free Backend API with Timeout & Security checks
   static Future<Map<String, dynamic>?> fetchUserData(String uid) async {
+    if (!isValidUid(uid)) return null;
+
     try {
       final baseUrl = await getServerUrl();
-      final response = await http.get(Uri.parse('$baseUrl/api/sync/$uid'));
+      final uri = Uri.parse('$baseUrl/api/sync/$uid');
+      final response = await http.get(uri).timeout(requestTimeout);
+
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        return data['data'];
+        if (data is Map<String, dynamic> && data['data'] is Map<String, dynamic>) {
+          return data['data'];
+        }
       }
-    } catch (e) {
+    } catch (_) {
       // Offline fallback
     }
     return null;
   }
 
-  // Push local updates to Cost-Free Backend API
+  // Push local updates to Cost-Free Backend API with Timeout & Security checks
   static Future<bool> pushUserData(String uid, Map<String, dynamic> userData, Map<String, dynamic> userProfile) async {
+    if (!isValidUid(uid)) return false;
+
     try {
       final baseUrl = await getServerUrl();
+      final uri = Uri.parse('$baseUrl/api/sync/$uid');
       final response = await http.post(
-        Uri.parse('$baseUrl/api/sync/$uid'),
-        headers: {'Content-Type': 'application/json'},
+        uri,
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'X-Requested-With': 'PulseHabit-Android'
+        },
         body: jsonEncode({
           'uid': uid,
           'user': userProfile,
           'data': userData,
         }),
-      );
+      ).timeout(requestTimeout);
+
       return response.statusCode == 200;
-    } catch (e) {
+    } catch (_) {
       return false;
     }
   }

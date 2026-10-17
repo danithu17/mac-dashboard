@@ -1,5 +1,6 @@
-const { app, BrowserWindow, Menu, Tray, nativeImage, ipcMain, Notification } = require('electron');
+const { app, BrowserWindow, Menu, Tray, nativeImage, ipcMain, Notification, shell } = require('electron');
 const path = require('path');
+const fs = require('fs');
 
 // Disable GPU disk caches and features that trigger Windows access lock errors (0x20 / 0x5)
 app.commandLine.appendSwitch('disable-gpu-shader-disk-cache');
@@ -38,11 +39,40 @@ if (!gotTheLock) {
         preload: path.join(__dirname, 'preload.js'),
         nodeIntegration: false,
         contextIsolation: true,
-        sandbox: false
+        sandbox: true, // Security hardening
+        webSecurity: true,
+        allowRunningInsecureContent: false
       }
     });
 
-    const fs = require('fs');
+    // Security: Intercept external link popups and open safely in user's OS browser
+    mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+      if (url.startsWith('https://') || url.startsWith('http://')) {
+        shell.openExternal(url);
+      }
+      return { action: 'deny' };
+    });
+
+    // Security: Prevent malicious in-app navigation
+    mainWindow.webContents.on('will-navigate', (event, navigationUrl) => {
+      try {
+        const parsedUrl = new URL(navigationUrl);
+        if (parsedUrl.protocol !== 'file:') {
+          event.preventDefault();
+          if (navigationUrl.startsWith('https://') || navigationUrl.startsWith('http://')) {
+            shell.openExternal(navigationUrl);
+          }
+        }
+      } catch (e) {
+        event.preventDefault();
+      }
+    });
+
+    // Security: Deny all sensitive permission requests (camera, mic, geolocation, notifications)
+    mainWindow.webContents.session.setPermissionRequestHandler((webContents, permission, callback) => {
+      return callback(false);
+    });
+
     const localWebPath = path.join(__dirname, 'web', 'index.html');
     const fallbackPath = path.join(__dirname, '..', 'web', 'index.html');
     const webIndexPath = fs.existsSync(localWebPath) ? localWebPath : fallbackPath;
@@ -76,12 +106,12 @@ if (!gotTheLock) {
     if (mainWindow) mainWindow.close();
   });
 
-  // Native Desktop OS Notifications
+  // Native Desktop OS Notifications (Sanitized)
   ipcMain.on('native-notification', (event, { title, body }) => {
     if (Notification.isSupported()) {
       new Notification({
-        title: title || 'PulseHabit Pro',
-        body: body || 'Habit notification',
+        title: typeof title === 'string' ? title.slice(0, 100) : 'PulseHabit Pro',
+        body: typeof body === 'string' ? body.slice(0, 200) : 'Habit notification',
         silent: false
       }).show();
     }

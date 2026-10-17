@@ -23,6 +23,12 @@ class PulseHabitApp extends StatelessWidget {
         primaryColor: CupertinoColors.systemBlue,
         scaffoldBackgroundColor: Color(0xFF0B0F19),
         barBackgroundColor: Color(0xE6101420),
+        textTheme: CupertinoTextThemeData(
+          textStyle: TextStyle(
+            fontFamily: '.SF Pro Text',
+            color: CupertinoColors.white,
+          ),
+        ),
       ),
       home: DashboardScreen(),
     );
@@ -44,7 +50,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   String currentFilter = 'All';
 
   // Notes & Mood
-  String selectedMood = '⚡';
+  String selectedMood = 'bolt';
   final TextEditingController _noteController = TextEditingController();
 
   // Focus Timer
@@ -53,11 +59,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Timer? _timer;
 
   final List<Habit> habits = [
-    Habit(id: '1', name: 'Software Architecture', category: 'Coding', target: 7, icon: '💻', color: '#3b82f6'),
-    Habit(id: '2', name: 'Deep Reading & Notes', category: 'Reading', target: 5, icon: '📚', color: '#10b981'),
-    Habit(id: '3', name: 'Strength Workout', category: 'Fitness', target: 5, icon: '🏋️', color: '#f43f5e'),
-    Habit(id: '4', name: 'Mindfulness & Breathing', category: 'Mindfulness', target: 7, icon: '🧘', color: '#a855f7'),
-    Habit(id: '5', name: 'Optimal Hydration', category: 'Hydration', target: 7, icon: '💧', color: '#06b6d4'),
+    Habit(id: '1', name: 'Software Architecture', category: 'Coding', target: 7, icon: 'code', color: '#3b82f6'),
+    Habit(id: '2', name: 'Deep Reading & Notes', category: 'Reading', target: 5, icon: 'book', color: '#10b981'),
+    Habit(id: '3', name: 'Strength Workout', category: 'Fitness', target: 5, icon: 'fitness', color: '#f43f5e'),
+    Habit(id: '4', name: 'Mindfulness & Breathing', category: 'Mindfulness', target: 7, icon: 'mindfulness', color: '#a855f7'),
+    Habit(id: '5', name: 'Optimal Hydration', category: 'Hydration', target: 7, icon: 'hydration', color: '#06b6d4'),
   ];
 
   final Map<String, bool> _todayLogs = {};
@@ -65,7 +71,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
-    _noteController.text = 'Focused session completed. Ready for high impact tasks.';
+    _noteController.text = 'Deep work sprint complete. High impact system architecture in progress.';
     _trySync();
   }
 
@@ -99,24 +105,38 @@ class _DashboardScreenState extends State<DashboardScreen> {
           level += xp ~/ 100;
           xp = xp % 100;
         }
-        if (level >= 5) currentRank = 'Apex Vanguard';
-        else if (level >= 3) currentRank = 'Architect';
-        else if (level >= 2) currentRank = 'Builder';
+        _updateRank();
       }
     });
-    // Trigger background sync push
-    SyncService.pushUserData('usr_default', {
-      'boost': {'bonusXp': xp},
-      'logs': {_todayKey(): _todayLogs},
-    }, {
-      'name': 'Danithu',
-      'avatar': '👨‍💻',
-    });
+
+    // Auto-sync with server
+    SyncService.pushUserData(
+      'usr_default',
+      {
+        'boost': {'bonusXp': xp, 'level': level},
+        'logs': {_todayKey(): _todayLogs}
+      },
+      {'name': 'Danithu', 'uid': 'usr_default', 'track': 'Software Engineering'},
+    );
+  }
+
+  void _updateRank() {
+    if (level >= 8) {
+      currentRank = 'Grandmaster';
+    } else if (level >= 5) {
+      currentRank = 'Vanguard';
+    } else if (level >= 3) {
+      currentRank = 'Architect';
+    } else if (level >= 2) {
+      currentRank = 'Practitioner';
+    } else {
+      currentRank = 'Initiate';
+    }
   }
 
   String _todayKey() {
     final now = DateTime.now();
-    return "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+    return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
   }
 
   void _toggleTimer() {
@@ -138,10 +158,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           showCupertinoDialog(
             context: context,
             builder: (ctx) => CupertinoAlertDialog(
-              title: const Text('🎉 Focus Completed!'),
-              content: const Text('+25 Profile Boost XP Earned.'),
+              title: const Text(' Focus Completed!'),
+              content: const Text('+25 Profile Boost XP Earned and synchronized with your Apple Ecosystem.'),
               actions: [
-                CupertinoDialogAction(child: const Text('OK'), onPressed: () => Navigator.pop(ctx)),
+                CupertinoDialogAction(child: const Text('Great'), onPressed: () => Navigator.pop(ctx)),
               ],
             ),
           );
@@ -150,17 +170,101 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  IconData _getCupertinoIcon(String iconKey) {
+    switch (iconKey.toLowerCase()) {
+      case 'code':
+      case 'coding':
+      case '💻':
+        return CupertinoIcons.chevron_left_slash_chevron_right;
+      case 'book':
+      case 'reading':
+      case '📚':
+      case '📖':
+        return CupertinoIcons.book_fill;
+      case 'fitness':
+      case 'workout':
+      case 'run':
+      case '🏋️':
+      case '🏃':
+        return CupertinoIcons.flame_fill;
+      case 'mindfulness':
+      case 'meditate':
+      case '🧘':
+        return CupertinoIcons.sparkles;
+      case 'hydration':
+      case 'water':
+      case '💧':
+        return CupertinoIcons.drop_fill;
+      case 'bolt':
+      case '⚡':
+        return CupertinoIcons.bolt_fill;
+      case 'target':
+      case '🎯':
+        return CupertinoIcons.scope;
+      default:
+        return CupertinoIcons.star_fill;
+    }
+  }
+
   void _openAwards() {
     final checkedCount = _todayLogs.values.where((v) => v).length;
     final awards = [
-      AwardItem(title: 'First Step', desc: 'Checked in first habit', icon: '🥇', isUnlocked: checkedCount >= 1),
-      AwardItem(title: '7-Day Streak', desc: '7 days of consistency', icon: '🔥', isUnlocked: true),
-      AwardItem(title: 'Deep Work', desc: 'Completed 50+ Focus XP', icon: '⚡', isUnlocked: xp >= 50),
-      AwardItem(title: 'Perfect Day', desc: '100% daily check-in', icon: '🎯', isUnlocked: checkedCount == habits.length),
-      AwardItem(title: 'Century Club', desc: '100 check-ins logged', icon: '💎', isUnlocked: false),
-      AwardItem(title: 'Zen Master', desc: 'Fitness & mindfulness habits', icon: '🧘', isUnlocked: true),
-      AwardItem(title: 'Apex Vanguard', desc: 'Reached Level 5', icon: '🚀', isUnlocked: level >= 5),
-      AwardItem(title: 'Consistency King', desc: '20+ active days logged', icon: '🌟', isUnlocked: true),
+      AwardItem(
+        title: 'First Step',
+        desc: 'Completed your very first habit check-in.',
+        icon: CupertinoIcons.star_fill,
+        color: const Color(0xFFF59E0B),
+        isUnlocked: checkedCount >= 1,
+      ),
+      AwardItem(
+        title: '7-Day Streak',
+        desc: 'Maintained 7 consecutive active check-in days.',
+        icon: CupertinoIcons.flame_fill,
+        color: const Color(0xFFEF4444),
+        isUnlocked: xp >= 30,
+      ),
+      AwardItem(
+        title: 'Deep Work Master',
+        desc: 'Earned 50+ Focus XP in Pomodoro sessions.',
+        icon: CupertinoIcons.bolt_fill,
+        color: const Color(0xFF3B82F6),
+        isUnlocked: xp >= 50,
+      ),
+      AwardItem(
+        title: 'Perfect Day',
+        desc: 'Achieved 100% check-ins on all active habits.',
+        icon: CupertinoIcons.checkmark_seal_fill,
+        color: const Color(0xFFEC4899),
+        isUnlocked: checkedCount == habits.length && habits.isNotEmpty,
+      ),
+      AwardItem(
+        title: 'Century Club',
+        desc: 'Logged 100 lifetime habit check-ins.',
+        icon: CupertinoIcons.shield_fill,
+        color: const Color(0xFF06B6D4),
+        isUnlocked: false,
+      ),
+      AwardItem(
+        title: 'Knowledge Vanguard',
+        desc: 'Logged 10 deep reading & architecture sessions.',
+        icon: CupertinoIcons.book_fill,
+        color: const Color(0xFF10B981),
+        isUnlocked: true,
+      ),
+      AwardItem(
+        title: 'Apex Vanguard',
+        desc: 'Reached Profile Boost Level 5.',
+        icon: CupertinoIcons.sparkles,
+        color: const Color(0xFF8B5CF6),
+        isUnlocked: level >= 5,
+      ),
+      AwardItem(
+        title: 'Monthly Legend',
+        desc: 'Logged 20+ active days in consistency history.',
+        icon: CupertinoIcons.rosette,
+        color: const Color(0xFFEAB308),
+        isUnlocked: true,
+      ),
     ];
 
     showCupertinoModalPopup(
@@ -188,22 +292,31 @@ class _DashboardScreenState extends State<DashboardScreen> {
         : habits.where((h) => h.category == currentFilter).toList();
 
     final checkedCount = _todayLogs.values.where((v) => v).length;
-    final totalCount = habits.length;
-    final overallPct = totalCount > 0 ? (checkedCount / totalCount) : 0.0;
+    final overallPct = habits.isEmpty ? 0.0 : (checkedCount / habits.length);
+    final media = MediaQuery.of(context);
 
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        leading: Row(
+        middle: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(6),
-              child: Image.asset('assets/icon.png', width: 22, height: 22, fit: BoxFit.cover, errorBuilder: (_, __, ___) => const Text('🍎')),
+            Container(
+              width: 22,
+              height: 22,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF38BDF8), Color(0xFF6366F1), Color(0xFFEC4899)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: const Icon(CupertinoIcons.circle_grid_hex_fill, size: 14, color: CupertinoColors.white),
             ),
             const SizedBox(width: 8),
             const Text(
               'PulseHabit Pro',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, letterSpacing: -0.3),
             ),
           ],
         ),
@@ -213,9 +326,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
             CupertinoButton(
               padding: EdgeInsets.zero,
               onPressed: _openAwards,
-              child: const Text('🏅', style: TextStyle(fontSize: 18)),
+              child: Container(
+                width: 28,
+                height: 28,
+                decoration: BoxDecoration(
+                  color: const Color(0x26F59E0B),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(CupertinoIcons.rosette, color: Color(0xFFF59E0B), size: 16),
+              ),
             ),
-            const SizedBox(width: 6),
+            const SizedBox(width: 8),
             GestureDetector(
               onTap: _openSyncSettings,
               child: Container(
@@ -225,13 +346,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: isSynced ? const Color(0xFF10B981) : const Color(0xFFF59E0B), width: 0.8),
                 ),
-                child: Text(
-                  isSynced ? '● Synced' : '○ Offline',
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: isSynced ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
-                    fontWeight: FontWeight.bold,
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      isSynced ? CupertinoIcons.check_mark_circled_solid : CupertinoIcons.arrow_2_circlepath,
+                      size: 11,
+                      color: isSynced ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      isSynced ? 'Live Sync' : 'Offline',
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: isSynced ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -240,17 +372,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       child: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
+          padding: EdgeInsets.fromLTRB(
+            16,
+            12,
+            16,
+            16 + media.padding.bottom,
+          ),
           children: [
-            // 1. PROFILE BOOST BANNER
+            // 1. PROFILE BOOST BANNER (Apple Glass Card)
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: const Color(0xFF131722),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(22),
                 border: Border.all(color: const Color(0x2E3B82F6)),
                 boxShadow: const [
-                  BoxShadow(color: Color(0x33000000), blurRadius: 12, offset: Offset(0, 4)),
+                  BoxShadow(color: Color(0x33000000), blurRadius: 14, offset: Offset(0, 4)),
                 ],
               ),
               child: Column(
@@ -258,15 +395,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Row(
                     children: [
                       Container(
-                        width: 48,
-                        height: 48,
+                        width: 46,
+                        height: 46,
                         decoration: BoxDecoration(
-                          color: const Color(0x293B82F6),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: const Color(0x403B82F6)),
-                        ),
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF3B82F6), Color(0xFF8B5CF6)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(14),
+                          boxShadow: const [
+                            BoxShadow(color: Color(0x333B82F6), blurRadius: 8, offset: Offset(0, 2)),
+                          ],
+                        ],
                         alignment: Alignment.center,
-                        child: const Text('👨‍💻', style: TextStyle(fontSize: 24)),
+                        child: const Icon(CupertinoIcons.person_crop_circle_fill, size: 28, color: CupertinoColors.white),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -278,10 +421,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 const Text('Danithu', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: CupertinoColors.white)),
                                 const SizedBox(width: 6),
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                                   decoration: BoxDecoration(
                                     color: const Color(0x333B82F6),
                                     borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(color: const Color(0x403B82F6), width: 0.8),
                                   ),
                                   child: Text(currentRank, style: const TextStyle(fontSize: 9, color: Color(0xFF60A5FA), fontWeight: FontWeight.w600)),
                                 ),
@@ -297,13 +441,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Level $level', style: const TextStyle(fontSize: 11, color: Color(0xFFFBBF24), fontWeight: FontWeight.bold)),
-                      Text('$xp / 100 XP', style: const TextStyle(fontSize: 11, color: CupertinoColors.systemGrey)),
+                      Row(
+                        children: [
+                          const Icon(CupertinoIcons.sparkles, size: 12, color: Color(0xFFFBBF24)),
+                          const SizedBox(width: 4),
+                          Text('Level $level', style: const TextStyle(fontSize: 11, color: Color(0xFFFBBF24), fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                      Text('$xp / 100 XP', style: const TextStyle(fontSize: 11, color: CupertinoColors.systemGrey, fontFamily: 'monospace')),
                     ],
                   ),
                   const SizedBox(height: 6),
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: BorderRadius.circular(6),
                     child: Container(
                       height: 6,
                       color: const Color(0xFF1E2336),
@@ -329,15 +479,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: const Color(0xFF131722),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(22),
                 border: Border.all(color: const Color(0x1AFFFFFF)),
               ),
               child: Row(
                 children: [
                   ActivityRingsWidget(
                     overallPct: overallPct,
-                    craftPct: 0.65,
-                    vitalityPct: 0.40,
+                    craftPct: 0.70,
+                    vitalityPct: 0.50,
                     size: 110,
                   ),
                   const SizedBox(width: 16),
@@ -348,11 +498,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         const Text('Activity Rings', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: CupertinoColors.white)),
                         const Text('Weekly completion goals', style: TextStyle(fontSize: 10, color: CupertinoColors.systemGrey)),
                         const SizedBox(height: 8),
-                        _RingLegend(color: const Color(0xFFFA114F), label: 'Overall Goal: ${(overallPct * 100).round()}%'),
+                        _RingLegend(color: const Color(0xFFFA114F), label: 'Daily Habits: ${(overallPct * 100).round()}%'),
                         const SizedBox(height: 4),
-                        const _RingLegend(color: Color(0xFFA4FF00), label: 'Craft & Intellect: 65%'),
+                        const _RingLegend(color: Color(0xFFA4FF00), label: 'Focus & Craft: 70%'),
                         const SizedBox(height: 4),
-                        const _RingLegend(color: Color(0xFF00F5EA), label: 'Vitality & Mind: 40%'),
+                        const _RingLegend(color: Color(0xFF00F5EA), label: 'Vitality & Mind: 50%'),
                       ],
                     ),
                   ),
@@ -360,58 +510,71 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
 
-            // 3. CATEGORY PILLS (Horizontal Scroll)
+            // 3. CATEGORY PILLS (Horizontal Scroll with SF Symbols)
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
               child: Row(
-                children: ['All', 'Coding', 'Reading', 'Fitness', 'Mindfulness', 'Hydration'].map((cat) {
-                  final isSelected = currentFilter == cat;
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 6),
-                    child: CupertinoButton(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      color: isSelected ? CupertinoColors.systemBlue : const Color(0xFF181D2D),
-                      borderRadius: BorderRadius.circular(14),
-                      minSize: 28,
-                      onPressed: () => setState(() => currentFilter = cat),
-                      child: Text(
-                        cat,
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                          color: isSelected ? CupertinoColors.white : CupertinoColors.systemGrey,
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
+                children: [
+                  _categoryChip('All', CupertinoIcons.square_grid_2x2),
+                  _categoryChip('Coding', CupertinoIcons.chevron_left_slash_chevron_right),
+                  _categoryChip('Reading', CupertinoIcons.book),
+                  _categoryChip('Fitness', CupertinoIcons.flame),
+                  _categoryChip('Mindfulness', CupertinoIcons.sparkles),
+                  _categoryChip('Hydration', CupertinoIcons.drop),
+                ],
               ),
             ),
 
             const SizedBox(height: 14),
 
             // 4. HABITS CHECKLIST
-            const Text(
-              'DAILY HABITS',
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: CupertinoColors.systemGrey, letterSpacing: 0.6),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'DAILY HABITS',
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: CupertinoColors.systemGrey, letterSpacing: 0.6),
+                ),
+                Text(
+                  '$checkedCount / ${habits.length} Done',
+                  style: const TextStyle(fontSize: 10, color: Color(0xFF10B981), fontWeight: FontWeight.bold),
+                ),
+              ],
             ),
             const SizedBox(height: 8),
 
             ...filteredHabits.map((h) {
               final isDone = _todayLogs[h.id] ?? false;
+              final colorVal = int.parse(h.color.replaceFirst('#', '0xFF'));
+              final itemColor = Color(colorVal);
+
               return Container(
                 margin: const EdgeInsets.only(bottom: 8),
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 decoration: BoxDecoration(
                   color: const Color(0xFF131722),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(18),
                   border: Border.all(color: isDone ? const Color(0x3310B981) : const Color(0x14FFFFFF)),
                 ),
                 child: Row(
                   children: [
-                    Text(h.icon, style: const TextStyle(fontSize: 22)),
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: itemColor.withOpacity(0.18),
+                        borderRadius: BorderRadius.circular(11),
+                        border: Border.all(color: itemColor.withOpacity(0.35), width: 0.8),
+                      ),
+                      child: Icon(
+                        _getCupertinoIcon(h.icon),
+                        size: 18,
+                        color: itemColor,
+                      ),
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
@@ -460,7 +623,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: const Color(0xFF131722),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(22),
                 border: Border.all(color: const Color(0x1AFFFFFF)),
               ),
               child: Column(
@@ -468,29 +631,53 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Focus Timer (+25 XP)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: CupertinoColors.white)),
+                      Row(
+                        children: [
+                          Container(
+                            width: 28,
+                            height: 28,
+                            decoration: BoxDecoration(
+                              color: const Color(0x263B82F6),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(CupertinoIcons.stopwatch_fill, color: Color(0xFF60A5FA), size: 16),
+                          ),
+                          const SizedBox(width: 8),
+                          const Text('Focus Timer (+25 XP)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: CupertinoColors.white)),
+                        ],
+                      ),
                       Text(
                         '${(_timerSeconds ~/ 60).toString().padLeft(2, '0')}:${(_timerSeconds % 60).toString().padLeft(2, '0')}',
                         style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'monospace', color: Color(0xFF60A5FA)),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 12),
                   Row(
                     children: [
                       Expanded(
                         child: CupertinoButton(
                           color: _isTimerRunning ? CupertinoColors.systemYellow : CupertinoColors.systemBlue,
-                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          padding: const EdgeInsets.symmetric(vertical: 10),
                           borderRadius: BorderRadius.circular(12),
                           onPressed: _toggleTimer,
-                          child: Text(_isTimerRunning ? 'Pause' : 'Start Focus', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(_isTimerRunning ? CupertinoIcons.pause_fill : CupertinoIcons.play_fill, size: 14, color: _isTimerRunning ? CupertinoColors.black : CupertinoColors.white),
+                              const SizedBox(width: 6),
+                              Text(
+                                _isTimerRunning ? 'Pause' : 'Start Focus',
+                                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: _isTimerRunning ? CupertinoColors.black : CupertinoColors.white),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                       const SizedBox(width: 8),
                       CupertinoButton(
                         color: const Color(0xFF1E2336),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                         borderRadius: BorderRadius.circular(12),
                         onPressed: () {
                           _timer?.cancel();
@@ -514,7 +701,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: const Color(0xFF131722),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(22),
                 border: Border.all(color: const Color(0x1AFFFFFF)),
               ),
               child: Column(
@@ -523,43 +710,73 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Quick Notes & Mood', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: CupertinoColors.white)),
-                      Text(_todayKey(), style: const TextStyle(fontSize: 10, color: CupertinoColors.systemGrey, fontFamily: 'monospace')),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: ['⚡', '🔥', '😌', '😐', '🔋'].map((mood) {
-                      final isSelected = selectedMood == mood;
-                      return GestureDetector(
-                        onTap: () => setState(() => selectedMood = mood),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: isSelected ? const Color(0x333B82F6) : const Color(0x0AFFFFFF),
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: isSelected ? const Color(0xFF3B82F6) : CupertinoColors.transparent),
+                      Row(
+                        children: [
+                          Container(
+                            width: 28,
+                            height: 28,
+                            decoration: BoxDecoration(
+                              color: const Color(0x26F59E0B),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(CupertinoIcons.square_pencil, color: Color(0xFFFBBF24), size: 16),
                           ),
-                          child: Text(mood, style: const TextStyle(fontSize: 16)),
-                        ),
-                      );
-                    }).toList(),
+                          const SizedBox(width: 8),
+                          const Text('Quick Notes & Vault', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: CupertinoColors.white)),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          const Icon(CupertinoIcons.lock_shield_fill, color: Color(0xFF10B981), size: 12),
+                          const SizedBox(width: 4),
+                          Text(_todayKey(), style: const TextStyle(fontSize: 10, color: CupertinoColors.systemGrey, fontFamily: 'monospace')),
+                        ],
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 10),
                   CupertinoTextField(
                     controller: _noteController,
                     maxLines: 3,
-                    placeholder: 'Type quick reflection...',
-                    padding: const EdgeInsets.all(10),
+                    placeholder: 'Log daily focus, thoughts or reflections...',
+                    padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: const Color(0xFF1A1F30),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(14),
                       border: Border.all(color: const Color(0x1AFFFFFF)),
                     ),
                     style: const TextStyle(color: CupertinoColors.white, fontSize: 12),
                   ),
                 ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _categoryChip(String cat, IconData icon) {
+    final isSelected = currentFilter == cat;
+    return Padding(
+      padding: const EdgeInsets.only(right: 6),
+      child: CupertinoButton(
+        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
+        color: isSelected ? CupertinoColors.systemBlue : const Color(0xFF181D2D),
+        borderRadius: BorderRadius.circular(14),
+        minSize: 28,
+        onPressed: () => setState(() => currentFilter = cat),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 12, color: isSelected ? CupertinoColors.white : CupertinoColors.systemGrey),
+            const SizedBox(width: 5),
+            Text(
+              cat,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: isSelected ? CupertinoColors.white : CupertinoColors.systemGrey,
               ),
             ),
           ],

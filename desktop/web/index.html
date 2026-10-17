@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://fonts.googleapis.com https://fonts.gstatic.com; img-src 'self' data: https: blob:; font-src 'self' https: data:; connect-src 'self' http: https: ws: wss:;" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="theme-color" content="#0b0f19" />
@@ -73,7 +76,7 @@
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Inter, system-ui, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", -apple-system-ui-serif, system-ui, sans-serif;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       touch-action: manipulation;
@@ -82,6 +85,10 @@
       overflow-x: hidden;
       min-height: 100vh;
       min-height: 100dvh;
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: max(env(safe-area-inset-bottom), 16px);
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
       transition: background 0.4s ease;
     }
 
@@ -370,7 +377,9 @@
 
         <!-- User Profile Pill -->
         <button onclick="openSettingsModal('profile')" class="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 px-2 sm:px-2.5 py-1 rounded-full text-[11px] transition">
-          <span id="topUserAvatar" class="text-sm">👨‍💻</span>
+          <span id="topUserAvatar" class="w-4 h-4 rounded-full bg-blue-500/30 text-blue-300 flex items-center justify-center">
+            <svg class="w-2.5 h-2.5 fill-current" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          </span>
           <span id="topUserName" class="font-semibold max-w-[80px] truncate">User</span>
           <span id="topUserLevel" class="text-[10px] font-mono text-amber-300 bg-amber-500/20 px-1.5 rounded-full">Lv.1</span>
         </button>
@@ -392,8 +401,8 @@
       <!-- PROFILE BOOST BANNER -->
       <div class="mac-card rounded-2xl p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border border-blue-500/20">
         <div class="flex items-center gap-3 w-full md:w-auto">
-          <div id="boostAvatar" class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500/30 to-purple-500/30 border border-white/15 flex items-center justify-center text-2xl shadow-inner flex-shrink-0">
-            👨‍💻
+          <div id="boostAvatar" class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 border border-white/20 flex items-center justify-center text-white shadow-md flex-shrink-0">
+            <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
           </div>
           <div class="flex-1 truncate">
             <div class="flex items-center gap-2 flex-wrap">
@@ -401,8 +410,9 @@
               <span id="boostRankBadge" class="text-[10px] font-mono font-semibold uppercase px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30 flex-shrink-0">
                 Initiate
               </span>
-              <button onclick="openAwardsModal()" class="flex items-center gap-1 text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-400/30 flex-shrink-0 transition" title="View Apple Watch Awards">
-                <span>🏅</span><span id="boostAwardsBadge">Awards 0/8</span>
+              <button onclick="openAwardsModal()" class="flex items-center gap-1.5 text-[10px] font-mono font-semibold px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-400/30 flex-shrink-0 transition" title="View Apple Watch Awards">
+                <svg class="w-3 h-3 fill-amber-400" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                <span id="boostAwardsBadge">Awards 0/8</span>
               </button>
             </div>
             <p id="boostTrack" class="text-xs text-slate-500 dark:text-slate-400 truncate">Software Engineering</p>
@@ -435,8 +445,9 @@
               <h2 class="text-sm font-semibold">Activity Rings</h2>
               <p class="text-xs text-slate-500 dark:text-slate-400">Weekly completion rings</p>
             </div>
-            <span id="streakBadge" class="text-xs font-mono px-2.5 py-1 rounded-full bg-orange-500/15 text-orange-400 border border-orange-500/20">
-              🔥 0 Active Days
+            <span id="streakBadge" class="flex items-center gap-1 text-xs font-mono px-2.5 py-1 rounded-full bg-orange-500/15 text-orange-400 border border-orange-500/20">
+              <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+              <span id="streakBadgeText">0 Active Days</span>
             </span>
           </div>
 
@@ -512,14 +523,32 @@
       <!-- MIDDLE ROW: Habits Matrix & Filter -->
       <div class="mac-card rounded-2xl p-4 sm:p-5">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-          <!-- Category Filter Pills (Mobile Scrollable) -->
+          <!-- Category Filter Pills (Mobile Scrollable with Apple SF Symbols) -->
           <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
-            <button onclick="setFilter('All')" data-cat="All" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-blue-500 text-white flex-shrink-0">All</button>
-            <button onclick="setFilter('Coding')" data-cat="Coding" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-black/5 dark:bg-white/5 flex-shrink-0">💻 Coding</button>
-            <button onclick="setFilter('Reading')" data-cat="Reading" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-black/5 dark:bg-white/5 flex-shrink-0">📚 Reading</button>
-            <button onclick="setFilter('Fitness')" data-cat="Fitness" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-black/5 dark:bg-white/5 flex-shrink-0">🏋️ Fitness</button>
-            <button onclick="setFilter('Mindfulness')" data-cat="Mindfulness" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-black/5 dark:bg-white/5 flex-shrink-0">🧘 Mindfulness</button>
-            <button onclick="setFilter('Hydration')" data-cat="Hydration" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-black/5 dark:bg-white/5 flex-shrink-0">💧 Hydration</button>
+            <button onclick="setFilter('All')" data-cat="All" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-blue-500 text-white flex-shrink-0 flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 fill-none stroke-current" stroke-width="2.2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
+              <span>All</span>
+            </button>
+            <button onclick="setFilter('Coding')" data-cat="Coding" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-black/5 dark:bg-white/5 flex-shrink-0 flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-blue-400 fill-none stroke-current" stroke-width="2.2" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+              <span>Coding</span>
+            </button>
+            <button onclick="setFilter('Reading')" data-cat="Reading" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-black/5 dark:bg-white/5 flex-shrink-0 flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-emerald-400 fill-none stroke-current" stroke-width="2.2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+              <span>Reading</span>
+            </button>
+            <button onclick="setFilter('Fitness')" data-cat="Fitness" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-black/5 dark:bg-white/5 flex-shrink-0 flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-rose-400 fill-none stroke-current" stroke-width="2.2" viewBox="0 0 24 24"><path d="M6 5v14M18 5v14M2 9v6M22 9v6M6 12h12"/></svg>
+              <span>Fitness</span>
+            </button>
+            <button onclick="setFilter('Mindfulness')" data-cat="Mindfulness" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-black/5 dark:bg-white/5 flex-shrink-0 flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-purple-400 fill-none stroke-current" stroke-width="2.2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0-9 9c0 5 9 9 9 9s9-4 9-9a9 9 0 0 0-9-9z"/></svg>
+              <span>Mindfulness</span>
+            </button>
+            <button onclick="setFilter('Hydration')" data-cat="Hydration" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-black/5 dark:bg-white/5 flex-shrink-0 flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-cyan-400 fill-none stroke-current" stroke-width="2.2" viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+              <span>Hydration</span>
+            </button>
           </div>
 
           <!-- Search & Mobile View Toggle -->
@@ -623,18 +652,30 @@
             <button onclick="selectMood('🔋')" data-mood="🔋" class="mood-btn flex-1 py-1 rounded-lg text-sm hover:bg-white/10 transition" title="Drained">🔋</button>
           </div>
 
-          <!-- Quick Tags -->
-          <div class="flex items-center gap-1 mb-1.5 text-[10px] overflow-x-auto no-scrollbar">
-            <button onclick="insertNoteTag('💡 Idea: ')" class="px-2 py-0.5 rounded-md bg-white/5 hover:bg-white/10 text-amber-300 border border-white/5 flex-shrink-0">💡 Idea</button>
-            <button onclick="insertNoteTag('🎯 Win: ')" class="px-2 py-0.5 rounded-md bg-white/5 hover:bg-white/10 text-emerald-300 border border-white/5 flex-shrink-0">🎯 Win</button>
-            <button onclick="insertNoteTag('⚠️ Blocker: ')" class="px-2 py-0.5 rounded-md bg-white/5 hover:bg-white/10 text-rose-300 border border-white/5 flex-shrink-0">⚠️ Blocker</button>
+          <!-- Quick Tags with Apple SF Symbols -->
+          <div class="flex items-center gap-1.5 mb-1.5 text-[10px] overflow-x-auto no-scrollbar">
+            <button onclick="insertNoteTag('💡 Idea: ')" class="px-2 py-0.5 rounded-md bg-white/5 hover:bg-white/10 text-amber-300 border border-white/5 flex-shrink-0 flex items-center gap-1">
+              <svg class="w-3 h-3 text-amber-300 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-7 7c0 2.5 1.5 4.5 3 6h8c1.5-1.5 3-3.5 3-6a7 7 0 0 0-7-7z"/></svg>
+              <span>Idea</span>
+            </button>
+            <button onclick="insertNoteTag('🎯 Win: ')" class="px-2 py-0.5 rounded-md bg-white/5 hover:bg-white/10 text-emerald-300 border border-white/5 flex-shrink-0 flex items-center gap-1">
+              <svg class="w-3 h-3 text-emerald-300 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+              <span>Win</span>
+            </button>
+            <button onclick="insertNoteTag('⚠️ Blocker: ')" class="px-2 py-0.5 rounded-md bg-white/5 hover:bg-white/10 text-rose-300 border border-white/5 flex-shrink-0 flex items-center gap-1">
+              <svg class="w-3 h-3 text-rose-300 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+              <span>Blocker</span>
+            </button>
           </div>
 
           <textarea id="reflectionInput" oninput="saveReflection()" rows="3" placeholder="Log thoughts, ideas or reflections..." class="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl p-2.5 text-xs focus:outline-none resize-none"></textarea>
 
           <div class="flex items-center justify-between text-[10px] text-slate-400 mt-1 pt-1 border-t border-white/5">
             <span id="noteWordCount">0 words</span>
-            <span class="text-emerald-400/80 flex items-center gap-1">🔒 Vault Secured</span>
+            <span class="text-emerald-400/90 flex items-center gap-1">
+              <svg class="w-3 h-3 text-emerald-400 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <span>Vault Encrypted</span>
+            </span>
           </div>
         </div>
 
@@ -642,8 +683,8 @@
 
     </div>
 
-    <!-- Authentic macOS Sequoia Floating Glass Dock -->
-    <div class="fixed bottom-3 inset-x-0 z-30 flex justify-center pointer-events-none px-4">
+    <!-- Authentic macOS Sequoia Floating Glass Dock (Responsive Safe-Area Positioned) -->
+    <div class="fixed bottom-3 [bottom:max(env(safe-area-inset-bottom),12px)] inset-x-0 z-30 flex justify-center pointer-events-none px-4">
       <div class="pointer-events-auto flex items-end gap-2.5 sm:gap-3 px-3 py-2 rounded-[22px] bg-white/[0.15] dark:bg-[#0c101d]/70 backdrop-blur-3xl border border-white/[0.22] shadow-[0_20px_50px_-10px_rgba(0,0,0,0.65),inset_0_1px_1px_rgba(255,255,255,0.35)] transition-all select-none">
         
         <!-- 1. App Main Icon (PulseHabit) -->
@@ -776,7 +817,9 @@
       <!-- Left Sidebar Navigation -->
       <div class="w-full md:w-56 bg-black/30 border-b md:border-b-0 md:border-r border-white/10 p-3 flex flex-row md:flex-col gap-1 overflow-x-auto no-scrollbar flex-shrink-0">
         <div class="hidden md:flex items-center gap-2.5 px-2 py-2 mb-2 border-b border-white/10">
-          <span id="settingsSidebarAvatar" class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-base">👨‍💻</span>
+          <span id="settingsSidebarAvatar" class="w-8 h-8 rounded-full bg-blue-500/30 text-blue-300 flex items-center justify-center">
+            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          </span>
           <div class="truncate">
             <div id="settingsSidebarName" class="text-xs font-bold truncate">User</div>
             <div class="text-[10px] text-slate-400">Apple ID & Profile</div>
@@ -784,22 +827,28 @@
         </div>
 
         <button onclick="switchSettingsTab('general')" id="tabBtn-general" class="settings-tab-btn text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-2 bg-blue-500 text-white flex-shrink-0">
-          <span>⚙️</span><span>General</span>
+          <svg class="w-4 h-4 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <span>General</span>
         </button>
         <button onclick="switchSettingsTab('appearance')" id="tabBtn-appearance" class="settings-tab-btn text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-2 hover:bg-white/10 flex-shrink-0">
-          <span>🎨</span><span>Appearance</span>
+          <svg class="w-4 h-4 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20Z"/></svg>
+          <span>Appearance</span>
         </button>
         <button onclick="switchSettingsTab('profile')" id="tabBtn-profile" class="settings-tab-btn text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-2 hover:bg-white/10 flex-shrink-0">
-          <span>🚀</span><span>Profile Boost</span>
+          <svg class="w-4 h-4 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span>Profile Boost</span>
         </button>
         <button onclick="switchSettingsTab('accounts')" id="tabBtn-accounts" class="settings-tab-btn text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-2 hover:bg-white/10 flex-shrink-0">
-          <span>👥</span><span>Accounts</span>
+          <svg class="w-4 h-4 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>Accounts</span>
         </button>
         <button onclick="switchSettingsTab('sync')" id="tabBtn-sync" class="settings-tab-btn text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-2 hover:bg-white/10 flex-shrink-0">
-          <span>📱</span><span>Live Sync</span>
+          <svg class="w-4 h-4 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+          <span>Live Sync</span>
         </button>
         <button onclick="switchSettingsTab('backup')" id="tabBtn-backup" class="settings-tab-btn text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-2 hover:bg-white/10 flex-shrink-0">
-          <span>💾</span><span>Data & Backup</span>
+          <svg class="w-4 h-4 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+          <span>Data & Backup</span>
         </button>
       </div>
 
@@ -1035,16 +1084,18 @@
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-medium mb-1">Icon</label>
+            <label class="block text-xs font-medium mb-1">Apple Icon</label>
             <select id="habitIconInput" class="w-full bg-black/10 dark:bg-white/10 border border-white/15 rounded-xl px-3 py-2.5 text-sm">
-              <option value="💻">💻 Code</option>
-              <option value="📚">📚 Read</option>
-              <option value="🏋️">🏋️ Workout</option>
-              <option value="🧘">🧘 Meditate</option>
-              <option value="💧">💧 Hydrate</option>
-              <option value="⚡">⚡ Deep Focus</option>
-              <option value="🎯">🎯 Goal</option>
-              <option value="🏃">🏃 Run</option>
+              <option value="code">⌨️ Code & Software</option>
+              <option value="book">📖 Deep Reading</option>
+              <option value="fitness">🏋️ Workout & Health</option>
+              <option value="mindfulness">🧘 Mindfulness & Breath</option>
+              <option value="hydration">💧 Optimal Hydration</option>
+              <option value="bolt">⚡ Deep Focus & Flow</option>
+              <option value="target">🎯 Goal & Milestone</option>
+              <option value="flame">🔥 Active Energy</option>
+              <option value="heart">❤️ Health & Vitality</option>
+              <option value="star">⭐ Master Craft</option>
             </select>
           </div>
           <div>
@@ -1234,6 +1285,16 @@
         }
       } catch (e) {
         userData = createEmptyUserData();
+      }
+
+      if (!userData.habits || userData.habits.length === 0) {
+        userData.habits = [
+          { id: 'hab_code', name: 'Software Architecture', category: 'Coding', target: 7, icon: 'code', color: '#3b82f6' },
+          { id: 'hab_read', name: 'Deep Reading & Notes', category: 'Reading', target: 5, icon: 'book', color: '#10b981' },
+          { id: 'hab_fit', name: 'Strength Workout', category: 'Fitness', target: 5, icon: 'fitness', color: '#f43f5e' },
+          { id: 'hab_mind', name: 'Mindfulness & Breathing', category: 'Mindfulness', target: 7, icon: 'mindfulness', color: '#a855f7' },
+          { id: 'hab_hyd', name: 'Optimal Hydration', category: 'Hydration', target: 7, icon: 'hydration', color: '#06b6d4' }
+        ];
       }
 
       // Background Sync Fetch
@@ -1791,6 +1852,38 @@
       renderMatrix();
     }
 
+    // --- AUTHENTIC APPLE SF SYMBOLS RENDERER ---
+    function renderAppleIcon(icon, color = 'currentColor', size = 'w-4 h-4') {
+      const c = color || 'currentColor';
+      const icons = {
+        code: `<svg class="${size}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`,
+        book: `<svg class="${size}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`,
+        fitness: `<svg class="${size}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5v14M18 5v14M2 9v6M22 9v6M6 12h12"/></svg>`,
+        mindfulness: `<svg class="${size}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0-9 9c0 5 9 9 9 9s9-4 9-9a9 9 0 0 0-9-9z"/></svg>`,
+        hydration: `<svg class="${size}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>`,
+        bolt: `<svg class="${size}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
+        target: `<svg class="${size}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
+        flame: `<svg class="${size}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>`,
+        heart: `<svg class="${size}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,
+        star: `<svg class="${size}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`
+      };
+      const keyMap = {
+        '💻': 'code', 'code': 'code', 'coding': 'code',
+        '📚': 'book', '📖': 'book', 'book': 'book', 'reading': 'book',
+        '🏋️': 'fitness', 'fitness': 'fitness', 'workout': 'fitness',
+        '🧘': 'mindfulness', 'mind': 'mindfulness', 'mindfulness': 'mindfulness',
+        '💧': 'hydration', 'water': 'hydration', 'hydration': 'hydration',
+        '⚡': 'bolt', 'bolt': 'bolt',
+        '🎯': 'target', 'target': 'target',
+        '🏃': 'flame', '🔥': 'flame', 'flame': 'flame',
+        '❤️': 'heart', 'heart': 'heart',
+        '⭐': 'star', 'star': 'star'
+      };
+      const rawKey = String(icon || '').trim();
+      const k = keyMap[rawKey] || 'code';
+      return icons[k] || icons.code;
+    }
+
     // --- MATRIX RENDERING (ADAPTIVE CARDS OR TABLE) ---
     function renderMatrix() {
       const container = document.getElementById('habitMatrixContainer');
@@ -1840,16 +1933,18 @@
             <div class="p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-white/10 space-y-3">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2.5 truncate">
-                  <span class="w-9 h-9 rounded-xl flex items-center justify-center text-base flex-shrink-0" style="background:${h.color}22;">${h.icon}</span>
+                  <span class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 border" style="background:${h.color}1c; border-color:${h.color}40;">
+                    ${renderAppleIcon(h.icon, h.color, 'w-4 h-4')}
+                  </span>
                   <div class="truncate">
                     <h4 class="text-xs font-bold truncate">${escapeHtml(h.name)}</h4>
-                    <p class="text-[10px] text-slate-400">${h.category} • Target ${h.target}d/wk</p>
+                    <p class="text-[10px] text-slate-400">${escapeHtml(h.category)} • Target ${h.target}d/wk</p>
                   </div>
                 </div>
                 <div class="flex items-center gap-2 flex-shrink-0">
                   <span class="text-xs font-mono font-bold" style="color:${h.color};">${done}/${h.target}</span>
-                  <button onclick="openHabitModal('${h.id}')" class="p-1.5 rounded-lg hover:bg-white/10 text-xs opacity-70 hover:opacity-100">✎</button>
-                  <button onclick="deleteHabit('${h.id}')" class="p-1.5 rounded-lg hover:bg-white/10 text-xs text-rose-400 opacity-70 hover:opacity-100">🗑</button>
+                  <button onclick="openHabitModal('${h.id}')" class="p-1.5 rounded-lg hover:bg-white/10 text-xs opacity-70 hover:opacity-100" title="Edit Habit">✎</button>
+                  <button onclick="deleteHabit('${h.id}')" class="p-1.5 rounded-lg hover:bg-white/10 text-xs text-rose-400 opacity-70 hover:opacity-100" title="Delete Habit">🗑</button>
                 </div>
               </div>
 
@@ -1889,18 +1984,20 @@
           <tr class="border-b border-black/5 dark:border-white/5">
             <td class="py-3 pr-4">
               <div class="flex items-center gap-2.5">
-                <span class="w-8 h-8 rounded-xl flex items-center justify-center text-sm" style="background:${h.color}22;">${h.icon}</span>
+                <span class="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 border" style="background:${h.color}1c; border-color:${h.color}40;">
+                  ${renderAppleIcon(h.icon, h.color, 'w-3.5 h-3.5')}
+                </span>
                 <div>
                   <div class="text-xs font-semibold">${escapeHtml(h.name)}</div>
-                  <div class="text-[10px] text-slate-400">${h.category} • ${h.target}d/wk</div>
+                  <div class="text-[10px] text-slate-400">${escapeHtml(h.category)} • ${h.target}d/wk</div>
                 </div>
               </div>
             </td>
             ${cells}
             <td class="py-3 pl-3 text-right font-mono text-xs">${done}/${h.target} (${pct}%)</td>
             <td class="py-3 pl-2 text-right">
-              <button onclick="openHabitModal('${h.id}')" class="p-1 text-xs opacity-60 hover:opacity-100">✎</button>
-              <button onclick="deleteHabit('${h.id}')" class="p-1 text-xs text-rose-400 opacity-60 hover:opacity-100">🗑</button>
+              <button onclick="openHabitModal('${h.id}')" class="p-1 text-xs opacity-60 hover:opacity-100" title="Edit">✎</button>
+              <button onclick="deleteHabit('${h.id}')" class="p-1 text-xs text-rose-400 opacity-60 hover:opacity-100" title="Delete">🗑</button>
             </td>
           </tr>
         `;
@@ -2273,8 +2370,9 @@
         id: 'first_step',
         title: 'First Step',
         desc: 'Completed your very first habit check-in.',
-        icon: '🥇',
-        color: 'from-amber-400 to-amber-600',
+        iconKey: 'star',
+        gradient: 'linear-gradient(135deg, #fef08a 0%, #f59e0b 50%, #b45309 100%)',
+        ribbonColor: '#3b82f6',
         check: () => {
           let total = 0;
           Object.values(userData.logs).forEach(m => total += Object.values(m).filter(Boolean).length);
@@ -2285,8 +2383,9 @@
         id: 'streak_7',
         title: '7-Day Streak',
         desc: 'Maintained 7 consecutive active check-in days.',
-        icon: '🔥',
-        color: 'from-orange-500 to-red-600',
+        iconKey: 'flame',
+        gradient: 'linear-gradient(135deg, #fdba74 0%, #ea580c 50%, #991b1b 100%)',
+        ribbonColor: '#ef4444',
         check: () => {
           let streak = 0;
           const today = new Date();
@@ -2304,16 +2403,18 @@
         id: 'deep_work',
         title: 'Deep Work Master',
         desc: 'Earned 50+ Focus XP from Pomodoro sessions.',
-        icon: '⚡',
-        color: 'from-blue-500 to-indigo-600',
+        iconKey: 'bolt',
+        gradient: 'linear-gradient(135deg, #93c5fd 0%, #3b82f6 50%, #1e3a8a 100%)',
+        ribbonColor: '#6366f1',
         check: () => (userData.boost && (userData.boost.bonusXp || 0) >= 50)
       },
       {
         id: 'perfect_day',
         title: 'Perfect Day',
         desc: 'Achieved 100% check-ins on all active habits in a single day.',
-        icon: '🎯',
-        color: 'from-rose-500 to-pink-600',
+        iconKey: 'target',
+        gradient: 'linear-gradient(135deg, #f472b6 0%, #e11d48 50%, #881337 100%)',
+        ribbonColor: '#ec4899',
         check: () => {
           if (!userData.habits.length) return false;
           return Object.values(userData.logs).some(log => {
@@ -2326,8 +2427,9 @@
         id: 'century_club',
         title: 'Century Club',
         desc: 'Logged 100 lifetime habit check-ins.',
-        icon: '💎',
-        color: 'from-cyan-400 to-blue-600',
+        iconKey: 'shield',
+        gradient: 'linear-gradient(135deg, #a5f3fc 0%, #06b6d4 50%, #0e7490 100%)',
+        ribbonColor: '#0ea5e9',
         check: () => {
           let total = 0;
           Object.values(userData.logs).forEach(m => total += Object.values(m).filter(Boolean).length);
@@ -2338,8 +2440,9 @@
         id: 'vitality_guru',
         title: 'Zen & Vitality',
         desc: 'Logged 10+ Mindfulness, Fitness, or Hydration habits.',
-        icon: '🧘',
-        color: 'from-emerald-400 to-teal-600',
+        iconKey: 'mindfulness',
+        gradient: 'linear-gradient(135deg, #a7f3d0 0%, #10b981 50%, #065f46 100%)',
+        ribbonColor: '#10b981',
         check: () => {
           let count = 0;
           const vitalityIds = new Set(userData.habits.filter(h => ['Fitness', 'Mindfulness', 'Hydration'].includes(h.category)).map(h => h.id));
@@ -2355,8 +2458,9 @@
         id: 'level_5',
         title: 'Apex Vanguard',
         desc: 'Reached Profile Boost Level 5.',
-        icon: '🚀',
-        color: 'from-purple-500 to-violet-700',
+        iconKey: 'code',
+        gradient: 'linear-gradient(135deg, #ddd6fe 0%, #8b5cf6 50%, #4c1d95 100%)',
+        ribbonColor: '#8b5cf6',
         check: () => {
           let totalCheckIns = 0;
           Object.values(userData.logs).forEach(m => totalCheckIns += Object.values(m).filter(Boolean).length);
@@ -2368,8 +2472,9 @@
         id: 'monthly_legend',
         title: 'Monthly Legend',
         desc: 'Logged 20+ active days in consistency history.',
-        icon: '🌟',
-        color: 'from-yellow-400 to-amber-500',
+        iconKey: 'heart',
+        gradient: 'linear-gradient(135deg, #fef08a 0%, #eab308 50%, #713f12 100%)',
+        ribbonColor: '#eab308',
         check: () => {
           let active = 0;
           Object.values(userData.logs).forEach(m => {
@@ -2390,12 +2495,24 @@
         if (isUnlocked) unlockedCount++;
 
         html += `
-          <div class="relative group p-3 rounded-2xl border ${isUnlocked ? 'bg-white/5 border-white/15' : 'bg-black/20 border-white/5 opacity-40'} flex flex-col items-center text-center transition hover:scale-105">
-            <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shadow-lg mb-2 ${isUnlocked ? `bg-gradient-to-br ${a.color} shadow-amber-500/10` : 'bg-white/5 grayscale'}">
-              ${a.icon}
+          <div class="relative group p-3.5 rounded-2xl border ${isUnlocked ? 'bg-white/5 border-white/15' : 'bg-black/20 border-white/5 opacity-40'} flex flex-col items-center text-center transition-all duration-300 hover:scale-105">
+            <!-- 3D Apple Watch Activity Medal -->
+            <div class="relative w-16 h-16 flex items-center justify-center mb-2">
+              <!-- Ribbon -->
+              <div class="absolute -top-1 w-6 h-3.5 flex justify-center z-0">
+                <div class="w-2.5 h-3.5 rounded-b-sm" style="background: ${a.ribbonColor}; opacity: ${isUnlocked ? 0.9 : 0.3};"></div>
+                <div class="w-2.5 h-3.5 rounded-b-sm bg-white/20"></div>
+              </div>
+              <!-- Metallic Coin Bevel -->
+              <div class="w-14 h-14 rounded-full flex items-center justify-center p-1 shadow-lg z-10 ${isUnlocked ? 'border border-white/40 shadow-amber-500/20' : 'border border-white/10 grayscale opacity-40'}" style="background: ${isUnlocked ? a.gradient : 'rgba(255,255,255,0.06)'};">
+                <div class="w-full h-full rounded-full border border-black/20 flex items-center justify-center bg-black/25 backdrop-blur-sm shadow-inner">
+                  ${renderAppleIcon(a.iconKey, isUnlocked ? '#ffffff' : '#64748b', 'w-6 h-6')}
+                </div>
+              </div>
             </div>
-            <div class="text-xs font-bold truncate max-w-full ${isUnlocked ? 'text-white' : 'text-slate-400'}">${a.title}</div>
-            <div class="text-[10px] text-slate-400 mt-1 line-clamp-2 leading-tight">${a.desc}</div>
+
+            <div class="text-xs font-bold truncate max-w-full ${isUnlocked ? 'text-white' : 'text-slate-400'}">${escapeHtml(a.title)}</div>
+            <div class="text-[10px] text-slate-400 mt-1 line-clamp-2 leading-tight">${escapeHtml(a.desc)}</div>
             <div class="mt-2 text-[9px] font-mono px-2 py-0.5 rounded-full ${isUnlocked ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-white/5 text-slate-500'}">
               ${isUnlocked ? '✓ Unlocked' : 'Locked'}
             </div>
@@ -2626,8 +2743,8 @@
       currentFilter = cat;
       document.querySelectorAll('.cat-btn').forEach(btn => {
         btn.className = btn.dataset.cat === cat
-          ? 'cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-blue-500 text-white flex-shrink-0'
-          : 'cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-black/5 dark:bg-white/5 flex-shrink-0';
+          ? 'cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-blue-500 text-white flex-shrink-0 flex items-center gap-1.5'
+          : 'cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-black/5 dark:bg-white/5 flex-shrink-0 flex items-center gap-1.5';
       });
       renderMatrix();
     }

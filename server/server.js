@@ -6,7 +6,7 @@ const os = require('os');
 const PORT = process.env.PORT || 3000;
 const DATA_DIR = path.join(__dirname, 'data');
 const DB_FILE = path.join(DATA_DIR, 'sync-db.json');
-const WEB_DIR = path.join(__dirname, '..', 'web');
+const WEB_DIR = path.resolve(__dirname, '..', 'web');
 
 // Ensure data directory exists
 if (!fs.existsSync(DATA_DIR)) {
@@ -49,8 +49,51 @@ const MIME_TYPES = {
   '.ttf': 'font/ttf'
 };
 
+// Security: Rate limiter (sliding 60-second window per IP)
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const MAX_REQUESTS_PER_WINDOW = 120;
+const rateLimitMap = new Map();
+
+function isRateLimited(ip) {
+  const now = Date.now();
+  let client = rateLimitMap.get(ip);
+  if (!client || now - client.windowStart > RATE_LIMIT_WINDOW_MS) {
+    client = { windowStart: now, count: 1 };
+    rateLimitMap.set(ip, client);
+    return false;
+  }
+  client.count++;
+  return client.count > MAX_REQUESTS_PER_WINDOW;
+}
+
+// Security: UID Sanitizer to prevent directory traversal and prototype pollution
+function isValidUid(uid) {
+  if (!uid || typeof uid !== 'string') return false;
+  if (uid === '__proto__' || uid === 'constructor' || uid === 'prototype') return false;
+  return /^[a-zA-Z0-9_-]{1,64}$/.test(uid);
+}
+
+const MAX_PAYLOAD_BYTES = 2 * 1024 * 1024; // 2MB max payload
+
 const server = http.createServer((req, res) => {
-  // CORS for Web, Electron Desktop, and Flutter Android
+  const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+
+  // Apply Rate Limiting
+  if (isRateLimited(clientIp)) {
+    res.writeHead(429, { 'Content-Type': 'application/json', 'Retry-After': '60' });
+    res.end(JSON.stringify({ error: 'Too many requests. Please wait a moment.' }));
+    return;
+  }
+
+  // Security Headers (Apple Security & OWASP Top 10 Hardened)
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  res.setHeader('Content-Security-Policy', "default-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://fonts.googleapis.com https://fonts.gstatic.com; img-src 'self' data: https: blob:; font-src 'self' https: data:; connect-src 'self' http: https: ws: wss:;");
+
+  // CORS Headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -68,7 +111,12 @@ const server = http.createServer((req, res) => {
   if (pathname.startsWith('/api/')) {
     if (pathname === '/api/health') {
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ status: 'ok', serverTime: new Date().toISOString() }));
+      res.end(JSON.stringify({
+        status: 'ok',
+        version: '1.0.0',
+        security: 'hardened',
+        serverTime: new Date().toISOString()
+      }));
       return;
     }
 
@@ -88,8 +136,17 @@ const server = http.createServer((req, res) => {
 
     if (pathname.startsWith('/api/sync/') && req.method === 'GET') {
       const uid = pathname.replace('/api/sync/', '').trim();
+      if (!isValidUid(uid)) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Invalid user identifier' }));
+        return;
+      }
+
       const db = readDb();
-      const userData = (db.syncData && db.syncData[uid]) || null;
+      const userData = (db.syncData && Object.prototype.hasOwnProperty.call(db.syncData, uid))
+        ? db.syncData[uid]
+        : null;
+
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ uid, data: userData, success: true }));
       return;
@@ -97,16 +154,35 @@ const server = http.createServer((req, res) => {
 
     if (pathname.startsWith('/api/sync/') && req.method === 'POST') {
       const uid = pathname.replace('/api/sync/', '').trim();
+      if (!isValidUid(uid)) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Invalid user identifier' }));
+        return;
+      }
+
       let body = '';
-      req.on('data', chunk => { body += chunk; });
+      let receivedBytes = 0;
+
+      req.on('data', chunk => {
+        receivedBytes += chunk.length;
+        if (receivedBytes > MAX_PAYLOAD_BYTES) {
+          res.writeHead(413, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Payload exceeds 2MB limit' }));
+          req.destroy();
+          return;
+        }
+        body += chunk;
+      });
+
       req.on('end', () => {
+        if (res.writableEnded) return;
         try {
           const payload = JSON.parse(body);
           const db = readDb();
           if (!db.syncData) db.syncData = {};
           db.syncData[uid] = payload.data || payload;
 
-          if (payload.user) {
+          if (payload.user && typeof payload.user === 'object') {
             const idx = db.users.findIndex(u => u.uid === uid);
             if (idx >= 0) db.users[idx] = payload.user;
             else db.users.push(payload.user);
@@ -128,16 +204,25 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // 2. Static File Serving (from web/ directory or fallback to root)
-  let filePath = path.join(WEB_DIR, pathname === '/' ? 'index.html' : pathname);
-  if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
-    filePath = path.join(WEB_DIR, 'index.html');
+  // 2. Static File Serving with Path Traversal Protection
+  const safeRelativePath = path.normalize(pathname).replace(/^(\.\.[\/\\])+/, '');
+  let resolvedFilePath = path.resolve(WEB_DIR, safeRelativePath === path.sep ? 'index.html' : '.' + safeRelativePath);
+
+  // Guard: Ensure file is inside WEB_DIR
+  if (!resolvedFilePath.startsWith(WEB_DIR)) {
+    res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end('Access Denied: Path traversal detected');
+    return;
   }
 
-  const ext = path.extname(filePath).toLowerCase();
+  if (!fs.existsSync(resolvedFilePath) || fs.statSync(resolvedFilePath).isDirectory()) {
+    resolvedFilePath = path.resolve(WEB_DIR, 'index.html');
+  }
+
+  const ext = path.extname(resolvedFilePath).toLowerCase();
   const contentType = MIME_TYPES[ext] || 'application/octet-stream';
 
-  fs.readFile(filePath, (err, content) => {
+  fs.readFile(resolvedFilePath, (err, content) => {
     if (err) {
       res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });
       res.end('Server Error: ' + err.message);
@@ -150,7 +235,7 @@ const server = http.createServer((req, res) => {
 
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`\n======================================================`);
-  console.log(` PulseHabit Pro Server Live & Synchronizing!`);
+  console.log(` PulseHabit Pro Server Live & Security Hardened!`);
   console.log(`======================================================`);
   console.log(`> Web Dashboard (Local):  http://localhost:${PORT}`);
 
@@ -163,5 +248,6 @@ server.listen(PORT, '0.0.0.0', () => {
     }
   }
   console.log(`> Cost-Free Sync API:    http://localhost:${PORT}/api/health`);
+  console.log(`> Security: CSP, Rate Limiting & Path Traversal Guards Active`);
   console.log(`======================================================\n`);
 });

@@ -1,10 +1,23 @@
 // In-memory cache for serverless execution
 const syncStore = global._syncStore || (global._syncStore = {});
 
+function isValidUid(uid) {
+  if (!uid || typeof uid !== 'string') return false;
+  if (uid === '__proto__' || uid === 'constructor' || uid === 'prototype') return false;
+  return /^[a-zA-Z0-9_-]{1,64}$/.test(uid);
+}
+
 module.exports = (req, res) => {
+  // Security Headers
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+
+  // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
@@ -12,8 +25,12 @@ module.exports = (req, res) => {
 
   const { uid } = req.query;
 
+  if (!isValidUid(uid)) {
+    return res.status(400).json({ error: 'Invalid user identifier' });
+  }
+
   if (req.method === 'GET') {
-    const data = syncStore[uid] || null;
+    const data = Object.prototype.hasOwnProperty.call(syncStore, uid) ? syncStore[uid] : null;
     return res.status(200).json({ uid, data, success: true });
   }
 
