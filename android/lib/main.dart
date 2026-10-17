@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'models/habit.dart';
 import 'services/sync_service.dart';
 import 'widgets/activity_rings.dart';
@@ -8,6 +9,7 @@ import 'widgets/sync_settings_dialog.dart';
 import 'widgets/standby_modal.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const PulseHabitApp());
 }
 
@@ -21,13 +23,29 @@ class PulseHabitApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: CupertinoThemeData(
         brightness: Brightness.dark,
-        primaryColor: CupertinoColors.systemBlue,
-        scaffoldBackgroundColor: Color(0xFF0B0F19),
-        barBackgroundColor: Color(0xE6101420),
+        primaryColor: Color(0xFF007AFF), // Apple System Blue
+        primaryContrastingColor: CupertinoColors.white,
+        scaffoldBackgroundColor: Color(0xFF000000), // OLED Pure Black
+        barBackgroundColor: Color(0xD912141F), // Frosted Acrylic Glass
         textTheme: CupertinoTextThemeData(
           textStyle: TextStyle(
             fontFamily: '.SF Pro Text',
             color: CupertinoColors.white,
+            letterSpacing: -0.3,
+          ),
+          navLargeTitleTextStyle: TextStyle(
+            fontFamily: '.SF Pro Display',
+            color: CupertinoColors.white,
+            fontSize: 34,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -1.0,
+          ),
+          navTitleTextStyle: TextStyle(
+            fontFamily: '.SF Pro Text',
+            color: CupertinoColors.white,
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+            letterSpacing: -0.4,
           ),
         ),
       ),
@@ -51,6 +69,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   String _activeAvatar = '👤';
   List<Map<String, dynamic>> _availableUsers = [];
 
+  // Boost, Rank & Sync Status
   int xp = 30;
   int level = 1;
   String currentRank = 'Initiate';
@@ -65,6 +84,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int _timerSeconds = 25 * 60;
   bool _isTimerRunning = false;
   Timer? _timer;
+  String _selectedPreset = '25';
+  String _activeSoundscape = 'none';
 
   final List<Habit> habits = [
     Habit(id: 'hab_code', name: 'Software Architecture', category: 'Coding', target: 7, icon: 'code', color: '#3b82f6'),
@@ -140,6 +161,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   void _toggleCheckIn(String id) {
+    HapticFeedback.lightImpact();
     setState(() {
       final current = _todayLogs[id] ?? false;
       _todayLogs[id] = !current;
@@ -165,19 +187,117 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  void _updateRank() {
+    if (level >= 8) {
+      currentRank = 'Grandmaster';
+    } else if (level >= 5) {
+      currentRank = 'Vanguard';
+    } else if (level >= 3) {
+      currentRank = 'Architect';
+    } else if (level >= 2) {
+      currentRank = 'Practitioner';
+    } else {
+      currentRank = 'Initiate';
+    }
+  }
+
+  String _todayKey() {
+    final now = DateTime.now();
+    return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+  }
+
+  String _getFormattedDateHeader() {
+    final now = DateTime.now();
+    const weekdays = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
+    const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+    return '${weekdays[now.weekday - 1]}, ${now.day} ${months[now.month - 1]}';
+  }
+
+  void _setTimerPreset(int minutes) {
+    HapticFeedback.selectionClick();
+    _timer?.cancel();
+    setState(() {
+      _selectedPreset = minutes.toString();
+      _isTimerRunning = false;
+      _timerSeconds = minutes * 60;
+    });
+  }
+
+  void _toggleTimer() {
+    HapticFeedback.mediumImpact();
+    if (_isTimerRunning) {
+      _timer?.cancel();
+      setState(() => _isTimerRunning = false);
+    } else {
+      setState(() => _isTimerRunning = true);
+      _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        if (_timerSeconds > 0) {
+          setState(() => _timerSeconds--);
+        } else {
+          timer.cancel();
+          HapticFeedback.heavyImpact();
+          setState(() {
+            _isTimerRunning = false;
+            xp += 25;
+            _timerSeconds = int.parse(_selectedPreset) * 60;
+            _updateRank();
+          });
+          SyncService.pushUserData(
+            _activeUid,
+            {
+              'boost': {'bonusXp': xp, 'level': level},
+              'habits': habits.map((h) => h.toJson()).toList(),
+              'logs': {_todayKey(): _todayLogs}
+            },
+            {'name': _activeName, 'uid': _activeUid, 'track': _activeTrack, 'avatar': _activeAvatar},
+          );
+          showCupertinoDialog(
+            context: context,
+            builder: (ctx) => CupertinoAlertDialog(
+              title: const Text(' Focus Completed!'),
+              content: const Text('+25 Profile Boost XP Earned and synchronized with your Apple Ecosystem.'),
+              actions: [
+                CupertinoDialogAction(child: const Text('Great'), onPressed: () => Navigator.pop(ctx)),
+              ],
+            ),
+          );
+        }
+      });
+    }
+  }
+
+  void _openStandbyMode() {
+    HapticFeedback.mediumImpact();
+    final checkedCount = _todayLogs.values.where((v) => v).length;
+    final habitsPct = habits.isEmpty ? 0.0 : (checkedCount / habits.length);
+    final focusPct = (xp / 100.0).clamp(0.0, 1.0);
+
+    Navigator.push(
+      context,
+      CupertinoPageRoute(
+        builder: (_) => AppleStandbyModal(
+          userName: _activeName,
+          habitsPct: habitsPct,
+          focusPct: focusPct,
+        ),
+      ),
+    );
+  }
+
   void _showAccountSwitcherActionSheet() {
+    HapticFeedback.selectionClick();
     showCupertinoModalPopup(
       context: context,
       builder: (ctx) => CupertinoActionSheet(
         title: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(CupertinoIcons.person_2_fill, color: Color(0xFF60A5FA), size: 16),
+            Icon(CupertinoIcons.person_2_fill, color: Color(0xFF007AFF), size: 16),
             SizedBox(width: 6),
             Text('Apple Ecosystem Accounts', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
           ],
         ),
-        message: const Text('Switch profile across Web, Desktop, and Android in real-time.'),
+        message: const Text('Select an active profile to sync seamlessly across Web, Desktop, and Android.'),
         actions: [
           ..._availableUsers.map((u) {
             final isCurrent = u['uid'] == _activeUid;
@@ -192,16 +312,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Row(
                     children: [
                       Container(
-                        width: 32,
-                        height: 32,
+                        width: 34,
+                        height: 34,
                         decoration: BoxDecoration(
-                          color: const Color(0x333B82F6),
+                          color: const Color(0x33007AFF),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         alignment: Alignment.center,
                         child: Text(u['avatar'] ?? '👤', style: const TextStyle(fontSize: 16)),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 12),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -252,6 +372,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _switchAccount(String uid) async {
+    HapticFeedback.selectionClick();
     await SyncService.setActiveUid(uid);
     await _loadAccountAndSync();
   }
@@ -320,187 +441,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  void _openStandbyMode() {
-    final checkedCount = _todayLogs.values.where((v) => v).length;
-    final habitsPct = habits.isEmpty ? 0.0 : (checkedCount / habits.length);
-    final focusPct = (xp / 100.0).clamp(0.0, 1.0);
-
-    Navigator.push(
-      context,
-      CupertinoPageRoute(
-        builder: (_) => AppleStandbyModal(
-          userName: _activeName,
-          habitsPct: habitsPct,
-          focusPct: focusPct,
-        ),
-      ),
-    );
-  }
-
-  void _updateRank() {
-    if (level >= 8) {
-      currentRank = 'Grandmaster';
-    } else if (level >= 5) {
-      currentRank = 'Vanguard';
-    } else if (level >= 3) {
-      currentRank = 'Architect';
-    } else if (level >= 2) {
-      currentRank = 'Practitioner';
-    } else {
-      currentRank = 'Initiate';
-    }
-  }
-
-  String _todayKey() {
-    final now = DateTime.now();
-    return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-  }
-
-  void _toggleTimer() {
-    if (_isTimerRunning) {
-      _timer?.cancel();
-      setState(() => _isTimerRunning = false);
-    } else {
-      setState(() => _isTimerRunning = true);
-      _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-        if (_timerSeconds > 0) {
-          setState(() => _timerSeconds--);
-        } else {
-          timer.cancel();
-          setState(() {
-            _isTimerRunning = false;
-            xp += 25;
-            _timerSeconds = 25 * 60;
-            _updateRank();
-          });
-          SyncService.pushUserData(
-            _activeUid,
-            {
-              'boost': {'bonusXp': xp, 'level': level},
-              'habits': habits.map((h) => h.toJson()).toList(),
-              'logs': {_todayKey(): _todayLogs}
-            },
-            {'name': _activeName, 'uid': _activeUid, 'track': _activeTrack, 'avatar': _activeAvatar},
-          );
-          showCupertinoDialog(
-            context: context,
-            builder: (ctx) => CupertinoAlertDialog(
-              title: const Text(' Focus Completed!'),
-              content: const Text('+25 Profile Boost XP Earned and synchronized with your Apple Ecosystem.'),
-              actions: [
-                CupertinoDialogAction(child: const Text('Great'), onPressed: () => Navigator.pop(ctx)),
-              ],
-            ),
-          );
-        }
-      });
-    }
-  }
-
-  IconData _getCupertinoIcon(String iconKey) {
-    switch (iconKey.toLowerCase()) {
-      case 'code':
-      case 'coding':
-      case '💻':
-        return CupertinoIcons.chevron_left_slash_chevron_right;
-      case 'book':
-      case 'reading':
-      case '📚':
-      case '📖':
-        return CupertinoIcons.book_fill;
-      case 'fitness':
-      case 'workout':
-      case 'run':
-      case '🏋️':
-      case '🏃':
-        return CupertinoIcons.flame_fill;
-      case 'mindfulness':
-      case 'meditate':
-      case '🧘':
-        return CupertinoIcons.sparkles;
-      case 'hydration':
-      case 'water':
-      case '💧':
-        return CupertinoIcons.drop_fill;
-      case 'bolt':
-      case '⚡':
-        return CupertinoIcons.bolt_fill;
-      case 'target':
-      case '🎯':
-        return CupertinoIcons.scope;
-      default:
-        return CupertinoIcons.star_fill;
-    }
-  }
-
-  void _openAwards() {
-    final checkedCount = _todayLogs.values.where((v) => v).length;
-    final awards = [
-      AwardItem(
-        title: 'First Step',
-        desc: 'Completed your very first habit check-in.',
-        icon: CupertinoIcons.star_fill,
-        color: const Color(0xFFF59E0B),
-        isUnlocked: checkedCount >= 1,
-      ),
-      AwardItem(
-        title: '7-Day Streak',
-        desc: 'Maintained 7 consecutive active check-in days.',
-        icon: CupertinoIcons.flame_fill,
-        color: const Color(0xFFEF4444),
-        isUnlocked: xp >= 30,
-      ),
-      AwardItem(
-        title: 'Deep Work Master',
-        desc: 'Earned 50+ Focus XP in Pomodoro sessions.',
-        icon: CupertinoIcons.bolt_fill,
-        color: const Color(0xFF3B82F6),
-        isUnlocked: xp >= 50,
-      ),
-      AwardItem(
-        title: 'Perfect Day',
-        desc: 'Achieved 100% check-ins on all active habits.',
-        icon: CupertinoIcons.checkmark_seal_fill,
-        color: const Color(0xFFEC4899),
-        isUnlocked: checkedCount == habits.length && habits.isNotEmpty,
-      ),
-      AwardItem(
-        title: 'Century Club',
-        desc: 'Logged 100 lifetime habit check-ins.',
-        icon: CupertinoIcons.shield_fill,
-        color: const Color(0xFF06B6D4),
-        isUnlocked: false,
-      ),
-      AwardItem(
-        title: 'Knowledge Vanguard',
-        desc: 'Logged 10 deep reading & architecture sessions.',
-        icon: CupertinoIcons.book_fill,
-        color: const Color(0xFF10B981),
-        isUnlocked: true,
-      ),
-      AwardItem(
-        title: 'Apex Vanguard',
-        desc: 'Reached Profile Boost Level 5.',
-        icon: CupertinoIcons.sparkles,
-        color: const Color(0xFF8B5CF6),
-        isUnlocked: level >= 5,
-      ),
-      AwardItem(
-        title: 'Monthly Legend',
-        desc: 'Logged 20+ active days in consistency history.',
-        icon: CupertinoIcons.rosette,
-        color: const Color(0xFFEAB308),
-        isUnlocked: true,
-      ),
-    ];
-
-    showCupertinoModalPopup(
-      context: context,
-      builder: (ctx) => AwardsDialog(awards: awards),
-    );
-  }
-
   void _openSyncSettings() {
+    HapticFeedback.selectionClick();
     showCupertinoModalPopup(
       context: context,
       builder: (ctx) => SyncSettingsDialog(
@@ -512,540 +454,1304 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  IconData _getCupertinoIcon(String iconKey) {
+    switch (iconKey.toLowerCase()) {
+      case 'code':
+      case 'coding':
+        return CupertinoIcons.chevron_left_slash_chevron_right;
+      case 'book':
+      case 'reading':
+        return CupertinoIcons.book_fill;
+      case 'fitness':
+      case 'workout':
+      case 'run':
+        return CupertinoIcons.flame_fill;
+      case 'mindfulness':
+      case 'meditate':
+        return CupertinoIcons.sparkles;
+      case 'hydration':
+      case 'water':
+        return CupertinoIcons.drop_fill;
+      case 'bolt':
+        return CupertinoIcons.bolt_fill;
+      default:
+        return CupertinoIcons.star_fill;
+    }
+  }
+
+  Color _getIconBgColor(String category) {
+    switch (category.toLowerCase()) {
+      case 'coding':
+        return const Color(0xFF007AFF);
+      case 'reading':
+        return const Color(0xFF34C759);
+      case 'fitness':
+        return const Color(0xFFFF2D55);
+      case 'mindfulness':
+        return const Color(0xFFAF52DE);
+      case 'hydration':
+        return const Color(0xFF5AC8FA);
+      default:
+        return const Color(0xFFFF9500);
+    }
+  }
+
+  List<AwardItem> _getAwardsList() {
+    final checkedCount = _todayLogs.values.where((v) => v).length;
+    return [
+      AwardItem(
+        title: 'First Step',
+        desc: 'Completed your first check-in.',
+        icon: CupertinoIcons.star_fill,
+        color: const Color(0xFFF59E0B),
+        isUnlocked: checkedCount >= 1,
+      ),
+      AwardItem(
+        title: '7-Day Streak',
+        desc: 'Maintained consistency for 7 days.',
+        icon: CupertinoIcons.flame_fill,
+        color: const Color(0xFFEF4444),
+        isUnlocked: true,
+      ),
+      AwardItem(
+        title: 'Deep Work Champion',
+        desc: 'Reached 90+ minutes of deep focus.',
+        icon: CupertinoIcons.hourglass_bottomhalf_fill,
+        color: const Color(0xFF3B82F6),
+        isUnlocked: xp >= 60,
+      ),
+      AwardItem(
+        title: 'Mindful Master',
+        desc: 'Completed zen breathing sessions.',
+        icon: CupertinoIcons.sparkles,
+        color: const Color(0xFFA855F7),
+        isUnlocked: true,
+      ),
+      AwardItem(
+        title: 'Perfect Week',
+        desc: 'Hit 100% of weekly target habits.',
+        icon: CupertinoIcons.check_mark_seal_fill,
+        color: const Color(0xFF10B981),
+        isUnlocked: false,
+      ),
+      AwardItem(
+        title: 'Century Club',
+        desc: 'Earned 100+ lifetime XP points.',
+        icon: CupertinoIcons.rosette,
+        color: const Color(0xFFEC4899),
+        isUnlocked: xp >= 100 || level > 1,
+      ),
+      AwardItem(
+        title: 'Early Bird',
+        desc: 'Checked in before 8:00 AM.',
+        icon: CupertinoIcons.sunrise_fill,
+        color: const Color(0xFFF97316),
+        isUnlocked: true,
+      ),
+      AwardItem(
+        title: 'Ecosystem Master',
+        desc: 'Live synced on Web, Mac & Android.',
+        icon: CupertinoIcons.device_laptop,
+        color: const Color(0xFF06B6D4),
+        isUnlocked: isSynced,
+      ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
+    return CupertinoTabScaffold(
+      tabBar: CupertinoTabBar(
+        backgroundColor: const Color(0xF210121A),
+        activeColor: const Color(0xFF007AFF),
+        inactiveColor: const Color(0xFF8E8E93),
+        iconSize: 22,
+        border: const Border(
+          top: BorderSide(color: Color(0x2EFFFFFF), width: 0.5),
+        ),
+        onTap: (index) {
+          HapticFeedback.selectionClick();
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(CupertinoIcons.circle_grid_hex),
+            activeIcon: Icon(CupertinoIcons.circle_grid_hex_fill),
+            label: 'Summary',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(CupertinoIcons.timer),
+            activeIcon: Icon(CupertinoIcons.timer_fill),
+            label: 'Focus',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(CupertinoIcons.square_pencil),
+            activeIcon: Icon(CupertinoIcons.square_pencil_fill),
+            label: 'Reflect',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(CupertinoIcons.rosette),
+            activeIcon: Icon(CupertinoIcons.rosette),
+            label: 'Awards',
+          ),
+        ],
+      ),
+      tabBuilder: (context, index) {
+        switch (index) {
+          case 0:
+            return _buildSummaryTab(context);
+          case 1:
+            return _buildFocusTab(context);
+          case 2:
+            return _buildReflectTab(context);
+          case 3:
+          default:
+            return _buildAwardsTab(context);
+        }
+      },
+    );
+  }
+
+  // =========================================================================
+  // TAB 1: SUMMARY (ACTIVITY RINGS & HABITS)
+  // =========================================================================
+  Widget _buildSummaryTab(BuildContext context) {
     final filteredHabits = currentFilter == 'All'
         ? habits
         : habits.where((h) => h.category == currentFilter).toList();
 
     final checkedCount = _todayLogs.values.where((v) => v).length;
     final overallPct = habits.isEmpty ? 0.0 : (checkedCount / habits.length);
-    final media = MediaQuery.of(context);
+    final focusPct = (xp / 100.0).clamp(0.0, 1.0);
 
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 22,
-              height: 22,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF38BDF8), Color(0xFF6366F1), Color(0xFFEC4899)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: const Icon(CupertinoIcons.circle_grid_hex_fill, size: 14, color: CupertinoColors.white),
-            ),
-            const SizedBox(width: 8),
-            const Text(
-              'PulseHabit Pro',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, letterSpacing: -0.3),
-            ),
-          ],
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CupertinoButton(
-              padding: EdgeInsets.zero,
-              onPressed: _openAwards,
-              child: Container(
-                width: 28,
-                height: 28,
-                decoration: BoxDecoration(
-                  color: const Color(0x26F59E0B),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(CupertinoIcons.rosette, color: Color(0xFFF59E0B), size: 16),
-              ),
-            ),
-            const SizedBox(width: 8),
-            GestureDetector(
-              onTap: _openSyncSettings,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: isSynced ? const Color(0x3310B981) : const Color(0x33F59E0B),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: isSynced ? const Color(0xFF10B981) : const Color(0xFFF59E0B), width: 0.8),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      isSynced ? CupertinoIcons.check_mark_circled_solid : CupertinoIcons.arrow_2_circlepath,
-                      size: 11,
-                      color: isSynced ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      isSynced ? 'Live Sync' : 'Offline',
-                      style: TextStyle(
-                        fontSize: 10,
+      child: CustomScrollView(
+        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+        slivers: [
+          CupertinoSliverNavigationBar(
+            largeTitle: const Text('Summary'),
+            previousPageTitle: '',
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                GestureDetector(
+                  onTap: _openSyncSettings,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: isSynced ? const Color(0x3310B981) : const Color(0x33F59E0B),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
                         color: isSynced ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
-                        fontWeight: FontWeight.bold,
+                        width: 0.8,
                       ),
                     ),
-                  ],
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          isSynced ? CupertinoIcons.check_mark_circled_solid : CupertinoIcons.arrow_2_circlepath,
+                          size: 11,
+                          color: isSynced ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          isSynced ? 'Synced' : 'Offline',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: isSynced ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
+                const SizedBox(width: 8),
+                GestureDetector(
+                  onTap: _showAccountSwitcherActionSheet,
+                  child: Container(
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: const Color(0xFF1E2232),
+                      border: Border.all(color: const Color(0xFF007AFF), width: 1.2),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(_activeAvatar, style: const TextStyle(fontSize: 14)),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-      child: SafeArea(
-        child: ListView(
-          padding: EdgeInsets.fromLTRB(
-            16,
-            12,
-            16,
-            16 + media.padding.bottom,
           ),
-          children: [
-            // 1. PROFILE BOOST BANNER (Apple Glass Card - Tap to Switch Profiles)
-            GestureDetector(
-              onTap: _showAccountSwitcherActionSheet,
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF131722),
-                  borderRadius: BorderRadius.circular(22),
-                  border: Border.all(color: const Color(0x2E3B82F6)),
-                  boxShadow: const [
-                    BoxShadow(color: Color(0x33000000), blurRadius: 14, offset: Offset(0, 4)),
-                  ],
+
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                // Date Subtitle
+                Text(
+                  _getFormattedDateHeader(),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF8E8E93),
+                    letterSpacing: 0.5,
+                  ),
                 ),
-                child: Column(
-                  children: [
-                    Row(
+                const SizedBox(height: 12),
+
+                // 1. APPLE ID PROFILE CARD
+                GestureDetector(
+                  onTap: _showAccountSwitcherActionSheet,
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1C1C1E),
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: const Color(0x2EFFFFFF), width: 0.8),
+                    ),
+                    child: Row(
                       children: [
                         Container(
-                          width: 46,
-                          height: 46,
+                          width: 48,
+                          height: 48,
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
-                              colors: [Color(0xFF3B82F6), Color(0xFF8B5CF6)],
+                              colors: [Color(0xFF007AFF), Color(0xFF5856D6)],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
                             borderRadius: BorderRadius.circular(14),
                             boxShadow: const [
-                              BoxShadow(color: Color(0x333B82F6), blurRadius: 8, offset: Offset(0, 2)),
+                              BoxShadow(color: Color(0x33007AFF), blurRadius: 8, offset: Offset(0, 2)),
                             ],
                           ),
                           alignment: Alignment.center,
-                          child: Text(_activeAvatar, style: const TextStyle(fontSize: 22)),
+                          child: Text(_activeAvatar, style: const TextStyle(fontSize: 24)),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: 14),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
                                 children: [
-                                  Text(_activeName, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: CupertinoColors.white)),
+                                  Text(
+                                    _activeName,
+                                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: CupertinoColors.white),
+                                  ),
                                   const SizedBox(width: 6),
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                                     decoration: BoxDecoration(
-                                      color: const Color(0x333B82F6),
-                                      borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(color: const Color(0x403B82F6), width: 0.8),
+                                      color: const Color(0x33007AFF),
+                                      borderRadius: BorderRadius.circular(6),
+                                      border: Border.all(color: const Color(0x4D007AFF), width: 0.8),
                                     ),
-                                    child: Text(currentRank, style: const TextStyle(fontSize: 9, color: Color(0xFF60A5FA), fontWeight: FontWeight.w600)),
+                                    child: Text(
+                                      currentRank,
+                                      style: const TextStyle(fontSize: 9, color: Color(0xFF60A5FA), fontWeight: FontWeight.w600),
+                                    ),
                                   ),
-                                  const SizedBox(width: 4),
-                                  const Icon(CupertinoIcons.chevron_down, size: 10, color: Color(0xFF60A5FA)),
                                 ],
                               ),
-                              Text('$_activeTrack • Tap to Switch', style: const TextStyle(fontSize: 11, color: CupertinoColors.systemGrey)),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(CupertinoIcons.sparkles, size: 12, color: Color(0xFFFBBF24)),
-                          const SizedBox(width: 4),
-                          Text('Level $level', style: const TextStyle(fontSize: 11, color: Color(0xFFFBBF24), fontWeight: FontWeight.bold)),
-                        ],
-                      ),
-                      Text('$xp / 100 XP', style: const TextStyle(fontSize: 11, color: CupertinoColors.systemGrey, fontFamily: 'monospace')),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(6),
-                    child: Container(
-                      height: 6,
-                      color: const Color(0xFF1E2336),
-                      child: FractionallySizedBox(
-                        alignment: Alignment.centerLeft,
-                        widthFactor: (xp / 100).clamp(0.0, 1.0),
-                        child: Container(
-                          decoration: const BoxDecoration(
-                            gradient: LinearGradient(colors: [Color(0xFF3B82F6), Color(0xFF10B981)]),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 14),
-
-            // 2. ACTIVITY RINGS CARD
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFF131722),
-                borderRadius: BorderRadius.circular(22),
-                border: Border.all(color: const Color(0x1AFFFFFF)),
-              ),
-              child: Row(
-                children: [
-                  ActivityRingsWidget(
-                    overallPct: overallPct,
-                    craftPct: 0.70,
-                    vitalityPct: 0.50,
-                    size: 110,
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('Activity Rings', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: CupertinoColors.white)),
-                        const Text('Weekly completion goals', style: TextStyle(fontSize: 10, color: CupertinoColors.systemGrey)),
-                        const SizedBox(height: 8),
-                        _RingLegend(color: const Color(0xFFFA114F), label: 'Daily Habits: ${(overallPct * 100).round()}%'),
-                        const SizedBox(height: 4),
-                        const _RingLegend(color: Color(0xFFA4FF00), label: 'Focus & Craft: 70%'),
-                        const SizedBox(height: 4),
-                        const _RingLegend(color: Color(0xFF00F5EA), label: 'Vitality & Mind: 50%'),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 14),
-
-            // 3. CATEGORY PILLS (Horizontal Scroll with SF Symbols)
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              physics: const BouncingScrollPhysics(),
-              child: Row(
-                children: [
-                  _categoryChip('All', CupertinoIcons.square_grid_2x2),
-                  _categoryChip('Coding', CupertinoIcons.chevron_left_slash_chevron_right),
-                  _categoryChip('Reading', CupertinoIcons.book),
-                  _categoryChip('Fitness', CupertinoIcons.flame),
-                  _categoryChip('Mindfulness', CupertinoIcons.sparkles),
-                  _categoryChip('Hydration', CupertinoIcons.drop),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 14),
-
-            // 4. HABITS CHECKLIST
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'DAILY HABITS',
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: CupertinoColors.systemGrey, letterSpacing: 0.6),
-                ),
-                Text(
-                  '$checkedCount / ${habits.length} Done',
-                  style: const TextStyle(fontSize: 10, color: Color(0xFF10B981), fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-
-            ...filteredHabits.map((h) {
-              final isDone = _todayLogs[h.id] ?? false;
-              final colorVal = int.parse(h.color.replaceFirst('#', '0xFF'));
-              final itemColor = Color(colorVal);
-
-              return Container(
-                margin: const EdgeInsets.only(bottom: 8),
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF131722),
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: isDone ? const Color(0x3310B981) : const Color(0x14FFFFFF)),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: itemColor.withOpacity(0.18),
-                        borderRadius: BorderRadius.circular(11),
-                        border: Border.all(color: itemColor.withOpacity(0.35), width: 0.8),
-                      ),
-                      child: Icon(
-                        _getCupertinoIcon(h.icon),
-                        size: 18,
-                        color: itemColor,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            h.name,
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: CupertinoColors.white,
-                              decoration: isDone ? TextDecoration.lineThrough : null,
-                            ),
-                          ),
-                          Text('${h.category} • Target ${h.target} days/wk', style: const TextStyle(fontSize: 10, color: CupertinoColors.systemGrey)),
-                        ],
-                      ),
-                    ),
-                    CupertinoButton(
-                      padding: EdgeInsets.zero,
-                      onPressed: () => _toggleCheckIn(h.id),
-                      child: Container(
-                        width: 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          color: isDone ? const Color(0xFF10B981) : const Color(0x1AFFFFFF),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: isDone ? const Color(0xFF10B981) : const Color(0x33FFFFFF)),
-                        ),
-                        child: Icon(
-                          CupertinoIcons.check_mark,
-                          size: 16,
-                          color: isDone ? CupertinoColors.black : CupertinoColors.systemGrey,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }),
-
-            const SizedBox(height: 14),
-
-            // 5. FOCUS POMODORO TIMER
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFF131722),
-                borderRadius: BorderRadius.circular(22),
-                border: Border.all(color: const Color(0x1AFFFFFF)),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            width: 28,
-                            height: 28,
-                            decoration: BoxDecoration(
-                              color: const Color(0x263B82F6),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Icon(CupertinoIcons.stopwatch_fill, color: Color(0xFF60A5FA), size: 16),
-                          ),
-                          const SizedBox(width: 8),
-                          const Text('Focus Timer (+25 XP)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: CupertinoColors.white)),
-                        ],
-                      ),
-                      Text(
-                        '${(_timerSeconds ~/ 60).toString().padLeft(2, '0')}:${(_timerSeconds % 60).toString().padLeft(2, '0')}',
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'monospace', color: Color(0xFF60A5FA)),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: CupertinoButton(
-                          color: _isTimerRunning ? CupertinoColors.systemYellow : CupertinoColors.systemBlue,
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          borderRadius: BorderRadius.circular(12),
-                          onPressed: _toggleTimer,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(_isTimerRunning ? CupertinoIcons.pause_fill : CupertinoIcons.play_fill, size: 14, color: _isTimerRunning ? CupertinoColors.black : CupertinoColors.white),
-                              const SizedBox(width: 6),
+                              const SizedBox(height: 3),
                               Text(
-                                _isTimerRunning ? 'Pause' : 'Start Focus',
-                                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: _isTimerRunning ? CupertinoColors.black : CupertinoColors.white),
+                                '$_activeTrack • Apple ID Sync',
+                                style: const TextStyle(fontSize: 12, color: Color(0xFF8E8E93)),
+                              ),
+                              const SizedBox(height: 6),
+                              Row(
+                                children: [
+                                  Text('Level $level', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFFFBBF24))),
+                                  const SizedBox(width: 6),
+                                  Expanded(
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(4),
+                                      child: Container(
+                                        height: 5,
+                                        color: const Color(0xFF2C2C2E),
+                                        child: FractionallySizedBox(
+                                          alignment: Alignment.centerLeft,
+                                          widthFactor: (xp / 100.0).clamp(0.05, 1.0),
+                                          child: Container(
+                                            decoration: const BoxDecoration(
+                                              gradient: LinearGradient(colors: [Color(0xFF38BDF8), Color(0xFF3B82F6)]),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text('$xp/100 XP', style: const TextStyle(fontSize: 10, fontFamily: 'monospace', color: Color(0xFF8E8E93))),
+                                ],
                               ),
                             ],
                           ),
                         ),
+                        const SizedBox(width: 8),
+                        const Icon(CupertinoIcons.chevron_right, size: 14, color: Color(0xFF8E8E93)),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                // 2. CONCENTRIC ACTIVITY RINGS CARD (Apple Fitness Style)
+                Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1C1C1E),
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: const Color(0x2EFFFFFF), width: 0.8),
+                  ),
+                  child: Row(
+                    children: [
+                      ActivityRingsWidget(
+                        overallPct: overallPct,
+                        craftPct: focusPct,
+                        vitalityPct: 0.85,
+                        size: 130,
                       ),
-                      const SizedBox(width: 8),
-                      CupertinoButton(
-                        color: const Color(0x33A855F7),
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                        borderRadius: BorderRadius.circular(12),
-                        onPressed: _openStandbyMode,
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
+                      const SizedBox(width: 20),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(CupertinoIcons.sparkles, size: 13, color: Color(0xFFC084FC)),
-                            SizedBox(width: 4),
-                            Text('Standby', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFC084FC))),
+                            const Text(
+                              'Activity Rings',
+                              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: CupertinoColors.white),
+                            ),
+                            const SizedBox(height: 8),
+                            _buildRingStatItem(
+                              color: const Color(0xFFFA114F),
+                              title: 'Move',
+                              value: '$checkedCount / ${habits.length} Habits',
+                              pct: '${(overallPct * 100).round()}%',
+                            ),
+                            const SizedBox(height: 6),
+                            _buildRingStatItem(
+                              color: const Color(0xFFA4FF00),
+                              title: 'Exercise',
+                              value: '$xp / 100 Focus XP',
+                              pct: '${(focusPct * 100).round()}%',
+                            ),
+                            const SizedBox(height: 6),
+                            _buildRingStatItem(
+                              color: const Color(0xFF00F5EA),
+                              title: 'Vitality',
+                              value: '7-Day Streak',
+                              pct: '85%',
+                            ),
                           ],
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      CupertinoButton(
-                        color: const Color(0xFF1E2336),
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                        borderRadius: BorderRadius.circular(12),
-                        onPressed: () {
-                          _timer?.cancel();
-                          setState(() {
-                            _isTimerRunning = false;
-                            _timerSeconds = 25 * 60;
-                          });
-                        },
-                        child: const Text('Reset', style: TextStyle(fontSize: 12, color: CupertinoColors.white)),
-                      ),
                     ],
                   ),
-                ],
-              ),
-            ),
+                ),
 
-            const SizedBox(height: 14),
+                const SizedBox(height: 20),
 
-            // 6. DAILY REFLECTION NOTES (Apple Notes Style)
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFF131722),
-                borderRadius: BorderRadius.circular(22),
-                border: Border.all(color: const Color(0x1AFFFFFF)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            width: 28,
-                            height: 28,
-                            decoration: BoxDecoration(
-                              color: const Color(0x26F59E0B),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Icon(CupertinoIcons.square_pencil, color: Color(0xFFFBBF24), size: 16),
-                          ),
-                          const SizedBox(width: 8),
-                          const Text('Quick Notes & Vault', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: CupertinoColors.white)),
-                        ],
+                // 3. TODAY'S HABITS SECTION
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'TODAY\'S HABITS',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF8E8E93),
+                        letterSpacing: 0.5,
                       ),
-                      Row(
-                        children: [
-                          const Icon(CupertinoIcons.lock_shield_fill, color: Color(0xFF10B981), size: 12),
-                          const SizedBox(width: 4),
-                          Text(_todayKey(), style: const TextStyle(fontSize: 10, color: CupertinoColors.systemGrey, fontFamily: 'monospace')),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  CupertinoTextField(
-                    controller: _noteController,
-                    maxLines: 3,
-                    placeholder: 'Log daily focus, thoughts or reflections...',
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1A1F30),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: const Color(0x1AFFFFFF)),
                     ),
-                    style: const TextStyle(color: CupertinoColors.white, fontSize: 12),
+                    Text(
+                      '$checkedCount of ${habits.length} Complete',
+                      style: const TextStyle(fontSize: 12, color: Color(0xFF007AFF), fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+
+                // Apple Sliding Segmented Control for Categories
+                SizedBox(
+                  width: double.infinity,
+                  child: CupertinoSlidingSegmentedControl<String>(
+                    backgroundColor: const Color(0xFF1C1C1E),
+                    thumbColor: const Color(0xFF3A3A3C),
+                    groupValue: currentFilter,
+                    children: const {
+                      'All': Padding(padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6), child: Text('All', style: TextStyle(fontSize: 12))),
+                      'Coding': Padding(padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6), child: Text('Coding', style: TextStyle(fontSize: 12))),
+                      'Reading': Padding(padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6), child: Text('Reading', style: TextStyle(fontSize: 12))),
+                      'Fitness': Padding(padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6), child: Text('Fitness', style: TextStyle(fontSize: 12))),
+                      'Mindfulness': Padding(padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6), child: Text('Mind', style: TextStyle(fontSize: 12))),
+                    },
+                    onValueChanged: (val) {
+                      if (val != null) {
+                        HapticFeedback.selectionClick();
+                        setState(() => currentFilter = val);
+                      }
+                    },
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 12),
+
+                // Inset Grouped Habits Card (iOS Reminders / Settings Style)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(18),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1C1C1E),
+                      border: Border.all(color: const Color(0x2EFFFFFF), width: 0.8),
+                    ),
+                    child: Column(
+                      children: List.generate(filteredHabits.length, (idx) {
+                        final h = filteredHabits[idx];
+                        final isDone = _todayLogs[h.id] ?? false;
+                        final isLast = idx == filteredHabits.length - 1;
+
+                        return Container(
+                          decoration: BoxDecoration(
+                            border: isLast ? null : const Border(
+                              bottom: BorderSide(color: Color(0x1AFFFFFF), width: 0.6),
+                            ),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          child: Row(
+                            children: [
+                              // Squircle Icon
+                              Container(
+                                width: 34,
+                                height: 34,
+                                decoration: BoxDecoration(
+                                  color: _getIconBgColor(h.category),
+                                  borderRadius: BorderRadius.circular(9),
+                                ),
+                                alignment: Alignment.center,
+                                child: Icon(
+                                  _getCupertinoIcon(h.icon),
+                                  size: 18,
+                                  color: CupertinoColors.white,
+                                ),
+                              ),
+                              const SizedBox(width: 14),
+
+                              // Habit Details
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      h.name,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: isDone ? const Color(0xFF8E8E93) : CupertinoColors.white,
+                                        decoration: isDone ? TextDecoration.lineThrough : null,
+                                      ),
+                                    ),
+                                    Text(
+                                      '${h.category} • Target ${h.target} days/wk',
+                                      style: const TextStyle(fontSize: 11, color: Color(0xFF8E8E93)),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              // Apple Circular Check Button
+                              CupertinoButton(
+                                padding: EdgeInsets.zero,
+                                onPressed: () => _toggleCheckIn(h.id),
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 200),
+                                  width: 28,
+                                  height: 28,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: isDone ? const Color(0xFF34C759) : const Color(0x1AFFFFFF),
+                                    border: Border.all(
+                                      color: isDone ? const Color(0xFF34C759) : const Color(0x40FFFFFF),
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  child: isDone
+                                      ? const Icon(CupertinoIcons.check_mark, size: 16, color: CupertinoColors.white)
+                                      : null,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
+                ),
+              ]),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _categoryChip(String cat, IconData icon) {
-    final isSelected = currentFilter == cat;
-    return Padding(
-      padding: const EdgeInsets.only(right: 6),
-      child: CupertinoButton(
-        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
-        color: isSelected ? CupertinoColors.systemBlue : const Color(0xFF181D2D),
-        borderRadius: BorderRadius.circular(14),
-        minSize: 28,
-        onPressed: () => setState(() => currentFilter = cat),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 12, color: isSelected ? CupertinoColors.white : CupertinoColors.systemGrey),
-            const SizedBox(width: 5),
-            Text(
-              cat,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? CupertinoColors.white : CupertinoColors.systemGrey,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _RingLegend extends StatelessWidget {
-  final Color color;
-  final String label;
-
-  const _RingLegend({required this.color, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildRingStatItem({required Color color, required String title, required String value, required String pct}) {
     return Row(
       children: [
-        Container(width: 8, height: 8, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+        Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+        ),
         const SizedBox(width: 6),
-        Text(label, style: const TextStyle(fontSize: 10, color: CupertinoColors.white)),
+        Text(
+          title,
+          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: color),
+        ),
+        const Spacer(),
+        Text(
+          value,
+          style: const TextStyle(fontSize: 11, color: CupertinoColors.white, fontWeight: FontWeight.w500),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          pct,
+          style: const TextStyle(fontSize: 11, color: Color(0xFF8E8E93), fontFamily: 'monospace'),
+        ),
       ],
+    );
+  }
+
+  // =========================================================================
+  // TAB 2: FOCUS & ZEN (STANDBY, POMODORO & SOUNDSCAPES)
+  // =========================================================================
+  Widget _buildFocusTab(BuildContext context) {
+    final mStr = (_timerSeconds ~/ 60).toString().padLeft(2, '0');
+    final sStr = (_timerSeconds % 60).toString().padLeft(2, '0');
+
+    return CupertinoPageScaffold(
+      child: CustomScrollView(
+        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+        slivers: [
+          CupertinoSliverNavigationBar(
+            largeTitle: const Text('Focus & Zen'),
+            trailing: CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: _openStandbyMode,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: const Color(0x33A855F7),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0x4DA855F7), width: 0.8),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(CupertinoIcons.sparkles, size: 12, color: Color(0xFFC084FC)),
+                    SizedBox(width: 4),
+                    Text('Standby', style: TextStyle(fontSize: 11, color: Color(0xFFC084FC), fontWeight: FontWeight.bold)),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                // 1. FOCUS TIMER HERO CARD
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1C1C1E),
+                    borderRadius: BorderRadius.circular(22),
+                    border: Border.all(color: const Color(0x2EFFFFFF), width: 0.8),
+                    boxShadow: const [
+                      BoxShadow(color: Color(0x40000000), blurRadius: 18, offset: Offset(0, 4)),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                width: 30,
+                                height: 30,
+                                decoration: BoxDecoration(
+                                  color: const Color(0x33007AFF),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Icon(CupertinoIcons.timer, color: Color(0xFF007AFF), size: 16),
+                              ),
+                              const SizedBox(width: 10),
+                              const Text('Pomodoro Sprint', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: const Color(0x26FBBF24),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Text('+25 XP / Session', style: TextStyle(fontSize: 10, color: Color(0xFFFBBF24), fontWeight: FontWeight.bold)),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Giant SF Timer Display
+                      Text(
+                        '$mStr:$sStr',
+                        style: const TextStyle(
+                          fontSize: 60,
+                          fontWeight: FontWeight.w800,
+                          fontFamily: 'monospace',
+                          letterSpacing: -1.5,
+                          color: CupertinoColors.white,
+                        ),
+                      ),
+                      const Text(
+                        'Deep Focus Interval',
+                        style: TextStyle(fontSize: 12, color: Color(0xFF8E8E93)),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Preset Segmented Buttons
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _buildPresetBtn('25 min', 25),
+                          const SizedBox(width: 8),
+                          _buildPresetBtn('50 min', 50),
+                          const SizedBox(width: 8),
+                          _buildPresetBtn('5 min', 5),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Timer Action Buttons
+                      Row(
+                        children: [
+                          Expanded(
+                            child: CupertinoButton(
+                              color: _isTimerRunning ? const Color(0xFFFF9500) : const Color(0xFF007AFF),
+                              borderRadius: BorderRadius.circular(14),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              onPressed: _toggleTimer,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(_isTimerRunning ? CupertinoIcons.pause_fill : CupertinoIcons.play_fill, size: 16, color: CupertinoColors.white),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    _isTimerRunning ? 'Pause Focus' : 'Start Focus',
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: CupertinoColors.white),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          CupertinoButton(
+                            color: const Color(0xFF2C2C2E),
+                            borderRadius: BorderRadius.circular(14),
+                            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                            onPressed: () {
+                              HapticFeedback.selectionClick();
+                              _timer?.cancel();
+                              setState(() {
+                                _isTimerRunning = false;
+                                _timerSeconds = int.parse(_selectedPreset) * 60;
+                              });
+                            },
+                            child: const Text('Reset', style: TextStyle(color: CupertinoColors.white, fontSize: 13, fontWeight: FontWeight.w600)),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // 2. SPATIAL FOCUS SOUNDSCAPES CARD
+                Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1C1C1E),
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: const Color(0x2EFFFFFF), width: 0.8),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Row(
+                            children: [
+                              Icon(CupertinoIcons.headphones, size: 16, color: Color(0xFF007AFF)),
+                              SizedBox(width: 8),
+                              Text(
+                                'Ambient Soundscapes',
+                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: CupertinoColors.white),
+                              ),
+                            ],
+                          ),
+                          if (_activeSoundscape != 'none')
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: const Color(0x3310B981),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: const Text('Active', style: TextStyle(fontSize: 9, color: Color(0xFF10B981), fontWeight: FontWeight.bold)),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Calming background noise to keep you locked in focus.',
+                        style: TextStyle(fontSize: 12, color: Color(0xFF8E8E93)),
+                      ),
+                      const SizedBox(height: 14),
+
+                      Row(
+                        children: [
+                          _buildSoundscapeBtn('rain', '🌧️ Rain'),
+                          const SizedBox(width: 8),
+                          _buildSoundscapeBtn('waves', '🌊 Waves'),
+                          const SizedBox(width: 8),
+                          _buildSoundscapeBtn('forest', '🌲 Forest'),
+                          const SizedBox(width: 8),
+                          _buildSoundscapeBtn('none', 'Mute'),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                // 3. APPLE STANDBY AMBIENT MODE HERO BANNER
+                GestureDetector(
+                  onTap: _openStandbyMode,
+                  child: Container(
+                    padding: const EdgeInsets.all(18),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF2E1065), Color(0xFF0F0728)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: const Color(0x4DA855F7), width: 0.8),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: const Color(0x33A855F7),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: const Color(0x66A855F7)),
+                          ),
+                          child: const Icon(CupertinoIcons.sparkles, color: Color(0xFFC084FC), size: 22),
+                        ),
+                        const SizedBox(width: 14),
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                ' Standby Zen Mode',
+                                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: CupertinoColors.white),
+                              ),
+                              Text(
+                                'Full-screen glowing clock & Activity rings',
+                                style: TextStyle(fontSize: 12, color: Color(0xFFD8B4FE)),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(CupertinoIcons.chevron_right, size: 14, color: Color(0xFFD8B4FE)),
+                      ],
+                    ),
+                  ),
+                ),
+              ]),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPresetBtn(String label, int mins) {
+    final isSelected = _selectedPreset == mins.toString();
+    return Expanded(
+      child: CupertinoButton(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        color: isSelected ? const Color(0xFF007AFF) : const Color(0xFF2C2C2E),
+        borderRadius: BorderRadius.circular(10),
+        onPressed: () => _setTimerPreset(mins),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+            color: CupertinoColors.white,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSoundscapeBtn(String key, String label) {
+    final isSelected = _activeSoundscape == key;
+    return Expanded(
+      child: CupertinoButton(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        color: isSelected ? const Color(0x33007AFF) : const Color(0xFF2C2C2E),
+        borderRadius: BorderRadius.circular(10),
+        onPressed: () {
+          HapticFeedback.selectionClick();
+          setState(() => _activeSoundscape = key);
+        },
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            color: isSelected ? const Color(0xFF38BDF8) : CupertinoColors.white,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // =========================================================================
+  // TAB 3: REFLECT (APPLE NOTES & MOOD)
+  // =========================================================================
+  Widget _buildReflectTab(BuildContext context) {
+    return CupertinoPageScaffold(
+      child: CustomScrollView(
+        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+        slivers: [
+          const CupertinoSliverNavigationBar(
+            largeTitle: Text('Reflect'),
+          ),
+
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                // 1. MOOD & ENERGY SELECTOR
+                const Text(
+                  'CURRENT ENERGY & MOOD',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF8E8E93), letterSpacing: 0.5),
+                ),
+                const SizedBox(height: 10),
+
+                Row(
+                  children: [
+                    _buildMoodChip('bolt', '⚡ High'),
+                    const SizedBox(width: 6),
+                    _buildMoodChip('rocket', '🚀 Flow'),
+                    const SizedBox(width: 6),
+                    _buildMoodChip('peace', '😌 Calm'),
+                    const SizedBox(width: 6),
+                    _buildMoodChip('brain', '🧠 Focus'),
+                    const SizedBox(width: 6),
+                    _buildMoodChip('battery', '🔋 Rest'),
+                  ],
+                ),
+
+                const SizedBox(height: 20),
+
+                // 2. APPLE NOTES DAILY REFLECTION CARD
+                Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1C1C1E),
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: const Color(0x2EFFFFFF), width: 0.8),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                width: 28,
+                                height: 28,
+                                decoration: BoxDecoration(
+                                  color: const Color(0x33F59E0B),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Icon(CupertinoIcons.doc_text_fill, color: Color(0xFFF59E0B), size: 16),
+                              ),
+                              const SizedBox(width: 10),
+                              const Text('Daily Reflection', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                            ],
+                          ),
+                          const Text('Today', style: TextStyle(fontSize: 11, color: Color(0xFF8E8E93))),
+                        ],
+                      ),
+                      const SizedBox(height: 14),
+
+                      CupertinoTextField(
+                        controller: _noteController,
+                        maxLines: 5,
+                        style: const TextStyle(fontSize: 13, color: CupertinoColors.white, height: 1.4),
+                        placeholder: 'Write your thoughts, key learnings, or reflections for today...',
+                        placeholderStyle: const TextStyle(color: Color(0xFF636366), fontSize: 13),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF12141F),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0x1AFFFFFF)),
+                        ),
+                        padding: const EdgeInsets.all(12),
+                      ),
+                      const SizedBox(height: 12),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Row(
+                            children: [
+                              Icon(CupertinoIcons.cloud_upload, size: 12, color: Color(0xFF10B981)),
+                              SizedBox(width: 4),
+                              Text('Auto-saved to Cloud', style: TextStyle(fontSize: 10, color: Color(0xFF10B981))),
+                            ],
+                          ),
+                          CupertinoButton(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                            color: const Color(0xFF007AFF),
+                            borderRadius: BorderRadius.circular(10),
+                            onPressed: () {
+                              HapticFeedback.lightImpact();
+                              SyncService.pushUserData(
+                                _activeUid,
+                                {
+                                  'boost': {'bonusXp': xp, 'level': level},
+                                  'habits': habits.map((h) => h.toJson()).toList(),
+                                  'logs': {_todayKey(): _todayLogs},
+                                  'dailyNotes': {_todayKey(): {'text': _noteController.text.trim()}}
+                                },
+                                {'name': _activeName, 'uid': _activeUid, 'track': _activeTrack, 'avatar': _activeAvatar},
+                              );
+                            },
+                            child: const Text('Save Note', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: CupertinoColors.white)),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // 3. CONSISTENCY MATRIX HEATMAP
+                Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1C1C1E),
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: const Color(0x2EFFFFFF), width: 0.8),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(CupertinoIcons.calendar, size: 16, color: Color(0xFF10B981)),
+                              SizedBox(width: 8),
+                              Text('Consistency Heatmap', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                          Text('35 Days', style: TextStyle(fontSize: 11, color: Color(0xFF8E8E93))),
+                        ],
+                      ),
+                      const SizedBox(height: 14),
+
+                      // 5x7 Grid Squares
+                      GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 7,
+                          crossAxisSpacing: 6,
+                          mainAxisSpacing: 6,
+                        ),
+                        itemCount: 35,
+                        itemBuilder: (context, index) {
+                          final isToday = index == 34;
+                          final isActive = index % 3 != 0;
+                          return Container(
+                            decoration: BoxDecoration(
+                              color: isToday
+                                  ? const Color(0xFF10B981)
+                                  : (isActive ? const Color(0x6610B981) : const Color(0x1AFFFFFF)),
+                              borderRadius: BorderRadius.circular(4),
+                              border: isToday ? Border.all(color: CupertinoColors.white, width: 1) : null,
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      const Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('🔥 7-Day Active Streak', style: TextStyle(fontSize: 11, color: Color(0xFF10B981), fontWeight: FontWeight.bold)),
+                          Text('Less ■ ■ ■ ■ More', style: TextStyle(fontSize: 10, color: Color(0xFF8E8E93))),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ]),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMoodChip(String key, String label) {
+    final isSelected = selectedMood == key;
+    return Expanded(
+      child: CupertinoButton(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        color: isSelected ? const Color(0x33007AFF) : const Color(0xFF1C1C1E),
+        borderRadius: BorderRadius.circular(10),
+        onPressed: () {
+          HapticFeedback.selectionClick();
+          setState(() => selectedMood = key);
+        },
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            color: isSelected ? const Color(0xFF38BDF8) : CupertinoColors.white,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // =========================================================================
+  // TAB 4: AWARDS & ECOSYSTEM CLOUD
+  // =========================================================================
+  Widget _buildAwardsTab(BuildContext context) {
+    final awards = _getAwardsList();
+
+    return CupertinoPageScaffold(
+      child: CustomScrollView(
+        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+        slivers: [
+          const CupertinoSliverNavigationBar(
+            largeTitle: Text('Awards & Cloud'),
+          ),
+
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                // 1. APPLE ID BANNER
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1C1C1E),
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: const Color(0x2EFFFFFF), width: 0.8),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: const Color(0x33007AFF),
+                          border: Border.all(color: const Color(0xFF007AFF)),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(_activeAvatar, style: const TextStyle(fontSize: 22)),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(_activeName, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: CupertinoColors.white)),
+                            Text(_activeTrack, style: const TextStyle(fontSize: 11, color: Color(0xFF8E8E93))),
+                          ],
+                        ),
+                      ),
+                      CupertinoButton(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        color: const Color(0x33007AFF),
+                        borderRadius: BorderRadius.circular(8),
+                        onPressed: _showAccountSwitcherActionSheet,
+                        child: const Text('Switch', style: TextStyle(fontSize: 12, color: Color(0xFF38BDF8), fontWeight: FontWeight.bold)),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // 2. APPLE WATCH MEDALS GALLERY
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'APPLE WATCH MEDALS',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF8E8E93), letterSpacing: 0.5),
+                    ),
+                    Text(
+                      '${awards.where((a) => a.isUnlocked).length} of ${awards.length} Unlocked',
+                      style: const TextStyle(fontSize: 12, color: Color(0xFFF59E0B), fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: awards.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 1.25,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                  ),
+                  itemBuilder: (ctx, i) {
+                    final award = awards[i];
+                    return Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: award.isUnlocked ? const Color(0xFF1C1C1E) : const Color(0xFF12141F),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: award.isUnlocked ? award.color.withOpacity(0.4) : const Color(0x14FFFFFF),
+                          width: 0.8,
+                        ),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 38,
+                            height: 38,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: award.isUnlocked
+                                  ? LinearGradient(
+                                      colors: [award.color.withOpacity(0.9), award.color.withOpacity(0.5)],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    )
+                                  : null,
+                              color: award.isUnlocked ? null : const Color(0x1AFFFFFF),
+                            ),
+                            child: Icon(
+                              award.icon,
+                              size: 18,
+                              color: award.isUnlocked ? CupertinoColors.white : CupertinoColors.systemGrey,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            award.title,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: award.isUnlocked ? CupertinoColors.white : CupertinoColors.systemGrey,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            award.desc,
+                            style: const TextStyle(fontSize: 9, color: Color(0xFF8E8E93)),
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+
+                const SizedBox(height: 20),
+
+                // 3. ZERO-COST CLOUD SYNC CONFIGURATION
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1C1C1E),
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: const Color(0x2EFFFFFF), width: 0.8),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Row(
+                        children: [
+                          Icon(CupertinoIcons.cloud_fill, size: 16, color: Color(0xFF007AFF)),
+                          SizedBox(width: 8),
+                          Text('Ecosystem Cloud Settings', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      const Text(
+                        'Connected to zero-cost Vercel & local server endpoint for live multi-device syncing.',
+                        style: TextStyle(fontSize: 11, color: Color(0xFF8E8E93)),
+                      ),
+                      const SizedBox(height: 12),
+
+                      CupertinoButton(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        color: const Color(0xFF2C2C2E),
+                        borderRadius: BorderRadius.circular(12),
+                        onPressed: _openSyncSettings,
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(CupertinoIcons.slider_horizontal_3, size: 14, color: CupertinoColors.white),
+                            SizedBox(width: 6),
+                            Text('Configure Sync Server', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: CupertinoColors.white)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ]),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

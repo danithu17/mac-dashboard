@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'activity_rings.dart';
 
 class AppleStandbyModal extends StatefulWidget {
@@ -44,6 +45,7 @@ class _AppleStandbyModalState extends State<AppleStandbyModal> {
   }
 
   void _toggleSession() {
+    HapticFeedback.mediumImpact();
     if (_isSessionRunning) {
       _sessionTimer?.cancel();
       setState(() => _isSessionRunning = false);
@@ -104,7 +106,10 @@ class _AppleStandbyModalState extends State<AppleStandbyModal> {
         ),
         trailing: CupertinoButton(
           padding: EdgeInsets.zero,
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            HapticFeedback.lightImpact();
+            Navigator.pop(context);
+          },
           child: const Text('Exit', style: TextStyle(fontWeight: FontWeight.bold, color: CupertinoColors.systemGrey)),
         ),
       ),
