@@ -375,14 +375,31 @@
           <span class="hidden lg:inline">Synced</span>
         </span>
 
-        <!-- User Profile Pill -->
-        <button onclick="openSettingsModal('profile')" class="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 px-2 sm:px-2.5 py-1 rounded-full text-[11px] transition">
-          <span id="topUserAvatar" class="w-4 h-4 rounded-full bg-blue-500/30 text-blue-300 flex items-center justify-center">
-            <svg class="w-2.5 h-2.5 fill-current" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-          </span>
-          <span id="topUserName" class="font-semibold max-w-[80px] truncate">User</span>
-          <span id="topUserLevel" class="text-[10px] font-mono text-amber-300 bg-amber-500/20 px-1.5 rounded-full">Lv.1</span>
-        </button>
+        <!-- User Profile Pill with Account Switcher Dropdown -->
+        <div class="relative">
+          <button id="topUserPillBtn" onclick="toggleAccountDropdown(event)" class="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 px-2 sm:px-2.5 py-1 rounded-full text-[11px] transition">
+            <span id="topUserAvatar" class="w-4 h-4 rounded-full bg-blue-500/30 text-blue-300 flex items-center justify-center">
+              <svg class="w-2.5 h-2.5 fill-current" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            </span>
+            <span id="topUserName" class="font-semibold max-w-[80px] truncate">User</span>
+            <span id="topUserLevel" class="text-[10px] font-mono text-amber-300 bg-amber-500/20 px-1.5 rounded-full">Lv.1</span>
+            <svg class="w-2.5 h-2.5 opacity-60 ml-0.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+          </button>
+
+          <!-- Floating macOS Profile Switcher Menu -->
+          <div id="accountDropdownMenu" class="absolute right-0 mt-2 w-64 rounded-2xl bg-[#0c101d]/95 backdrop-blur-2xl border border-white/20 shadow-2xl p-2.5 z-50 hidden flex-col gap-1.5">
+            <div class="px-2 py-1.5 border-b border-white/10 flex items-center justify-between">
+              <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Apple Profiles</span>
+              <span class="text-[9px] font-mono px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Live Cloud</span>
+            </div>
+            <div id="quickAccountsList" class="max-h-48 overflow-y-auto space-y-1 py-1"></div>
+            <div class="pt-1.5 border-t border-white/10 flex flex-col gap-1">
+              <button onclick="openSettingsModal('accounts')" class="w-full text-left px-2.5 py-1.5 rounded-xl hover:bg-white/10 text-xs text-blue-400 font-medium flex items-center gap-2 transition">
+                <span class="text-sm">+</span><span>Add / Manage Accounts</span>
+              </button>
+            </div>
+          </div>
+        </div>
 
         <!-- Lock Button -->
         <button onclick="lockSession()" class="flex items-center gap-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 p-1.5 sm:px-2.5 sm:py-1 rounded-xl text-[11px] font-semibold transition" title="Lock Workspace">
@@ -588,11 +605,29 @@
               <button onclick="setTimerPreset(25)" class="px-3 py-1 rounded-lg bg-black/10 dark:bg-white/10 hover:bg-white/20">25m</button>
               <button onclick="setTimerPreset(50)" class="px-3 py-1 rounded-lg bg-black/10 dark:bg-white/10 hover:bg-white/20">50m</button>
               <button onclick="setTimerPreset(5)" class="px-3 py-1 rounded-lg bg-black/10 dark:bg-white/10 hover:bg-white/20">5m</button>
+              <button onclick="openStandbyMode()" class="px-2.5 py-1 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 font-medium flex items-center gap-1 transition" title="Apple Standby Mode">
+                <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                <span>Standby</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Ambient Spatial Audio Soundscapes Bar -->
+          <div class="mb-3 p-2 rounded-xl bg-black/10 dark:bg-white/5 border border-white/5 flex items-center justify-between text-xs">
+            <div class="flex items-center gap-1.5 truncate">
+              <span id="soundscapeDot" class="w-2 h-2 rounded-full bg-slate-500"></span>
+              <span class="text-[10px] text-slate-400 font-medium">Soundscape:</span>
+            </div>
+            <div class="flex items-center gap-1">
+              <button onclick="setSoundscape('rain')" id="snd-rain" class="snd-btn px-2 py-0.5 rounded-lg text-[10px] bg-white/5 hover:bg-white/10 border border-white/10 transition">🌧️ Rain</button>
+              <button onclick="setSoundscape('ocean')" id="snd-ocean" class="snd-btn px-2 py-0.5 rounded-lg text-[10px] bg-white/5 hover:bg-white/10 border border-white/10 transition">🌊 Waves</button>
+              <button onclick="setSoundscape('forest')" id="snd-forest" class="snd-btn px-2 py-0.5 rounded-lg text-[10px] bg-white/5 hover:bg-white/10 border border-white/10 transition">🌲 Forest</button>
+              <button onclick="setSoundscape('none')" id="snd-none" class="snd-btn px-2 py-0.5 rounded-lg text-[10px] bg-blue-500/20 text-blue-300 border border-blue-400/30 transition">Mute</button>
             </div>
           </div>
 
           <div class="flex gap-2">
-            <button onclick="toggleTimer()" id="timerStartBtn" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold py-2.5 rounded-xl shadow-md active:scale-95 transition">Start</button>
+            <button onclick="toggleTimer()" id="timerStartBtn" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold py-2.5 rounded-xl shadow-md active:scale-95 transition">Start Focus</button>
             <button onclick="resetTimerToDefault()" class="px-4 py-2.5 rounded-xl bg-black/10 dark:bg-white/10 hover:bg-white/15 text-xs font-medium">Reset</button>
           </div>
         </div>
@@ -788,6 +823,17 @@
           </button>
           <span class="w-1 h-1 rounded-full bg-transparent mt-1"></span>
           <span class="absolute -top-8 opacity-0 group-hover:opacity-100 transition-opacity bg-black/85 backdrop-blur-md text-white text-[11px] font-medium px-2.5 py-0.5 rounded-lg pointer-events-none whitespace-nowrap border border-white/15 shadow-lg">Focus Timer</span>
+        </div>
+
+        <!-- 7. Standby / Zen Mode (Apple Luminous Clock) -->
+        <div class="group relative flex flex-col items-center">
+          <button onclick="openStandbyMode()" class="w-11 h-11 rounded-[11px] bg-gradient-to-b from-[#2e1065] to-[#0f0728] border border-purple-500/35 shadow-md flex items-center justify-center transition-all duration-200 ease-out group-hover:scale-125 group-hover:-translate-y-2.5 active:scale-95" title="Standby Mode">
+            <svg class="w-6 h-6 text-purple-300 drop-shadow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="2" y="3" width="20" height="14" rx="2.5"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+            </svg>
+          </button>
+          <span class="w-1 h-1 rounded-full bg-transparent mt-1"></span>
+          <span class="absolute -top-8 opacity-0 group-hover:opacity-100 transition-opacity bg-black/85 backdrop-blur-md text-white text-[11px] font-medium px-2.5 py-0.5 rounded-lg pointer-events-none whitespace-nowrap border border-white/15 shadow-lg">Standby Focus</span>
         </div>
 
         <!-- Vertical Glass Divider -->
@@ -1170,6 +1216,67 @@
         <!-- Rendered dynamically by renderNotesArchive() -->
       </div>
     </div>
+  <!-- =========================================================
+       8. APPLE STANDBY / ZEN AMBIENT FOCUS SCREEN (NEW FEATURE)
+       ========================================================= -->
+  <div id="standbyOverlay" class="fixed inset-0 z-50 bg-[#040508] hidden flex-col justify-between p-6 sm:p-10 select-none">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-300">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2.5"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <span class="text-xs font-mono tracking-widest text-slate-400 uppercase"> Standby Focus Mode</span>
+      </div>
+      <button onclick="closeStandbyMode()" class="px-4 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-xs font-semibold text-slate-300 hover:text-white transition flex items-center gap-1.5">
+        <span>Exit Standby</span>
+        <span class="text-[10px] font-mono opacity-60">(Esc)</span>
+      </button>
+    </div>
+
+    <!-- Central Standby Ambient Display -->
+    <div class="my-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-center max-w-4xl mx-auto w-full">
+      <!-- Left: Giant Glowing Apple San Francisco Clock -->
+      <div class="flex flex-col items-center md:items-start text-center md:text-left">
+        <div id="standbyTimeDisplay" class="text-6xl sm:text-8xl md:text-9xl font-mono font-extrabold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400 drop-shadow-[0_0_35px_rgba(245,158,11,0.35)]">
+          00:00
+        </div>
+        <div id="standbyDateDisplay" class="text-sm sm:text-base font-medium text-slate-400 mt-2">
+          Today
+        </div>
+        <div class="flex items-center gap-2 mt-4">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+          <span id="standbyActiveHabitLabel" class="text-xs font-mono text-emerald-400">Deep Work Sprint</span>
+        </div>
+      </div>
+
+      <!-- Right: Concentric Rings & Focus Timer Remaining -->
+      <div class="flex flex-col items-center justify-center">
+        <div class="relative w-56 h-56 flex items-center justify-center">
+          <svg class="w-full h-full drop-shadow-[0_0_30px_rgba(250,17,79,0.25)]" viewBox="0 0 140 140">
+            <circle cx="70" cy="70" r="56" stroke="rgba(250, 17, 79, 0.16)" stroke-width="12" fill="none" />
+            <circle id="standbyRingMove" cx="70" cy="70" r="56" stroke="#fa114f" stroke-width="12" stroke-linecap="round" fill="none" class="ring-circle" />
+            <circle cx="70" cy="70" r="42" stroke="rgba(164, 255, 0, 0.16)" stroke-width="12" fill="none" />
+            <circle id="standbyRingExercise" cx="70" cy="70" r="42" stroke="#a4ff00" stroke-width="12" stroke-linecap="round" fill="none" class="ring-circle" />
+            <circle cx="70" cy="70" r="28" stroke="rgba(0, 245, 234, 0.16)" stroke-width="12" fill="none" />
+            <circle id="standbyRingStand" cx="70" cy="70" r="28" stroke="#00f5ea" stroke-width="12" stroke-linecap="round" fill="none" class="ring-circle" />
+          </svg>
+          <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <span id="standbyTimerDigits" class="text-3xl font-mono font-bold text-white tracking-tight">25:00</span>
+            <span class="text-[10px] font-mono text-slate-400 mt-0.5">Focus Session</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Standby Status Bar -->
+    <div class="flex items-center justify-between text-xs text-slate-500 pt-4 border-t border-white/5">
+      <span id="standbyUserLabel">PulseHabit Pro • Multi-Platform Sync Active</span>
+      <div class="flex items-center gap-3">
+        <button onclick="toggleTimer()" id="standbyTimerActionBtn" class="px-4 py-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-semibold transition active:scale-95 shadow-md">
+          Start Focus
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- =========================================================
@@ -1366,13 +1473,132 @@
       if (currentUser) {
         savePersonalData();
         fetchSyncFromServer(currentUser.uid);
+        fetchUsersRegistryFromServer();
         alert('Sync signal dispatched to local server.');
+      }
+    }
+
+    // --- MULTI-ACCOUNT QUICK SWITCHER & CLOUD SYNC ---
+    function toggleAccountDropdown(e) {
+      if (e) e.stopPropagation();
+      const menu = document.getElementById('accountDropdownMenu');
+      if (!menu) return;
+      const isHidden = menu.classList.contains('hidden');
+      if (isHidden) {
+        renderQuickAccountsDropdown();
+        menu.classList.remove('hidden');
+        menu.classList.add('flex');
+      } else {
+        menu.classList.add('hidden');
+        menu.classList.remove('flex');
+      }
+    }
+
+    document.addEventListener('click', (e) => {
+      const menu = document.getElementById('accountDropdownMenu');
+      const btn = document.getElementById('topUserPillBtn');
+      if (menu && !menu.classList.contains('hidden')) {
+        if (!menu.contains(e.target) && (!btn || !btn.contains(e.target))) {
+          menu.classList.add('hidden');
+          menu.classList.remove('flex');
+        }
+      }
+    });
+
+    function renderQuickAccountsDropdown() {
+      const list = document.getElementById('quickAccountsList');
+      if (!list) return;
+      if (!usersRegistry || usersRegistry.length === 0) {
+        list.innerHTML = `<div class="p-2 text-[11px] text-slate-400 text-center">No profiles found</div>`;
+        return;
+      }
+
+      list.innerHTML = usersRegistry.map(u => {
+        const isCurrent = currentUser && currentUser.uid === u.uid;
+        return `
+          <div onclick="quickSwitchToAccount('${u.uid}')" class="flex items-center justify-between p-2 rounded-xl cursor-pointer transition ${isCurrent ? 'bg-blue-500/20 border border-blue-400/30' : 'hover:bg-white/10'}">
+            <div class="flex items-center gap-2 truncate">
+              <span class="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center text-sm flex-shrink-0">${u.avatar || '👤'}</span>
+              <div class="truncate">
+                <div class="text-xs font-semibold truncate text-white">${escapeHtml(u.name)}</div>
+                <div class="text-[10px] text-slate-400 truncate">${escapeHtml(u.track || 'Personal')}</div>
+              </div>
+            </div>
+            ${isCurrent
+              ? '<span class="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-emerald-500/30 text-emerald-300 font-semibold flex-shrink-0">Active</span>'
+              : '<span class="text-[11px] text-blue-400 font-medium opacity-80 flex-shrink-0 hover:underline">Switch</span>'
+            }
+          </div>
+        `;
+      }).join('');
+    }
+
+    function quickSwitchToAccount(uid) {
+      const menu = document.getElementById('accountDropdownMenu');
+      if (menu) {
+        menu.classList.add('hidden');
+        menu.classList.remove('flex');
+      }
+      if (currentUser && currentUser.uid === uid) return;
+      switchToAccountFromSettings(uid);
+    }
+
+    async function fetchUsersRegistryFromServer() {
+      try {
+        const res = await fetch('/api/users');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data && data.users && Array.isArray(data.users)) {
+          let updated = false;
+          data.users.forEach(remoteUser => {
+            const idx = usersRegistry.findIndex(u => u.uid === remoteUser.uid);
+            if (idx === -1) {
+              usersRegistry.push(remoteUser);
+              updated = true;
+            } else {
+              usersRegistry[idx] = {
+                ...remoteUser,
+                pinHash: usersRegistry[idx].pinHash || remoteUser.pinHash
+              };
+              updated = true;
+            }
+          });
+          if (updated) {
+            saveRegistry();
+            renderQuickAccountsDropdown();
+            renderSettingsAccountsList();
+            if (!currentUser) showLockScreen();
+          }
+        }
+      } catch (e) {
+        // Network offline
+      }
+    }
+
+    async function syncUserToCloud(user) {
+      if (!user || !user.uid) return;
+      try {
+        await fetch('/api/users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            uid: user.uid,
+            name: user.name,
+            avatar: user.avatar,
+            track: user.track,
+            pinHash: user.pinHash
+          })
+        });
+      } catch (e) {
+        // Sync postponed
       }
     }
 
     // --- FIRST BOOT WIZARD ---
     function checkBootOrLockState() {
       loadRegistry();
+      fetchUsersRegistryFromServer();
+
       if (usersRegistry.length === 0) {
         document.getElementById('firstBootOverlay').classList.remove('hidden');
         document.getElementById('firstBootOverlay').classList.add('flex');
@@ -1418,6 +1644,7 @@
 
       usersRegistry.push(newUser);
       saveRegistry();
+      syncUserToCloud(newUser);
 
       const initialData = createEmptyUserData();
       initialData.boost.dailyFocusGoal = focusGoal;
@@ -1548,6 +1775,8 @@
       const refInput = document.getElementById('reflectionInput');
       if (refInput) refInput.value = (userData.dailyNotes[currentNotesDate] && userData.dailyNotes[currentNotesDate].text) || '';
 
+      syncUserToCloud(user);
+      renderQuickAccountsDropdown();
       renderAll();
     }
 
@@ -1709,6 +1938,7 @@
 
       usersRegistry.push(newUser);
       saveRegistry();
+      syncUserToCloud(newUser);
       localStorage.setItem(USER_DATA_PREFIX + newUser.uid, JSON.stringify(createEmptyUserData()));
 
       document.getElementById('newAccName').value = '';
@@ -1716,6 +1946,7 @@
       document.getElementById('newAccPin').value = '';
 
       renderSettingsAccountsList();
+      renderQuickAccountsDropdown();
     }
 
     function switchToAccountFromSettings(uid) {
@@ -1761,6 +1992,300 @@
         osc.start();
         osc.stop(audioCtx.currentTime + 0.06);
       } catch (e) {}
+    }
+
+    // --- SPATIAL AMBIENT SOUNDSCAPES (WEB AUDIO API SYNTHESIZER) ---
+    let soundscapeType = 'none';
+    let soundscapeSourceNode = null;
+    let soundscapeGainNode = null;
+    let soundscapeLfoNode = null;
+    let soundscapeFilterNode = null;
+
+    function initSoundscapeAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function generateNoiseBuffer(ctx, duration = 4.0, type = 'pink') {
+      const bufferSize = Math.floor(ctx.sampleRate * duration);
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+
+      if (type === 'pink') {
+        let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+        for (let i = 0; i < bufferSize; i++) {
+          const white = Math.random() * 2 - 1;
+          b0 = 0.99886 * b0 + white * 0.0555179;
+          b1 = 0.99332 * b1 + white * 0.0750759;
+          b2 = 0.96900 * b2 + white * 0.1538520;
+          b3 = 0.86650 * b3 + white * 0.3104856;
+          b4 = 0.55000 * b4 + white * 0.5329522;
+          b5 = -0.7616 * b5 - white * 0.0168980;
+          data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.11;
+          b6 = white * 0.115926;
+        }
+      } else if (type === 'brown') {
+        let lastOut = 0.0;
+        for (let i = 0; i < bufferSize; i++) {
+          const white = Math.random() * 2 - 1;
+          data[i] = (lastOut + (0.02 * white)) / 1.02;
+          lastOut = data[i];
+          data[i] *= 3.5;
+        }
+      } else {
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = (Math.random() * 2 - 1) * 0.2;
+        }
+      }
+      return buffer;
+    }
+
+    function stopSoundscape() {
+      if (soundscapeGainNode && audioCtx) {
+        try {
+          soundscapeGainNode.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
+          setTimeout(() => {
+            if (soundscapeSourceNode) {
+              try { soundscapeSourceNode.stop(); } catch(e){}
+              try { soundscapeSourceNode.disconnect(); } catch(e){}
+              soundscapeSourceNode = null;
+            }
+            if (soundscapeLfoNode) {
+              try { soundscapeLfoNode.stop(); } catch(e){}
+              try { soundscapeLfoNode.disconnect(); } catch(e){}
+              soundscapeLfoNode = null;
+            }
+          }, 400);
+        } catch(e) {}
+      }
+      soundscapeType = 'none';
+      updateSoundscapeUI();
+    }
+
+    function setSoundscape(type) {
+      if (soundscapeType === type && type !== 'none') {
+        stopSoundscape();
+        return;
+      }
+      stopSoundscape();
+      if (type === 'none') return;
+
+      initSoundscapeAudio();
+      setTimeout(() => {
+        try {
+          soundscapeType = type;
+          const now = audioCtx.currentTime;
+
+          soundscapeGainNode = audioCtx.createGain();
+          soundscapeGainNode.gain.setValueAtTime(0.001, now);
+
+          if (type === 'rain') {
+            const buf = generateNoiseBuffer(audioCtx, 4.0, 'pink');
+            soundscapeSourceNode = audioCtx.createBufferSource();
+            soundscapeSourceNode.buffer = buf;
+            soundscapeSourceNode.loop = true;
+
+            const bandpass = audioCtx.createBiquadFilter();
+            bandpass.type = 'bandpass';
+            bandpass.frequency.setValueAtTime(1100, now);
+            bandpass.Q.setValueAtTime(0.7, now);
+
+            const lowpass = audioCtx.createBiquadFilter();
+            lowpass.type = 'lowpass';
+            lowpass.frequency.setValueAtTime(3200, now);
+
+            soundscapeSourceNode.connect(bandpass);
+            bandpass.connect(lowpass);
+            lowpass.connect(soundscapeGainNode);
+
+            soundscapeGainNode.gain.linearRampToValueAtTime(0.22, now + 0.5);
+            soundscapeGainNode.connect(audioCtx.destination);
+            soundscapeSourceNode.start();
+          } else if (type === 'ocean') {
+            const buf = generateNoiseBuffer(audioCtx, 5.0, 'brown');
+            soundscapeSourceNode = audioCtx.createBufferSource();
+            soundscapeSourceNode.buffer = buf;
+            soundscapeSourceNode.loop = true;
+
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(350, now);
+
+            soundscapeLfoNode = audioCtx.createOscillator();
+            soundscapeLfoNode.frequency.setValueAtTime(0.12, now);
+            const lfoGain = audioCtx.createGain();
+            lfoGain.gain.setValueAtTime(250, now);
+
+            soundscapeLfoNode.connect(lfoGain);
+            lfoGain.connect(filter.frequency);
+
+            soundscapeSourceNode.connect(filter);
+            filter.connect(soundscapeGainNode);
+
+            soundscapeGainNode.gain.linearRampToValueAtTime(0.28, now + 0.6);
+            soundscapeGainNode.connect(audioCtx.destination);
+            soundscapeLfoNode.start();
+            soundscapeSourceNode.start();
+          } else if (type === 'forest') {
+            const buf = generateNoiseBuffer(audioCtx, 5.0, 'pink');
+            soundscapeSourceNode = audioCtx.createBufferSource();
+            soundscapeSourceNode.buffer = buf;
+            soundscapeSourceNode.loop = true;
+
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(800, now);
+            filter.Q.setValueAtTime(0.5, now);
+
+            soundscapeLfoNode = audioCtx.createOscillator();
+            soundscapeLfoNode.frequency.setValueAtTime(0.08, now);
+            const lfoGain = audioCtx.createGain();
+            lfoGain.gain.setValueAtTime(180, now);
+
+            soundscapeLfoNode.connect(lfoGain);
+            lfoGain.connect(filter.frequency);
+
+            soundscapeSourceNode.connect(filter);
+            filter.connect(soundscapeGainNode);
+
+            soundscapeGainNode.gain.linearRampToValueAtTime(0.18, now + 0.5);
+            soundscapeGainNode.connect(audioCtx.destination);
+            soundscapeLfoNode.start();
+            soundscapeSourceNode.start();
+          }
+
+          updateSoundscapeUI();
+        } catch(e) {
+          console.warn('Soundscape failed to start:', e);
+        }
+      }, 60);
+    }
+
+    function updateSoundscapeUI() {
+      ['rain', 'ocean', 'forest', 'none'].forEach(k => {
+        const btn = document.getElementById('snd-' + k);
+        if (!btn) return;
+        if (k === soundscapeType) {
+          btn.className = 'snd-btn px-2 py-0.5 rounded-lg text-[10px] bg-blue-500/25 text-blue-300 border border-blue-400/40 font-semibold shadow-sm';
+        } else {
+          btn.className = 'snd-btn px-2 py-0.5 rounded-lg text-[10px] bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 transition';
+        }
+      });
+      const dot = document.getElementById('soundscapeDot');
+      if (dot) {
+        if (soundscapeType !== 'none') {
+          dot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+        } else {
+          dot.className = 'w-2 h-2 rounded-full bg-slate-500';
+        }
+      }
+    }
+
+    // --- APPLE STANDBY / ZEN AMBIENT FOCUS SCREEN ---
+    let standbyClockInterval = null;
+
+    function openStandbyMode() {
+      const overlay = document.getElementById('standbyOverlay');
+      if (!overlay) return;
+      overlay.classList.remove('hidden');
+      overlay.classList.add('flex');
+      updateStandbyDisplay();
+
+      if (standbyClockInterval) clearInterval(standbyClockInterval);
+      standbyClockInterval = setInterval(updateStandbyDisplay, 1000);
+
+      window.addEventListener('keydown', handleStandbyKeydown);
+    }
+
+    function closeStandbyMode() {
+      const overlay = document.getElementById('standbyOverlay');
+      if (!overlay) return;
+      overlay.classList.add('hidden');
+      overlay.classList.remove('flex');
+      if (standbyClockInterval) {
+        clearInterval(standbyClockInterval);
+        standbyClockInterval = null;
+      }
+      window.removeEventListener('keydown', handleStandbyKeydown);
+    }
+
+    function handleStandbyKeydown(e) {
+      if (e.key === 'Escape') {
+        closeStandbyMode();
+      }
+    }
+
+    function updateStandbyDisplay() {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const mins = String(now.getMinutes()).padStart(2, '0');
+      const secs = String(now.getSeconds()).padStart(2, '0');
+
+      const timeEl = document.getElementById('standbyTimeDisplay');
+      if (timeEl) timeEl.textContent = `${hours}:${mins}`;
+
+      const dateEl = document.getElementById('standbyDateDisplay');
+      if (dateEl) {
+        const options = { weekday: 'long', month: 'short', day: 'numeric' };
+        dateEl.textContent = `${now.toLocaleDateString('en-US', options)} • ${secs}s`;
+      }
+
+      const tm = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
+      const ts = String(timerSeconds % 60).padStart(2, '0');
+      const timerDigits = document.getElementById('standbyTimerDigits');
+      if (timerDigits) timerDigits.textContent = `${tm}:${ts}`;
+
+      const actionBtn = document.getElementById('standbyTimerActionBtn');
+      if (actionBtn) {
+        actionBtn.textContent = timerInterval ? 'Pause Focus' : 'Start Focus';
+        actionBtn.className = timerInterval
+          ? 'px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-semibold transition active:scale-95 shadow-md'
+          : 'px-4 py-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-semibold transition active:scale-95 shadow-md';
+      }
+
+      // Standby Concentric Apple Activity Rings
+      const todayKey = toDateKey(now);
+      const habits = userData.habits || [];
+      const logs = (userData.logs && userData.logs[todayKey]) || {};
+      const completedCount = habits.filter(h => logs[h.id]).length;
+      const totalCount = Math.max(1, habits.length);
+      const habitsPct = Math.min(100, Math.round((completedCount / totalCount) * 100));
+
+      const dailyGoal = (userData.boost && userData.boost.dailyFocusGoal) || 90;
+      const currentXp = (userData.boost && userData.boost.bonusXp) || 0;
+      const focusPct = Math.min(100, Math.round((currentXp / Math.max(1, dailyGoal)) * 100));
+
+      const setRing = (id, pct, c) => {
+        const ring = document.getElementById(id);
+        if (ring) {
+          ring.style.strokeDasharray = `${c}`;
+          ring.style.strokeDashoffset = `${c * (1 - pct / 100)}`;
+        }
+      };
+
+      setRing('standbyRingMove', Math.max(8, habitsPct), 351.85);
+      setRing('standbyRingExercise', Math.max(8, focusPct), 263.89);
+      setRing('standbyRingStand', Math.max(8, Math.round(completedCount > 0 ? 80 : 20)), 175.92);
+
+      const userLbl = document.getElementById('standbyUserLabel');
+      if (userLbl && currentUser) {
+        userLbl.textContent = `${currentUser.avatar} ${currentUser.name} (${currentUser.track || 'PulseHabit'}) • Live Sync Active`;
+      }
+
+      const activeHabitLbl = document.getElementById('standbyActiveHabitLabel');
+      if (activeHabitLbl) {
+        const select = document.getElementById('timerHabitSelect');
+        if (select && select.value) {
+          const selectedHabit = (userData.habits || []).find(h => h.id === select.value);
+          activeHabitLbl.textContent = selectedHabit ? `${selectedHabit.name} Sprint` : 'Zen Focus Session';
+        } else {
+          activeHabitLbl.textContent = 'Zen Focus Session';
+        }
+      }
     }
 
     // --- HABITS MANAGEMENT ---
@@ -2319,29 +2844,43 @@
     }
 
     function setTimerPreset(mins) {
-      clearInterval(timerInterval);
-      timerInterval = null;
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
       timerSeconds = mins * 60;
       const m = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
       const s = String(timerSeconds % 60).padStart(2, '0');
-      document.getElementById('timerDisplay').textContent = `${m}:${s}`;
-      document.getElementById('timerStartBtn').textContent = 'Start';
+      const td = document.getElementById('timerDisplay');
+      if (td) td.textContent = `${m}:${s}`;
+      const btn = document.getElementById('timerStartBtn');
+      if (btn) btn.textContent = 'Start Focus';
+      const stDigits = document.getElementById('standbyTimerDigits');
+      if (stDigits) stDigits.textContent = `${m}:${s}`;
+      const stBtn = document.getElementById('standbyTimerActionBtn');
+      if (stBtn) stBtn.textContent = 'Start Focus';
     }
 
     function toggleTimer() {
       const btn = document.getElementById('timerStartBtn');
+      const stBtn = document.getElementById('standbyTimerActionBtn');
       if (timerInterval) {
         clearInterval(timerInterval);
         timerInterval = null;
-        btn.textContent = 'Resume';
+        if (btn) btn.textContent = 'Resume Focus';
+        if (stBtn) stBtn.textContent = 'Resume Focus';
       } else {
-        btn.textContent = 'Pause';
+        if (btn) btn.textContent = 'Pause';
+        if (stBtn) stBtn.textContent = 'Pause Focus';
         timerInterval = setInterval(() => {
           if (timerSeconds > 0) {
             timerSeconds--;
             const m = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
             const s = String(timerSeconds % 60).padStart(2, '0');
-            document.getElementById('timerDisplay').textContent = `${m}:${s}`;
+            const td = document.getElementById('timerDisplay');
+            if (td) td.textContent = `${m}:${s}`;
+            const stD = document.getElementById('standbyTimerDigits');
+            if (stD) stD.textContent = `${m}:${s}`;
           } else {
             clearInterval(timerInterval);
             timerInterval = null;
@@ -2350,7 +2889,8 @@
             playHaptic();
             calculateProfileBoost();
             evaluateAwards();
-            btn.textContent = 'Start';
+            if (btn) btn.textContent = 'Start Focus';
+            if (stBtn) stBtn.textContent = 'Start Focus';
             alert('🎉 Focus Session Completed! +25 Profile Boost XP Earned!');
           }
         }, 1000);
@@ -2844,6 +3384,7 @@
     updateClocks();
     setInterval(updateClocks, 10000);
     checkBootOrLockState();
+    setInterval(fetchUsersRegistryFromServer, 30000);
   </script>
 </body>
 </html>

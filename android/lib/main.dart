@@ -5,6 +5,7 @@ import 'services/sync_service.dart';
 import 'widgets/activity_rings.dart';
 import 'widgets/awards_dialog.dart';
 import 'widgets/sync_settings_dialog.dart';
+import 'widgets/standby_modal.dart';
 
 void main() {
   runApp(const PulseHabitApp());
@@ -43,6 +44,13 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  // Multi-Account Active State
+  String _activeUid = 'usr_default';
+  String _activeName = 'Danithu';
+  String _activeTrack = 'Software Engineering';
+  String _activeAvatar = '👤';
+  List<Map<String, dynamic>> _availableUsers = [];
+
   int xp = 30;
   int level = 1;
   String currentRank = 'Initiate';
@@ -59,11 +67,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Timer? _timer;
 
   final List<Habit> habits = [
-    Habit(id: '1', name: 'Software Architecture', category: 'Coding', target: 7, icon: 'code', color: '#3b82f6'),
-    Habit(id: '2', name: 'Deep Reading & Notes', category: 'Reading', target: 5, icon: 'book', color: '#10b981'),
-    Habit(id: '3', name: 'Strength Workout', category: 'Fitness', target: 5, icon: 'fitness', color: '#f43f5e'),
-    Habit(id: '4', name: 'Mindfulness & Breathing', category: 'Mindfulness', target: 7, icon: 'mindfulness', color: '#a855f7'),
-    Habit(id: '5', name: 'Optimal Hydration', category: 'Hydration', target: 7, icon: 'hydration', color: '#06b6d4'),
+    Habit(id: 'hab_code', name: 'Software Architecture', category: 'Coding', target: 7, icon: 'code', color: '#3b82f6'),
+    Habit(id: 'hab_read', name: 'Deep Reading & Notes', category: 'Reading', target: 5, icon: 'book', color: '#10b981'),
+    Habit(id: 'hab_fit', name: 'Strength Workout', category: 'Fitness', target: 5, icon: 'fitness', color: '#f43f5e'),
+    Habit(id: 'hab_mind', name: 'Mindfulness & Breathing', category: 'Mindfulness', target: 7, icon: 'mindfulness', color: '#a855f7'),
+    Habit(id: 'hab_hyd', name: 'Optimal Hydration', category: 'Hydration', target: 7, icon: 'hydration', color: '#06b6d4'),
   ];
 
   final Map<String, bool> _todayLogs = {};
@@ -72,7 +80,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     super.initState();
     _noteController.text = 'Deep work sprint complete. High impact system architecture in progress.';
-    _trySync();
+    _loadAccountAndSync();
   }
 
   @override
@@ -82,14 +90,50 @@ class _DashboardScreenState extends State<DashboardScreen> {
     super.dispose();
   }
 
+  Future<void> _loadAccountAndSync() async {
+    final activeUid = await SyncService.getActiveUid();
+    final users = await SyncService.fetchAllUsers();
+    if (mounted) {
+      setState(() {
+        _activeUid = activeUid;
+        _availableUsers = users;
+        final matched = users.firstWhere(
+          (u) => u['uid'] == activeUid,
+          orElse: () => users.isNotEmpty
+              ? users.first
+              : {'uid': activeUid, 'name': 'Danithu', 'track': 'Software Engineering', 'avatar': '👤'},
+        );
+        _activeUid = matched['uid'] ?? activeUid;
+        _activeName = matched['name'] ?? 'Danithu';
+        _activeTrack = matched['track'] ?? 'Software Engineering';
+        _activeAvatar = matched['avatar'] ?? '👤';
+      });
+    }
+    await _trySync();
+  }
+
   Future<void> _trySync() async {
-    final data = await SyncService.fetchUserData('usr_default');
+    final data = await SyncService.fetchUserData(_activeUid);
     if (data != null && mounted) {
       setState(() {
         isSynced = true;
         if (data['boost'] != null && data['boost']['bonusXp'] != null) {
           xp = (data['boost']['bonusXp'] as num).toInt();
           level = (xp ~/ 100) + 1;
+          _updateRank();
+        }
+        if (data['habits'] != null && (data['habits'] as List).isNotEmpty) {
+          habits.clear();
+          for (var item in data['habits']) {
+            habits.add(Habit.fromJson(Map<String, dynamic>.from(item)));
+          }
+        }
+        if (data['logs'] != null && data['logs'][_todayKey()] != null) {
+          _todayLogs.clear();
+          final dayMap = Map<String, dynamic>.from(data['logs'][_todayKey()]);
+          dayMap.forEach((k, v) {
+            _todayLogs[k] = v == true;
+          });
         }
       });
     }
@@ -111,12 +155,185 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     // Auto-sync with server
     SyncService.pushUserData(
-      'usr_default',
+      _activeUid,
       {
         'boost': {'bonusXp': xp, 'level': level},
+        'habits': habits.map((h) => h.toJson()).toList(),
         'logs': {_todayKey(): _todayLogs}
       },
-      {'name': 'Danithu', 'uid': 'usr_default', 'track': 'Software Engineering'},
+      {'name': _activeName, 'uid': _activeUid, 'track': _activeTrack, 'avatar': _activeAvatar},
+    );
+  }
+
+  void _showAccountSwitcherActionSheet() {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (ctx) => CupertinoActionSheet(
+        title: const Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(CupertinoIcons.person_2_fill, color: Color(0xFF60A5FA), size: 16),
+            SizedBox(width: 6),
+            Text('Apple Ecosystem Accounts', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+          ],
+        ),
+        message: const Text('Switch profile across Web, Desktop, and Android in real-time.'),
+        actions: [
+          ..._availableUsers.map((u) {
+            final isCurrent = u['uid'] == _activeUid;
+            return CupertinoActionSheetAction(
+              onPressed: () {
+                Navigator.pop(ctx);
+                _switchAccount(u['uid']);
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: const Color(0x333B82F6),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(u['avatar'] ?? '👤', style: const TextStyle(fontSize: 16)),
+                      ),
+                      const SizedBox(width: 10),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            u['name'] ?? 'User',
+                            style: TextStyle(
+                              fontWeight: isCurrent ? FontWeight.bold : FontWeight.w500,
+                              color: CupertinoColors.white,
+                              fontSize: 14,
+                            ),
+                          ),
+                          Text(
+                            u['track'] ?? 'Personal',
+                            style: const TextStyle(fontSize: 11, color: CupertinoColors.systemGrey),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  if (isCurrent)
+                    const Icon(CupertinoIcons.checkmark_circle_fill, color: Color(0xFF10B981), size: 20),
+                ],
+              ),
+            );
+          }),
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.pop(ctx);
+              _showAddAccountDialog();
+            },
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(CupertinoIcons.add_circled, color: Color(0xFF38BDF8), size: 18),
+                SizedBox(width: 8),
+                Text('+ Add Apple Profile', style: TextStyle(color: Color(0xFF38BDF8), fontWeight: FontWeight.bold)),
+              ],
+            ),
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          isDestructiveAction: true,
+          onPressed: () => Navigator.pop(ctx),
+          child: const Text('Cancel'),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _switchAccount(String uid) async {
+    await SyncService.setActiveUid(uid);
+    await _loadAccountAndSync();
+  }
+
+  void _showAddAccountDialog() {
+    final nameCtrl = TextEditingController();
+    final trackCtrl = TextEditingController(text: 'Software Engineering');
+    final pinCtrl = TextEditingController(text: '1234');
+
+    showCupertinoDialog(
+      context: context,
+      builder: (ctx) => CupertinoAlertDialog(
+        title: const Text('New Apple Profile'),
+        content: Padding(
+          padding: const EdgeInsets.only(top: 12),
+          child: Column(
+            children: [
+              CupertinoTextField(
+                controller: nameCtrl,
+                placeholder: 'Profile Name (e.g. Danithu)',
+                style: const TextStyle(color: CupertinoColors.white, fontSize: 13),
+              ),
+              const SizedBox(height: 8),
+              CupertinoTextField(
+                controller: trackCtrl,
+                placeholder: 'Workspace Track (e.g. iOS Development)',
+                style: const TextStyle(color: CupertinoColors.white, fontSize: 13),
+              ),
+              const SizedBox(height: 8),
+              CupertinoTextField(
+                controller: pinCtrl,
+                placeholder: '4-Digit PIN',
+                obscureText: true,
+                keyboardType: TextInputType.number,
+                style: const TextStyle(color: CupertinoColors.white, fontSize: 13),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          CupertinoDialogAction(
+            child: const Text('Cancel'),
+            onPressed: () => Navigator.pop(ctx),
+          ),
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            child: const Text('Create & Sync'),
+            onPressed: () async {
+              final name = nameCtrl.text.trim();
+              if (name.isEmpty) return;
+              final newUid = 'usr_${DateTime.now().millisecondsSinceEpoch.toRadixString(36)}';
+              await SyncService.createOrUpdateUser({
+                'uid': newUid,
+                'name': name,
+                'track': trackCtrl.text.trim(),
+                'avatar': '👤',
+                'pin': pinCtrl.text.trim(),
+              });
+              await SyncService.setActiveUid(newUid);
+              if (ctx.mounted) Navigator.pop(ctx);
+              await _loadAccountAndSync();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _openStandbyMode() {
+    final checkedCount = _todayLogs.values.where((v) => v).length;
+    final habitsPct = habits.isEmpty ? 0.0 : (checkedCount / habits.length);
+    final focusPct = (xp / 100.0).clamp(0.0, 1.0);
+
+    Navigator.push(
+      context,
+      CupertinoPageRoute(
+        builder: (_) => AppleStandbyModal(
+          userName: _activeName,
+          habitsPct: habitsPct,
+          focusPct: focusPct,
+        ),
+      ),
     );
   }
 
@@ -154,7 +371,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
             _isTimerRunning = false;
             xp += 25;
             _timerSeconds = 25 * 60;
+            _updateRank();
           });
+          SyncService.pushUserData(
+            _activeUid,
+            {
+              'boost': {'bonusXp': xp, 'level': level},
+              'habits': habits.map((h) => h.toJson()).toList(),
+              'logs': {_todayKey(): _todayLogs}
+            },
+            {'name': _activeName, 'uid': _activeUid, 'track': _activeTrack, 'avatar': _activeAvatar},
+          );
           showCupertinoDialog(
             context: context,
             builder: (ctx) => CupertinoAlertDialog(
@@ -379,64 +606,68 @@ class _DashboardScreenState extends State<DashboardScreen> {
             16 + media.padding.bottom,
           ),
           children: [
-            // 1. PROFILE BOOST BANNER (Apple Glass Card)
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFF131722),
-                borderRadius: BorderRadius.circular(22),
-                border: Border.all(color: const Color(0x2E3B82F6)),
-                boxShadow: const [
-                  BoxShadow(color: Color(0x33000000), blurRadius: 14, offset: Offset(0, 4)),
-                ],
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 46,
-                        height: 46,
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF3B82F6), Color(0xFF8B5CF6)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(14),
-                          boxShadow: const [
-                            BoxShadow(color: Color(0x333B82F6), blurRadius: 8, offset: Offset(0, 2)),
-                          ],
-                        ],
-                        alignment: Alignment.center,
-                        child: const Icon(CupertinoIcons.person_crop_circle_fill, size: 28, color: CupertinoColors.white),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                const Text('Danithu', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: CupertinoColors.white)),
-                                const SizedBox(width: 6),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0x333B82F6),
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(color: const Color(0x403B82F6), width: 0.8),
-                                  ),
-                                  child: Text(currentRank, style: const TextStyle(fontSize: 9, color: Color(0xFF60A5FA), fontWeight: FontWeight.w600)),
-                                ),
-                              ],
+            // 1. PROFILE BOOST BANNER (Apple Glass Card - Tap to Switch Profiles)
+            GestureDetector(
+              onTap: _showAccountSwitcherActionSheet,
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF131722),
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: const Color(0x2E3B82F6)),
+                  boxShadow: const [
+                    BoxShadow(color: Color(0x33000000), blurRadius: 14, offset: Offset(0, 4)),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 46,
+                          height: 46,
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF3B82F6), Color(0xFF8B5CF6)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
                             ),
-                            const Text('Software Engineering • Apple Suite', style: TextStyle(fontSize: 11, color: CupertinoColors.systemGrey)),
-                          ],
+                            borderRadius: BorderRadius.circular(14),
+                            boxShadow: const [
+                              BoxShadow(color: Color(0x333B82F6), blurRadius: 8, offset: Offset(0, 2)),
+                            ],
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(_activeAvatar, style: const TextStyle(fontSize: 22)),
                         ),
-                      ),
-                    ],
-                  ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(_activeName, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: CupertinoColors.white)),
+                                  const SizedBox(width: 6),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0x333B82F6),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(color: const Color(0x403B82F6), width: 0.8),
+                                    ),
+                                    child: Text(currentRank, style: const TextStyle(fontSize: 9, color: Color(0xFF60A5FA), fontWeight: FontWeight.w600)),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  const Icon(CupertinoIcons.chevron_down, size: 10, color: Color(0xFF60A5FA)),
+                                ],
+                              ),
+                              Text('$_activeTrack • Tap to Switch', style: const TextStyle(fontSize: 11, color: CupertinoColors.systemGrey)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   const SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -676,8 +907,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                       const SizedBox(width: 8),
                       CupertinoButton(
+                        color: const Color(0x33A855F7),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        borderRadius: BorderRadius.circular(12),
+                        onPressed: _openStandbyMode,
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(CupertinoIcons.sparkles, size: 13, color: Color(0xFFC084FC)),
+                            SizedBox(width: 4),
+                            Text('Standby', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFC084FC))),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      CupertinoButton(
                         color: const Color(0xFF1E2336),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                         borderRadius: BorderRadius.circular(12),
                         onPressed: () {
                           _timer?.cancel();

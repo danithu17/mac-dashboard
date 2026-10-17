@@ -24,6 +24,16 @@ class SyncService {
     return true;
   }
 
+  static Future<String> getActiveUid() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('active_uid') ?? 'usr_default';
+  }
+
+  static Future<void> setActiveUid(String uid) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('active_uid', uid);
+  }
+
   // Security: Sanitize UID
   static bool isValidUid(String uid) {
     if (uid.isEmpty || uid.length > 64) return false;
@@ -31,7 +41,50 @@ class SyncService {
     return RegExp(r'^[a-zA-Z0-9_-]+$').hasMatch(uid);
   }
 
-  // Fetch data for user from Cost-Free Backend API with Timeout & Security checks
+  // Fetch all accounts across Web, Desktop, and Android
+  static Future<List<Map<String, dynamic>>> fetchAllUsers() async {
+    try {
+      final baseUrl = await getServerUrl();
+      final uri = Uri.parse('$baseUrl/api/users');
+      final response = await http.get(uri).timeout(requestTimeout);
+
+      if (response.statusCode == 200) {
+        final decoded = jsonDecode(response.body);
+        if (decoded is Map && decoded['users'] is List) {
+          return (decoded['users'] as List)
+              .map((e) => Map<String, dynamic>.from(e as Map))
+              .toList();
+        } else if (decoded is List) {
+          return decoded.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+        }
+      }
+    } catch (_) {
+      // Offline fallback
+    }
+    return [];
+  }
+
+  // Register or sync user profile across devices
+  static Future<bool> createOrUpdateUser(Map<String, dynamic> userProfile) async {
+    try {
+      final baseUrl = await getServerUrl();
+      final uri = Uri.parse('$baseUrl/api/users');
+      final response = await http.post(
+        uri,
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'X-Requested-With': 'PulseHabit-Android'
+        },
+        body: jsonEncode({'user': userProfile}),
+      ).timeout(requestTimeout);
+
+      return response.statusCode == 200;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  // Fetch data for specific user from Backend API
   static Future<Map<String, dynamic>?> fetchUserData(String uid) async {
     if (!isValidUid(uid)) return null;
 
@@ -52,7 +105,7 @@ class SyncService {
     return null;
   }
 
-  // Push local updates to Cost-Free Backend API with Timeout & Security checks
+  // Push local updates to Cost-Free Backend API
   static Future<bool> pushUserData(String uid, Map<String, dynamic> userData, Map<String, dynamic> userProfile) async {
     if (!isValidUid(uid)) return false;
 

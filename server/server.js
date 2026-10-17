@@ -120,18 +120,55 @@ const server = http.createServer((req, res) => {
       return;
     }
 
-    if (pathname === '/api/users' && req.method === 'GET') {
-      const db = readDb();
-      const safeUsers = (db.users || []).map(u => ({
-        uid: u.uid,
-        name: u.name,
-        avatar: u.avatar,
-        track: u.track,
-        createdAt: u.createdAt
-      }));
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(safeUsers));
-      return;
+    if (pathname === '/api/users') {
+      if (req.method === 'GET') {
+        const db = readDb();
+        const safeUsers = (db.users || []).map(u => ({
+          uid: u.uid,
+          name: u.name,
+          avatar: u.avatar || '👨‍💻',
+          track: u.track || 'Personal',
+          createdAt: u.createdAt
+        }));
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(safeUsers));
+        return;
+      }
+
+      if (req.method === 'POST') {
+        let body = '';
+        req.on('data', chunk => { body += chunk; });
+        req.on('end', () => {
+          try {
+            const payload = JSON.parse(body);
+            const user = payload.user || payload;
+            if (user && isValidUid(user.uid)) {
+              const db = readDb();
+              if (!db.users) db.users = [];
+              const idx = db.users.findIndex(u => u.uid === user.uid);
+              const safeUser = {
+                uid: user.uid,
+                name: String(user.name || 'User').slice(0, 50),
+                avatar: String(user.avatar || '👨‍💻').slice(0, 10),
+                track: String(user.track || 'Personal').slice(0, 50),
+                createdAt: user.createdAt || new Date().toISOString()
+              };
+              if (idx >= 0) db.users[idx] = Object.assign(db.users[idx], safeUser);
+              else db.users.push(safeUser);
+              writeDb(db);
+              res.writeHead(200, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ success: true, user: safeUser }));
+              return;
+            }
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Invalid user payload' }));
+          } catch (e) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Invalid JSON payload' }));
+          }
+        });
+        return;
+      }
     }
 
     if (pathname.startsWith('/api/sync/') && req.method === 'GET') {
